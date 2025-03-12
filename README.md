@@ -1,2 +1,23 @@
 # h5game_platform
-简单的 h5 游戏内容分享平台 ，此仓库为前端部分，可以上传 h5 游戏包到服务器并生成展示页面，ZJU SE 课程作业
+
+简单的 h5 在线游戏内容 CMS 分享平台 ，支持服务器 self-host。
+此仓库为前端部分，可以上传 h5 游戏包到服务器并生成展示页面，ZJU SE 课程作业
+
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

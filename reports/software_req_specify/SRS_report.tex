@@ -1,0 +1,161 @@
+\documentclass[12pt]{ctexart} % 使用 ctexart 文档类支持中文
+
+\usepackage{fancyhdr} % 奇特的 header
+\usepackage{xcolor} % 更多颜色
+
+\usepackage[utf8]{inputenc} % 支持 UTF8 字符
+\usepackage{xeCJK} % 支持中文排版
+\usepackage{fontspec} % 字体设置
+\usepackage{geometry} % 页面布局
+\usepackage{titlesec} % 自定义标题样式
+\usepackage{fancyhdr} % 自定义页眉和页脚
+\usepackage{setspace} % 设置行距
+\usepackage{hyperref} % 超链接支持
+\usepackage{tocloft} % 自定义目录样式
+
+
+% 设置页面布局
+\geometry{a4paper, margin=1in}
+
+% 设置行距为 1.25 倍
+\setstretch{1.25}
+
+% 设置中文字体
+\setCJKmainfont{SimSun} % 正文字体为宋体
+\setCJKsansfont{SimHei} % 标题等无衬线字体为黑体
+% 设置英文字体
+\setmainfont{Times New Roman}
+
+
+% 定义颜色
+\definecolor{mygreen}{RGB}{144,238,144} % 浅绿色
+
+% 配置页眉和页脚
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+
+% 左侧页眉设置, 页码在页眉外侧
+\fancyhead[LE,RO]{%
+  \colorbox{mygreen}{%
+    \parbox[t]{1cm}{%
+      \textcolor{white}{\thepage}%
+    }%
+  }%
+}
+
+\fancyhead[LO]{\leftmark} % 左页显示章节名
+\fancyhead[RE]{\rightmark} % 右页显示节名
+
+% 页眉横线设置
+
+% 自定义标题样式
+\titleformat{\section}
+  {\normalfont\Large\bfseries\CJKfontspec{SimHei}}{\thesection}{1em}{} % 黑体标题
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\CJKfontspec{SimHei}}{\thesubsection}{1em}{} % 黑体副标题
+
+
+% 设置目录样式
+\renewcommand{\cftsecfont}{\bfseries} % 目录中章节标题加粗
+
+% 超链接设置
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  filecolor=magenta,      
+  urlcolor=cyan,
+}
+
+\begin{document}
+
+\tableofcontents % 自动生成目录
+
+\newpage
+
+\section{引言}
+\subsection{编写目的}
+该项目的目的是实现一个教学信息平台，用于教学、学习和交流。
+
+此软件需求规格说明书描述该项目功能性需求和非功能性需求，此文档旨在为开发人员提供开发过程的参照，使开发人员能明确自己的任务以及任务完成的期限，同时也为测试人员在拟定测试用例及测试计划时提供帮助。
+
+\subsection{项目背景}
+该项目开发的软件为一个课程教学、学习平台。计算机是教育的新根，互联网则是未来的黑板。鉴于网络环境教学的普及，教育信息化已经成为教育改革发展的不可回避的趋势。教学交流网站能帮助建立新型的师生关系，更方便地把世界带入课堂。与传统的教育方式相比，网站教学使得信息量更加巨大，教学更加丰富，针对性更强。另一方面，学生需要更良好的自主学习能力，更高的信息检索和筛选能力，教师也能更及时地发布教学信息，形成新型的教学模式。
+
+互联网是一个瞬息万变的事物，因此学生需要更加及时地了解工程活动的动态，学习更为新颖的软件工程技术，而学生与教师的交流也不能只局限于课堂交流，需要更为有效和及时的线上线下交流，因此老师提出该课程需要这样一个软件工程教学交流的网站，作为师生之间交流，获取资料的线上平台。由学生分组开发、测试，并提供上课使用。除此之外，部分没有选上该课程的同学，如果希望了解更加系统的软件工程知识，也可以通过该平台进行学习交流。
+
+\subsection{名词定义}
+% 在这里添加名词定义的内容
+
+\section{总体描述}
+\subsection{产品前景}
+% 在这里添加产品前景的内容
+
+\subsection{用户类及其特征}
+% 在这里添加用户类及其特征的内容
+
+\subsection{产品功能}
+% 在这里添加产品功能的内容
+
+\subsection{运行环境}
+% 在这里添加运行环境的内容
+
+\subsection{设计和实现上的约束}
+% 在这里添加设计和实现上的约束的内容
+
+
+\subsection{用户文档}
+% 在这里添加用户文档的内容
+
+
+\section{系统功能}
+\subsection{用户需求}
+% 在这里添加用户需求的内容
+
+\subsection{用例图}
+% 在这里添加用例图的内容
+
+\subsection{功能列表}
+
+\section{类图与 CRC 模型}
+\subsection{类图}
+% 在这里添加类图的内容
+
+\subsection{CRC 模型}
+\subsubsection{User}
+% 在这里添加 User 的 CRC 模型
+
+
+\section{非功能性需求}
+\subsection{性能需求}
+% 在这里添加性能需求的内容
+
+\subsection{输入要求}
+% 在这里添加输入要求的内容
+
+
+\section{数据流图}
+
+\section{验收准则}
+\subsection{功能要求}
+% 在这里添加功能要求的内容
+
+\subsection{性能要求}
+
+\subsection{存储要求}
+% 在这里添加存储要求的内容
+
+\subsection{维护要求}
+% 在这里添加维护要求的内容
+
+\section{UI 原型}
+\subsection{登录界面}
+% 在这里添加登录界面的内容
+
+\subsection{注册界面}
+% 在这里添加注册界面的内容
+
+\subsection{用户主界面}
+% 在这里添加用户主界面的内容
+
+\end{document}
