@@ -245,20 +245,711 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 \section{系统功能}
 \subsection{用户需求}
 % 在这里添加用户需求的内容
+本节根据用户提出的需求描述系统的功能，首先列出各类用户的需求。
+
+游客：
+
+\begin{tabular}{|c|c|c|}
+  \hline
+  序号& 优先级& 需求内容\\
+  \hline
+  1 & 高& 在线游玩游戏\\
+  \hline
+\end{tabular}
+
+\vspace{1cm}
+普通用户：
+
+\begin{tabular}{|c|c|c|}
+  \hline
+  序号& 优先级& 需求内容\\
+  \hline
+  1 & 高& 上传游戏,填写元数据：标题、描述、分类标签、缩略图\\
+  \hline
+  2 & 高& 管理自己上传的游戏，支持更改游戏，下架游戏等\\
+  \hline
+  3 & 中& 收藏心仪的游戏，方便之后游玩\\
+  \hline
+  4 & 中& 分类浏览,按标签（如“休闲”“策略”）筛选游戏\\
+  \hline
+  5 & 低& 评论区，为用户提供交流功能\\
+  \hline
+  6 & 低& 给游戏评分，查看游戏评分\\
+  \hline
+  7 & 高& 下载游戏，提供游戏包下载链接\\
+  \hline
+\end{tabular}
+
+\vspace{1cm}
+平台管理员：
+
+\begin{tabular}{|c|c|c|}
+  \hline
+  序号& 优先级& 需求内容\\
+  \hline
+  1 & 高& 审核新游戏（内容合规性等）\\
+  \hline
+  2 & 中& 违规游戏下架并通知开发者\\
+  \hline
+  3 & 低& 维护游戏分类标签\\
+  \hline
+\end{tabular}
 
 \subsection{用例图}
-在这里添加用例图的内容
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{yongli.jpg}
+  \caption{用例图}
+\end{figure}
 
 \subsection{功能列表}
+\subsubsection{注册}
+用户开始需要注册符号自己的账号，，初始管理员在系统部署阶段生成。
+用户登录系统应该能根据用户输入的账户与密码验证其合法性。注册成功后系统返回登录界面。
+
+主要流程请求/响应时序图:
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{yongli1.jpg}
+  \caption{注册主要流程请求/响应时序图}
+\end{figure}
+
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 用户注册\\
+  \hline
+  用例编号 & USE-CASE-1\\
+  \hline
+  行为角色 & 普通用户\\
+  \hline
+  简要说明 & 用户应能够注册以拥有自己的账号\\
+  \hline
+  优先级 & 高\\
+  \hline
+  前置条件 & 进入注册界面\\
+  \hline
+  后置条件 & 注册完成后返回登录界面\\
+  \hline
+  流程 & 1、用户打开登录界面\\
+      & 2、用户输入账号密码\\
+      & 3、用户点击注册按钮提交\\
+      & 4、如果注册成功，显示失败提示信息，回到第 2 步\\
+      & 5、注册成功系统返回登录界面\\
+  \hline
+  异常处理 & 无论注册失败或成功，以弹窗的方式显示反馈信息\\
+  \hline
+  备注 & 无\\
+  \hline
+\end{tabular}
+
+\subsubsection{登录}
+普通用户在使用系统前必须进行登录。用户登录系统应该能根据用户输入的账户与密码验证其身份，验证身份成功后，用户方可进入该系统进行后续操作。
+
+主要流程请求/响应时序图:
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.8\textwidth]{yongli2.jpg}
+  \caption{登录主要流程请求/响应时序图}
+\end{figure}
+
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 用户登录\\
+  \hline
+  用例编号 & USE-CASE-2\\
+  \hline
+  行为角色 & 普通用户，平台管理员\\
+  \hline
+  简要说明 & 用户应能登录自己的账号\\
+  \hline
+  优先级 & 高\\
+  \hline
+  前置条件 & 进入登录界面\\
+  \hline
+  后置条件 & 登录成功后进入平台首页\\
+  \hline
+  流程 & 1、用户进入登录界面\\
+      & 2、 输入账号密码\\
+      & 3、点击登录提交信息\\
+      & 4、成功则进入首页\\
+      & 5、失败提示错误返回登录界面\\
+  \hline
+  异常处理 & 无论登录失败或成功，以弹窗的方式显示反馈信息\\
+  \hline
+  备注 & 无\\
+  \hline
+\end{tabular}
+
+\subsubsection{登出}
+用户在登录之后可以选择登出，该操作让用户退出登录状态。登出成功后系统将返回到登陆界面
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.5\textwidth]{yongli3.jpg}
+  \caption{登出主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 用户登出\\
+  \hline
+  用例编号 & USE-CASE-3\\
+  \hline
+  行为角色 & 普通用户，平台管理员\\
+  \hline
+  简要说明 & 用户应能登出自己的账号\\
+  \hline
+  优先级 & 高\\
+  \hline
+  前置条件 & 已登录状态\\
+  \hline
+  后置条件 & 返回登录界面\\
+  \hline
+  流程 & 1、点击登出按键\\
+      & 2、返回登录界面\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 无\\
+  \hline
+\end{tabular}
+
+\subsubsection{在线游玩与下载}
+用户可以在游戏浏览界面或者自己的游戏收藏界面点击心仪的游戏进入该游戏界面，
+该界面下包括游戏的信息：标题、描述登；同时支持在线游玩与下载
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli4.jpg}
+  \caption{在线游玩与下载主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 在线游玩与下载\\
+  \hline
+  用例编号 & USE-CASE-4\\
+  \hline
+  行为角色 & 普通玩家，游客\\
+  \hline
+  简要说明 & 用户应能在线游玩与下载平台上的游戏\\
+  \hline
+  优先级 & 高\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 无\\
+  \hline
+  流程 & 1、点击游戏进入该游戏界面\\
+      &  2、等待游戏加载完毕\\
+      & 3、点击开始游玩开始在线游玩\\
+      & 4、点击下载按钮下载游戏\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 游客仅可在线游玩，\\
+       &需要保证用户的在线游玩的流畅体验以及游戏下载速度\\
+  \hline
+\end{tabular}
+
+\subsubsection{分类浏览游戏}
+支持用户通过在浏览界面选中游戏分类标签以呈现带有这些游戏标签的游戏，方便用户检索到自己心仪的游戏
+这些标签选项由平台给出，游戏创作者在上传游戏时为自己的游戏选中对应的标签。
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.6\textwidth]{yongli5.jpg}
+  \caption{分类浏览主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 分类浏览游戏\\
+  \hline
+  用例编号 & USE-CASE-5\\
+  \hline
+  行为角色 & 普通用户，游客\\
+  \hline
+  简要说明 & 用户应能分类检索游戏\\
+  \hline
+  优先级 & 低\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 呈现带有这些标签的游戏\\
+  \hline
+  流程 & 1、进入游戏浏览界面\\
+       & 2、选中标签\\
+       & 3、点击确认\\
+       & 4、等待网页重新加载完毕开始浏览\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 需要保证系统的按标签检索游戏的速度\\
+  \hline
+\end{tabular}
+
+\subsubsection{游戏评分}
+支持登录用户对游戏评分，同时查看该游戏的大众评分，评分值（1-5）。
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli6.jpg}
+  \caption{游戏评分主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 游戏评分\\
+  \hline
+  用例编号 & USE-CASE-6\\
+  \hline
+  行为角色 & 普通用户\\
+  \hline
+  简要说明 & 用户应能使用游戏评分系统\\
+  \hline
+  优先级 & 低\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 弹窗显示评分成功\\
+  \hline
+  流程 & 1、在游戏浏览界面同时显示游戏评分\\
+      & 2、进入某个游戏界面\\
+      &  3、点击游戏评分按钮\\
+      &  4、输入评分\\
+      &  5、点击提交\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 需要检测评分合法性（1-5整数）\\
+  \hline
+\end{tabular}
+
+\subsubsection{游戏评论区}
+支持登录用户在游戏评论区内进行交流，包括：查看评论（显示评论时间），
+回复评论（响应地给被回复的用户一个通知），删除自己的评论。
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli7.jpg}
+  \caption{游戏评论区主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 游戏评论区\\
+  \hline
+  用例编号 & USE-CASE-7\\
+  \hline
+  行为角色 & 玩家\\
+  \hline
+  简要说明 & 用户应能使用游戏评论区交流\\
+  \hline
+  优先级 & 低\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 评论发表后显示在评论区，被回复后给出用户提醒\\
+  \hline
+  流程 & 1、进入游戏评论区\\
+      &  2、查看评论\\
+      &  3、点击希望恢复的评论旁的回复按钮\\
+      &  4、在给出的文字编辑框中写下评论\\
+      &  5、点击发表评论\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 发表的评论还应可以撤回，被回复的评论者也应有消息的提醒\\
+       & 评论还需有内容不能为空，敏感词检测的检查机制\\
+  \hline
+\end{tabular}
+
+\subsubsection{收藏游戏}
+支持登录用户对自己喜欢的游戏进行收藏以方便用户之后的体验
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli8.jpg}
+  \caption{收藏游戏主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 收藏游戏\\
+  \hline
+  用例编号 & USE-CASE-8\\
+  \hline
+  行为角色 & 普通用户\\
+  \hline
+  简要说明 & 用户应能使收藏游戏\\
+  \hline
+  优先级 & 中\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 通过我的收藏快速找到已收藏的游戏\\
+  \hline
+  流程 & 1、进入某个游戏界面\\
+      &  2、点击收藏按钮\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 用户还应可以管理自己的收藏，取消已收藏的游戏\\
+  \hline
+\end{tabular}
+
+\subsubsection{上传游戏}
+支持游戏创作者上传自己的作品以供平台用户游玩。
+所需上传的包含游戏包，同时填写元数据：标题、描述、分类标签、缩略图等展示给玩家的数据，方便玩家了解游戏
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli9.jpg}
+  \caption{上传游戏主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 上传游戏\\
+  \hline
+  用例编号 & USE-CASE-9\\
+  \hline
+  行为角色 & 普通用户\\
+  \hline
+  简要说明 & 游戏创作者应能上传自己的作品\\
+  \hline
+  优先级 & 高\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 游戏在平台得到投放\\
+  \hline
+  流程 & 1、进入上传界面\\
+      &  2、上传游戏包，设置游戏信息\\
+      &  3、点击上传按钮\\
+      &  4、等待管理员审核\\
+      &  5、审核通过后游戏在平台得到投放\\
+      &  4、审核失败后得到原因\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 无\\
+  \hline
+\end{tabular}
+
+\subsubsection{管理上传的游戏}
+支持游戏创作者管理自己已经上传的游戏，包括游戏包，标题、描述、分类标签、缩略图等游戏数据
+的修改，已经主动下架自己的游戏；同时支持平台管理员下架游戏。
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli10.jpg}
+  \caption{管理上传的游戏主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 管理游戏\\
+  \hline
+  用例编号 & USE-CASE-10\\
+  \hline
+  行为角色 & 普通用户，平台管理员\\
+  \hline
+  简要说明 & 游戏创作者应能管理上传的作品\\
+  \hline
+  优先级 & 高\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 游戏在平台得到更新/下架\\
+  \hline
+  流程 & 1、点击进入我的上传界面\\
+      &  2、点击进入想更新的游戏的对应界面\\
+      &  3、修改游戏信息\\
+      &  4、点击提交\\
+      &  5、等待管理员审核\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 游戏创作者下架游戏的请求应不需要审核，\\
+       & 平台管理员应具有下架游戏的权利以管理游戏\\
+  \hline
+\end{tabular}
+
+\subsubsection{审核游戏}
+游戏的上传与更新都需要管理员审核通过，以此保证平台内容的合理性；
+审核通过的内容才能在平台得到投放
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli11.jpg}
+  \caption{审核游戏主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 审核游戏\\
+  \hline
+  用例编号 & USE-CASE-11\\
+  \hline
+  行为角色 & 平台管理员\\
+  \hline
+  简要说明 & 内容需要审核\\
+  \hline
+  优先级 & 高\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 审核通过后游戏在平台得到投放\\
+  \hline
+  流程 & 1、点击进入审核界面\\
+      &  2、点击进入想处理的请求的对应界面\\
+      &  3、得到信息\\
+      &  4、判断是否通过\\
+      &  5、通过点击通过按钮，否则给出驳回原因\\
+  \hline
+  异常处理 & 无\\
+  \hline
+  备注 & 无\\
+\end{tabular}
+
+\subsubsection{维护游戏分类标签}
+游戏分类标签由平台给出，给予管理员管理游戏分类标签的权力
+以维护游戏分类标签
+
+主要流程请求/响应时序图:
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\textwidth]{yongli12.jpg}
+  \caption{维护游戏分类标签主要流程请求/响应时序图}
+\end{figure}
+用例文档:
+
+\begin{tabular}{|c|c|}
+  \hline
+  用例名称& 维护游戏分类标签\\
+  \hline
+  用例编号 & USE-CASE-12\\
+  \hline
+  行为角色 & 平台管理员\\
+  \hline
+  简要说明 & 游戏分类标签需要维护\\
+  \hline
+  优先级 & 低\\
+  \hline
+  前置条件 & 已登录\\
+  \hline
+  后置条件 & 游戏标签在平台得到修改\\
+  \hline
+  流程 & 1、点击进入游戏标签管理界面\\
+      &  2、点击修改/增加\\
+      &  3、修改：点击想修改的标签,给出修改后的该标签\\
+      &  4、增加：输入想增加的标签\\
+      &  5、点击确认\\
+  \hline
+  异常处理 &  输入已存在标签名时显示标签以重复以规避重复标签\\
+  \hline
+  备注 & 无\\
+  \hline
+\end{tabular}
 
 \section{类图与 CRC 模型}
 \subsection{类图}
 % 在这里添加类图的内容
-
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=1\textwidth]{lei.jpg}
+  \caption{类图}
+\end{figure}
 \subsection{CRC 模型}
-\subsubsection{User}
-% 在这里添加 User 的 CRC 模型
 
+\subsubsection{tourist}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：tourist} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-1} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：使用这个系统的游客，仅有浏览与在线游玩的权限} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  浏览 & Game，Comment\\
+  \hline
+  在线游玩 & Game\\
+  \hline
+  \end{tabular}
+
+\subsubsection{User}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：User} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-2} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：使用这个系统的注册角色，包括普通用户，管理员，继承于tourist类} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  登录进入系统 & \\
+  \hline
+  登出系统 & \\
+  \hline
+  在线游玩 & Game \\
+  \hline
+  下载游戏 & Game \\
+  \hline
+  收藏游戏 & Collection \\
+  \hline
+  交流 & Comment, Notification \\
+  \hline
+  分类检索游戏 & Tag,Game \\
+  \hline
+  评分 & Rating \\
+  \hline
+  上传游戏 & Game\\
+  \hline
+  更改游戏 & Game\\
+  \hline
+  \end{tabular}
+
+\subsubsection{Manager}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：Manager} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-3} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：平台的管理者，继承于User类。} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  审核游戏 & Game\\
+  \hline
+  管理游戏 & Game\\
+  \hline
+  维护游戏标签 & Tag\\
+  \hline
+  发送系统通知 & Notification\\
+  \hline
+  \end{tabular}
+
+\subsubsection{Game}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：Game} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-4} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：代表平台上上传的游戏。} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  在线加载 & \\
+  \hline
+  跳转下载地址 & \\
+  \hline
+  上传 &  \\
+  \hline
+  更新 &  \\
+  \hline
+  计算大众评分 & Rating \\
+  \hline
+  \end{tabular}
+
+\subsubsection{Collection}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：Collection} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-5} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：代表一名用户的收藏} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  展示收藏 &  \\
+  \hline
+  收藏游戏 & \\
+  \hline
+  从收藏中删除游戏 & \\
+  \hline
+  \end{tabular}
+
+\subsubsection{Comment}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：Comment} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-6} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：代表一条用户的评论} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  写评论 & \\
+  \hline
+  删评论 & \\
+  \hline
+  \end{tabular}
+
+\subsubsection{Rating}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：Rating} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-7} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：代表一名用户对某一游戏的评分} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  评分 & \\
+  \hline
+  更新评分 & \\
+  \hline
+  \end{tabular}
+
+\subsubsection{Notification}
+\begin{tabular}{|l|l|}
+  \hline
+  \multicolumn{2}{|l|}{类名：Notification} \\
+  \hline
+  \multicolumn{2}{|l|}{编号：CLASS-8} \\
+  \hline
+  \multicolumn{2}{|l|}{描述：代表对某用户的一条通知} \\
+  \hline
+  功能 & 合作类 \\
+  \hline
+  发送通知 & \\
+  \hline
+  \end{tabular}
 
 \section{非功能性需求}
 \subsection{性能需求}
