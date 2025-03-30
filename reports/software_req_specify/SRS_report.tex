@@ -71,7 +71,7 @@
 }
 
 % 页脚页数设置
-\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
 \fancyfoot[C]{\thepage}
 
 % 设置目录样式
@@ -95,7 +95,7 @@
 
 \begin{titlepage}
   \centering % 居中对齐
-  \vspace*{2cm} % 从顶部添加一些垂直间距
+  % \vspace*{1cm} % 从顶部添加一些垂直间距
   \includegraphics[width=0.6\textwidth]{zjutitle.jpg} % 插入图片
   
   \vspace{2cm} % 添加垂直间距
@@ -108,11 +108,11 @@
   
   \vspace{2cm}
   
-  {\Huge\CJKfontspec{Microsoft YaHei}  项目主题：H5游戏分享平台} % 项目主题
+  {\Huge\CJKfontspec{Microsoft YaHei} 项目主题： \underline{H5游戏分享平台}} % 项目主题 with underline
   
   \vspace{1cm}
 
-  {\Large\CJKfontspec{Microsoft YaHei} 小组成员：} % 作者
+  {\Large\CJKfontspec{Microsoft YaHei} 第 1 小组： \underline{肖一鸣、金谞健、马宇恒、杨仕平、周睿}} % 作者
   
   \vspace{1cm} % 添加垂直间距
   
@@ -1019,12 +1019,16 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 
 \section{数据流图}
 
-以下是详细的数据流图，比较详细地展示了系统的数据流向。
+限于精力问题，将三层数据流合并到图 \ref{fig:dataflow} 中。其中与核心功能相关的一级数据流是游戏本体的提交、审核、展示、下载游玩的数据流，
+往下拆分的二级数据流涉及提交时的游戏信息填写、审核时的审核请求和通知反馈、展示时的游戏数据信息展示。 
+
+在此基础上附加的子数据流包括用户的登录、登出、评论、评分、收藏系统。
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.6\textwidth]{dataflow.jpg}
   \caption{数据流图}
+  \label{fig:dataflow} % 为图片添加标签
 \end{figure}
 
 \section{验收准则}
