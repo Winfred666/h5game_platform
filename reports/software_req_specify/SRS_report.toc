@@ -20,8 +20,8 @@
 \contentsline {subsubsection}{\numberline {3.3.5}分类浏览游戏}{13}{subsubsection.3.3.5}%
 \contentsline {subsubsection}{\numberline {3.3.6}游戏评分}{14}{subsubsection.3.3.6}%
 \contentsline {subsubsection}{\numberline {3.3.7}游戏评论区}{15}{subsubsection.3.3.7}%
-\contentsline {subsubsection}{\numberline {3.3.8}收藏游戏}{16}{subsubsection.3.3.8}%
-\contentsline {subsubsection}{\numberline {3.3.9}上传游戏}{17}{subsubsection.3.3.9}%
+\contentsline {subsubsection}{\numberline {3.3.8}收藏游戏}{15}{subsubsection.3.3.8}%
+\contentsline {subsubsection}{\numberline {3.3.9}上传游戏}{16}{subsubsection.3.3.9}%
 \contentsline {subsubsection}{\numberline {3.3.10}管理上传的游戏}{18}{subsubsection.3.3.10}%
 \contentsline {subsubsection}{\numberline {3.3.11}审核游戏}{19}{subsubsection.3.3.11}%
 \contentsline {subsubsection}{\numberline {3.3.12}维护游戏分类标签}{20}{subsubsection.3.3.12}%

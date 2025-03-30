@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.3) (preloaded format=xelatex 2025.3.19)  30 MAR 2025 02:28
+This is XeTeX, Version 3.141592653-2.6-0.999997 (MiKTeX 25.3) (preloaded format=xelatex 2025.3.19)  30 MAR 2025 14:34
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -891,14 +891,8 @@ File: ./images/yongli7.jpg Graphic file (type bmp)
 <./images/yongli7.jpg>
 
 
+LaTeX Warning: `h' float specifier changed to `ht'.
 
-Package fancyhdr Warning: \headheight is too small (12.0pt): 
-(fancyhdr)                Make it at least 25.60938pt, for example:
-(fancyhdr)                \setlength{\headheight}{25.60938pt}.
-(fancyhdr)                You might also make \topmargin smaller:
-(fancyhdr)                \addtolength{\topmargin}{-13.60938pt}.
-
-[15]
 File: ./images/yongli8.jpg Graphic file (type bmp)
 <./images/yongli8.jpg>
 
@@ -910,10 +904,25 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 (fancyhdr)                You might also make \topmargin smaller:
 (fancyhdr)                \addtolength{\topmargin}{-13.60938pt}.
 
-[16]
+[15]
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
 File: ./images/yongli9.jpg Graphic file (type bmp)
 <./images/yongli9.jpg>
 
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+
+
+Package fancyhdr Warning: \headheight is too small (12.0pt): 
+(fancyhdr)                Make it at least 25.60938pt, for example:
+(fancyhdr)                \setlength{\headheight}{25.60938pt}.
+(fancyhdr)                You might also make \topmargin smaller:
+(fancyhdr)                \addtolength{\topmargin}{-13.60938pt}.
+
+[16]
 
 
 Package fancyhdr Warning: \headheight is too small (12.0pt): 
@@ -925,6 +934,10 @@ Package fancyhdr Warning: \headheight is too small (12.0pt):
 [17]
 File: ./images/yongli10.jpg Graphic file (type bmp)
 <./images/yongli10.jpg>
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
 
 
 
