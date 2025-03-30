@@ -3,7 +3,7 @@
 \usepackage{fancyhdr} % 奇特的 header
 \usepackage{xcolor} % 更多颜色
 
-\usepackage[utf8]{inputenc} % 支持 UTF8 字符
+\usepackage[utf8]{inputenc} % 支持 UTF8 字符，在 UTF8 engine 中无需此行
 \usepackage{xeCJK} % 支持中文排版，已经包含在 ctexart 中
 \usepackage{fontspec} % 字体设置
 \usepackage{geometry} % 页面布局
@@ -11,6 +11,8 @@
 \usepackage{setspace} % 设置行距
 \usepackage{microtype} % 更多的微调
 \usepackage{tabularx} % 表格支持
+
+\usepackage{float} % Add the float package，支持图片位置固定
 
 \usepackage[colorlinks,linkcolor=black,urlcolor=black]{hyperref} % 超链接支持
 
@@ -39,6 +41,9 @@
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
+
+\setlength{\headheight}{25.60938pt} % Set the headheight to the required value
+\addtolength{\topmargin}{-13.60938pt} % Adjust the topmargin to compensate
 
 % 定义颜色
 \definecolor{myblue}{RGB}{152, 220, 222} % 蓝色
@@ -299,10 +304,20 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 
 \subsection{用例图}
 
+图 \ref{fig:all-use-case-brief} 展示了系统大致的用例图以及和第三方媒介的交互；图 \ref{fig:all-use-case-unorg} ，以不同用户分类的方式展示了系统更加细致的用例。
+
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=1\textwidth]{yongli.jpg}
-  \caption{用例图}
+  \includegraphics[width=0.6\textwidth]{all_use_case.png}
+  \caption{粒度精简用例图}
+  \label{fig:all-use-case-brief}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\textwidth]{yongli.jpg}
+  \caption{粒度优化用例图}
+  \label{fig:all-use-case-unorg}
 \end{figure}
 
 \subsection{功能列表}
@@ -312,7 +327,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 
 主要流程请求/响应时序图:
 
-\begin{figure}[h]
+\begin{figure}[htbp]
   \centering
   \includegraphics[width=0.8\textwidth]{yongli1.jpg}
   \caption{注册主要流程请求/响应时序图}
@@ -349,14 +364,15 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 \end{tabular}
 
 \subsubsection{登录}
-普通用户在使用系统前必须进行登录。用户登录系统应该能根据用户输入的账户与密码验证其身份，验证身份成功后，用户方可进入该系统进行后续操作。
+普通用户在使用系统前必须进行登录。注意为了安全性，如 \ref{fig:login-sequence} 流程图这样的自建鉴权系统仅供参考。真正开发部署时将采样更简易安全的 OAuth2.0 第三方登录系统。
 
 主要流程请求/响应时序图:
 
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.8\textwidth]{yongli2.jpg}
   \caption{登录主要流程请求/响应时序图}
+  \label{fig:login-sequence} % 为图片添加标签
 \end{figure}
 
 用例文档:
@@ -393,7 +409,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 用户在登录之后可以选择登出，该操作让用户退出登录状态。登出成功后系统将返回到登陆界面
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.5\textwidth]{yongli3.jpg}
   \caption{登出主要流程请求/响应时序图}
@@ -430,7 +446,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 该界面下包括游戏的信息：标题、描述登；同时支持在线游玩与下载
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli4.jpg}
   \caption{在线游玩与下载主要流程请求/响应时序图}
@@ -470,7 +486,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 这些标签选项由平台给出，游戏创作者在上传游戏时为自己的游戏选中对应的标签。
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.6\textwidth]{yongli5.jpg}
   \caption{分类浏览主要流程请求/响应时序图}
@@ -508,7 +524,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 支持登录用户对游戏评分，同时查看该游戏的大众评分，评分值（1-5）。
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli6.jpg}
   \caption{游戏评分主要流程请求/响应时序图}
@@ -548,7 +564,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 回复评论（响应地给被回复的用户一个通知），删除自己的评论。
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli7.jpg}
   \caption{游戏评论区主要流程请求/响应时序图}
@@ -588,7 +604,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 支持登录用户对自己喜欢的游戏进行收藏以方便用户之后的体验
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli8.jpg}
   \caption{收藏游戏主要流程请求/响应时序图}
@@ -625,7 +641,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 所需上传的包含游戏包，同时填写元数据：标题、描述、分类标签、缩略图等展示给玩家的数据，方便玩家了解游戏
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli9.jpg}
   \caption{上传游戏主要流程请求/响应时序图}
@@ -666,7 +682,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 的修改，已经主动下架自己的游戏；同时支持平台管理员下架游戏。
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli10.jpg}
   \caption{管理上传的游戏主要流程请求/响应时序图}
@@ -707,7 +723,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 审核通过的内容才能在平台得到投放
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli11.jpg}
   \caption{审核游戏主要流程请求/响应时序图}
@@ -746,7 +762,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 以维护游戏分类标签
 
 主要流程请求/响应时序图:
-\begin{figure}[h]
+\begin{figure}[ht]
   \centering
   \includegraphics[width=0.7\textwidth]{yongli12.jpg}
   \caption{维护游戏分类标签主要流程请求/响应时序图}
@@ -784,7 +800,7 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 \section{类图与 CRC 模型}
 \subsection{类图}
 % 在这里添加类图的内容
-\begin{figure}[htbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=1\textwidth]{lei.jpg}
   \caption{类图}
@@ -998,6 +1014,14 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 
 \section{数据流图}
 
+以下是详细的数据流图，比较详细地展示了系统的数据流向。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.6\textwidth]{dataflow.jpg}
+  \caption{数据流图}
+\end{figure}
+
 \section{验收准则}
 \subsection{功能要求}
 % 在这里添加功能要求的内容
@@ -1011,13 +1035,38 @@ H5游戏分享平台网站需要通过现代网页浏览器进行访问及操作
 系统开发的过程中程序员必须将记录开发日志，统一开发环境，时刻对源代码进行维护与管理，保证问题可被追踪。另外，软件开发团队需要进行严谨的版本控制，确保开发过程中的软件更新在认为可控的范围之内。
 \section{UI 原型}
 
-\subsection{登录界面}
+由于方案可能变化，例如登录采取第三方登录，所以我们只提供一个简单的原型，以供参考。
+
+\subsection{登录/注册界面}
 % 在这里添加登录界面的内容
 
-\subsection{注册界面}
-% 在这里添加注册界面的内容
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.55\textwidth]{login.jpg}
+  \caption{登录界面}
+\end{figure}
 
-\subsection{用户主界面}
-% 在这里添加用户主界面的内容
+\subsection{游戏浏览界面}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.55\textwidth]{main.jpg}
+  \caption{游戏浏览界面}
+\end{figure}
+
+\subsection{管理员审核界面}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{admin_game.jpg}
+  \caption{上传游戏审核界面}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.5\textwidth]{admin_user.jpg}
+  \caption{所有用户管理界面}
+\end{figure}
+
 
 \end{document}
