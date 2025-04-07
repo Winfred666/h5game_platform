@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';
 
 import { Noto_Sans_SC } from 'next/font/google';
+import NavBar from "@/components/NavBar";
 
 const notoSansSC = Noto_Sans_SC({
   weight: ['300', '400', '500', '700'],
@@ -29,6 +30,7 @@ export default function RootLayout({
       <body>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
+            <NavBar />
             {children}
           </ThemeProvider>
         </AppRouterCacheProvider>

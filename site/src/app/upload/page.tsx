@@ -15,6 +15,7 @@ import {
   Paper,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import GamePoster from "@/components/GamePoster";
 
 export default function NewGamePage() {
   const [kind, setKind] = useState(""); //类别(Downloaded/HTML)
@@ -28,6 +29,7 @@ export default function NewGamePage() {
   const [screenshots, setScreenshots] = useState<
     { file: File | null; url: string | null }[]
   >([]); //相比于第11行多了一个[]代表是列表
+  
   const screenshotRef = useRef<HTMLInputElement>(null); //上传截屏图片对应的<input>的引用
 
   const handleKindChange = (e: SelectChangeEvent<string>) => {
@@ -278,16 +280,9 @@ export default function NewGamePage() {
             Cover Image
           </Typography>
           <Box
-            sx={{
-              position: "relative",
-              width: 320,
-              height: 320,
-              border: "1px solid #ccc",
-              borderRadius: 2,
-              overflow: "hidden",
-              backgroundColor: "#f5f5f5",
-            }}
-          >
+            className=" relative flex justify-center items-center bg-neutral-500 cursor-pointer hover:opacity-70 transition-opacity"
+            sx={{width: 320, height: 320, border: "1px solid #ccc", borderRadius: 2, overflow: "hidden"}}
+            onClick={handleCoverClick}>
             {cover.url ? (
               <Box
                 component="img"
@@ -297,28 +292,14 @@ export default function NewGamePage() {
                   width: "100%",
                   height: "100%",
                   objectFit: "cover",
-                  transition: "opacity 0.3s",
-                  "&:hover": { opacity: 0.7 },
                 }}
               />
-            ) : null}
-            <Button
-              variant="contained"
-              color="error"
-              onClick={handleCoverClick}
-              sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                opacity: 0,
-                transition: "opacity 0.3s",
-                "&:hover": { opacity: 1 },
-                "&:focus": { opacity: 1 },
-              }}
-            >
-              Upload cover image
-            </Button>
+            ) : (
+              <Typography
+                variant="body2" className=" select-none">
+                Click to upload a cover image
+              </Typography>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -352,20 +333,11 @@ export default function NewGamePage() {
               Add screenshots
             </Button>
           )}
+          {/* 游戏截图，作为海报 */}
+          <div className=" flex flex-row flex-wrap gap-4">
           {screenshots.map((img, idx) => (
-            <Box key={idx} sx={{ position: "relative", mt: 2 }}>
-              <Box
-                component="img"
-                src={img.url || undefined}
-                alt={`Screenshot ${idx}`}
-                sx={{
-                  width: "100%",
-                  height: 150,
-                  objectFit: "cover",
-                  borderRadius: 1,
-                  boxShadow: 1,
-                }}
-              />
+            <Box key={idx} className="w-fit h-fit relative mt-2">
+              <GamePoster imgSrc={img.url || ""} alt={`Screenshot ${idx}`} />
               <IconButton
                 onClick={() => handleScreenshotDelete(idx)}
                 sx={{
@@ -373,12 +345,14 @@ export default function NewGamePage() {
                   top: 8,
                   right: 8,
                   backgroundColor: "rgba(255,255,255,0.7)",
+                  color: "grey.800",
                 }}
               >
                 <DeleteIcon />
               </IconButton>
             </Box>
           ))}
+          </div>
           {screenshots.length > 0 && screenshots.length < 3 && (
             <Button
               variant="contained"
