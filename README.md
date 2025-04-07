@@ -12,6 +12,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
+如果出现加载错误请删除 “.next” 文件夹。
+
 ```bash
 npm run dev
 # or

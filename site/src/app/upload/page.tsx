@@ -12,6 +12,7 @@ import {
   Box,
   IconButton,
   SelectChangeEvent,
+  Paper,
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 
@@ -116,11 +117,13 @@ export default function NewGamePage() {
   };
 
   return (
-    <Box>
+    <form onSubmit={handleSubmit}>
+      <Paper className="m-10 p-4" variant="outlined">
       <Typography variant="h4" gutterBottom>
         Create a New Project
       </Typography>
-      <form onSubmit={handleSubmit}>
+      <div className=" flex flex-row justify-start gap-10">
+        <div>
         <TextField
           id="title"
           name="title"
@@ -257,10 +260,8 @@ export default function NewGamePage() {
           />
           <FormControl fullWidth variant="outlined" margin="normal" required>
             <InputLabel id="genre-label">Genre</InputLabel>
-            <Select labelId="genre-label" id="genre" name="genre" label="Genre">
-              <MenuItem value="">
-                <em>No genre</em>
-              </MenuItem>
+            <Select labelId="genre-label" id="genre" name="genre" label="Genre" defaultValue="">
+              <MenuItem value="">No genre</MenuItem>
               <MenuItem value="action">Action</MenuItem>
               <MenuItem value="adventure">Adventure</MenuItem>
               <MenuItem value="card">Card game</MenuItem>
@@ -268,7 +269,9 @@ export default function NewGamePage() {
             </Select>
           </FormControl>
         </Box>
+        </div>
 
+        <div>
         {/* 右侧上传封面及截图 */}
         <Box sx={{ mb: 3 }}>
           <Typography variant="h6" gutterBottom>
@@ -386,18 +389,21 @@ export default function NewGamePage() {
             </Button>
           )}
         </Box>
-        <Box sx={{ mt: 4 }}>
+        </div>
+      </div>
+
+      <Box sx={{ mt: 4 }}>
           <Button
             variant="contained"
             type="submit"
-            fullWidth
             color="primary"
             size="large"
           >
             Submit
           </Button>
         </Box>
-      </form>
-    </Box>
+
+      </Paper>
+    </form>
   );
 }

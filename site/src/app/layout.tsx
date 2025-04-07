@@ -6,6 +6,7 @@ import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';
 
 import { Noto_Sans_SC } from 'next/font/google';
+
 const notoSansSC = Noto_Sans_SC({
   weight: ['300', '400', '500', '700'],
   subsets: ['latin', 'chinese-simplified'] as any,
