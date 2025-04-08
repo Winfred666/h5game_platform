@@ -29,7 +29,7 @@ const ImageCarousel = ({ images = [], interval = 3000 }:{ images: string[]; inte
     if (!images.length) return null;
   
     return (
-      <Box className="flex justify-center">
+      <Box className="flex justify-center border border-black">
         <div className="relative w-full h-200 overflow-hidden">
             {/* 通过控制opacity来实现只有一张image出现 */}
             {images.map((src, idx) => (
@@ -37,7 +37,7 @@ const ImageCarousel = ({ images = [], interval = 3000 }:{ images: string[]; inte
                     key={idx}
                     className={`absolute inset-20 transition-opacity duration-1000 ${idx === current ? 'opacity-100' : 'opacity-0 hidden'}`}
                 >
-                    <img src={src} alt={`slide-${idx}`} className="w-full h-full object-cover" />
+                    <img src={src} alt={`slide-${idx}`} className="w-full h-full object-cover border border-black" />
                 </div>
             ))}
             <IconButton

@@ -2,15 +2,13 @@ import React from 'react';
 
 import { Card, CardContent, CardMedia, Typography, Box } from '@mui/material';
 
-type Game = {
-  id: number;
-  coverUrl: string;
-  name: string;
-  description: string;
-  author: string;
-};
+import { IGame } from "@/types/igame";
 
-const GameCards = (games : Game[]) => {
+interface GameCardsProps {
+  games: IGame[];
+}
+
+const GameCards: React.FC<GameCardsProps> = ({ games }) => {
   return (
     
     <Box className="flex flex-wrap justify-center gap-6 mt-8">
@@ -23,20 +21,20 @@ const GameCards = (games : Game[]) => {
           <CardMedia
             component="img"
             height="140"
-            image={game.coverUrl}
-            alt={game.name}
+            image={game.cover_image}
+            alt={game.title}
             className="object-cover"
           />
           {/* object-cover: 确保图片在容器中保持比例裁剪，填满整个容器 */}
           <CardContent className="p-4">
             <Typography variant="h6" className="mb-1">
-              {game.name}
+              {game.title}
             </Typography>
             <Typography variant="body2" color="text.secondary" className="mb-2 text-sm text-gray-600">
               {game.description}
             </Typography>
             <Typography variant="caption" color="text.secondary" className="text-xs text-gray-500">
-              author: {game.author}
+              developer: {game.developer.name}
             </Typography>
           </CardContent>
         </Card>
