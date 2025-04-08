@@ -1,19 +1,23 @@
-'use client';
+"use client"
 import { createTheme } from '@mui/material/styles';
-import { red, pink } from '@mui/material/colors';
+import { red } from '@mui/material/colors';
 
 const theme = createTheme({
   colorSchemes:{
     light:{
       palette: {
         primary: red,
-        secondary: pink,
+        secondary:{
+          main: '#fff',
+        },
       },
     },
     dark:{
       palette: {
         primary: red,
-        secondary: pink,
+        secondary:{
+          main: '#000',
+        },
       }
     }
   },

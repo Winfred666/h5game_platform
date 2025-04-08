@@ -1,0 +1,80 @@
+[
+    {
+        "id": "game_123456",
+        "title": "Gold Miner Classic",
+        "description": "Gold Miner Classic is a nostalgic treasure-hunting game where you control a miner's claw to collect gold, diamonds, and other valuable items. Timing and precision are key as you aim to meet collection goals within the time limit. The game features progressive difficulty levels, special power-ups, and challenging obstacles. Enjoy the retro pixel art style and catchy soundtrack as you dig for fortune across multiple mines!",
+        "cover_image": "/mocks/miner_embed/assets/GameUI/native/02/02066b69-d387-4b63-a33f-bf078d2a0b5e.png",
+        "screenshots": [
+            "/mocks/miner_embed/assets/Image/native/0f/0f58aa09-bd9f-4eaf-90da-9839ef19726b.png",
+            "/mocks/miner_embed/assets/Image/native/08/0864bf10-f66d-4d19-a783-d52c85392e02.png"
+        ],
+        "release_date": "2023-08-15",
+        "developer": {
+            "id": "dev_789012",
+            "name": "RetroGames Studio"
+        },
+        "tags": [
+            {
+                "id": "tag_001",
+                "name": "arcade"
+            },
+            {
+                "id": "tag_002",
+                "name": "casual"
+            },
+            {
+                "id": "tag_003",
+                "name": "retro"
+            },
+            {
+                "id": "tag_004",
+                "name": "puzzle"
+            },
+            {
+                "id": "tag_005",
+                "name": "2D"
+            }
+        ],
+        "download_url": "/",
+        "online": {
+            "width": 1080,
+            "height": 1920,
+            "url": "/mocks/miner_embed/"
+        }
+    },
+    {
+        "id": "game_789012",
+        "title": "Gold Miner: Deep Dive",
+        "description": "Gold Miner: Deep Dive takes the classic gameplay to new depths! Explore underwater caverns and ancient ruins while collecting rare treasures and avoiding dangerous obstacles. With enhanced mechanics, multiplayer modes, and a story campaign, this sequel brings fresh excitement to the beloved formula. New tools, upgrades, and special abilities make this the ultimate Gold Miner experience!",
+        "cover_image": "/mocks/cat_mouse_fullscreen/ui/background12.png",
+        "screenshots": [
+            "mocks/cat_mouse_fullscreen/ui/ui-how-to-play.png",
+            "/mocks/cat_mouse_fullscreen/ui/ui-about-this-game.png"
+        ],
+        "release_date": "2024-03-22",
+        "developer": {
+            "id": "dev_789012",
+            "name": "RetroGames Studio"
+        },
+        "tags": [
+            {
+                "id": "tag_001",
+                "name": "arcade"
+            },
+            {
+                "id": "tag_002",
+                "name": "casual"
+            },
+            {
+                "id": "tag_006",
+                "name": "multiplayer"
+            },
+            {
+                "id": "tag_007",
+                "name": "adventure"
+            }
+        ],
+        "download_url": "/",
+        "online": "public/mocks/cat_mouse_fullscreen/"
+    }
+]
