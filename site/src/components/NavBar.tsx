@@ -6,19 +6,22 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports';
+import Link from 'next/link';
 
 export default function NavBar() {
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" color="default">
-        <Toolbar className="gap-10">
-            <SportsEsportsIcon fontSize='large' />
-          <Typography variant="h6" component="div">
-            ZJU H5游戏中心
+    <div className=" z-10">
+      <AppBar elevation={1} position="static" color="secondary">
+        <Toolbar className="gap-10 h-full">
+          <Link className="flex flex-row" href="/" passHref>
+          <SportsEsportsIcon fontSize='large' color="primary" />
+          <Typography className="pl-4" variant="h6" component="div">
+            ZJU H5游戏分享平台
           </Typography>
-          <Button color="inherit">Login</Button>
+          </Link>
+          <div className="navbar-button navbar-active-button"> 登录 </div>
         </Toolbar>
       </AppBar>
-    </Box>
+    </div>
   );
 }

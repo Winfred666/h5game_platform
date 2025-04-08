@@ -5,15 +5,17 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 import { ThemeProvider } from '@mui/material/styles';
 import theme from '../theme';
 
-import { Noto_Sans_SC } from 'next/font/google';
 import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 
-const notoSansSC = Noto_Sans_SC({
-  weight: ['300', '400', '500', '700'],
-  subsets: ['latin', 'chinese-simplified'] as any,
-  display: 'swap',
-  variable: '--font-noto-sans-sc',
-});
+// import { Noto_Sans_SC } from 'next/font/google';
+// const notoSansSC = Noto_Sans_SC({
+//   weight: ['300', '400', '500', '700'],
+//   subsets: ['latin', 'chinese-simplified'] as any,
+//   display: 'swap',
+//   adjustFontFallback: false,
+//   variable: '--font-noto-sans-sc',
+// });
 
 export const metadata: Metadata = {
   title: "ZJU H5游戏中心",
@@ -26,12 +28,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh" className={notoSansSC.variable}>
+    <html lang="zh">
       <body>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
             <NavBar />
             {children}
+            <Footer />
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

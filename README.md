@@ -10,9 +10,15 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ### Getting Started
 
+安装依赖：
+
+```
+npm i
+```
+
 First, run the development server:
 
-如果出现加载错误请删除 “.next” 文件夹。
+如果出现加载错误请删除 “.next” 文件夹重新构建。
 
 ```bash
 npm run dev
