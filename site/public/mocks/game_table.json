@@ -37,9 +37,9 @@
         ],
         "download_url": "/",
         "online": {
-            "width": 1080,
-            "height": 1920,
-            "url": "/mocks/miner_embed/"
+            "width": 600,
+            "height": 800,
+            "url": "/mocks/miner_embed/index.html"
         }
     },
     {
@@ -75,6 +75,6 @@
             }
         ],
         "download_url": "/",
-        "online": "public/mocks/cat_mouse_fullscreen/"
+        "online": "public/mocks/cat_mouse_fullscreen/index.html"
     }
 ]

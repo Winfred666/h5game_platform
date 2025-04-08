@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 
-import { ThemeProvider } from '@mui/material/styles';
-import theme from '../theme';
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "../theme";
 
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
@@ -32,9 +32,11 @@ export default function RootLayout({
       <body>
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeProvider theme={theme}>
-            <NavBar />
-            {children}
-            <Footer />
+            <div className="flex flex-col justify-start items-stretch min-h-screen">
+              <NavBar />
+              <div className="flex-grow">{children}</div>
+              <Footer />
+            </div>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>

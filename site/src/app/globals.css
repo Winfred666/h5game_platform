@@ -30,6 +30,11 @@ body {
   flex-direction: column;
 }
 
+.my_link {
+  @apply text-[var(--mui-palette-primary-main)] hover:text-[var(--mui-palette-primary-300)] no-underline;
+}
+
+
 .navbar-button{
   @apply flex items-center justify-center;
   @apply box-border px-4 self-stretch text-[var(--foreground)];

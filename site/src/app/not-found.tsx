@@ -38,7 +38,7 @@ export default function NotFound() {
   }, [direction]);
   
   return (
-    <div className="flex flex-col items-center justify-center grow bg-gray-100 relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center grow relative overflow-hidden">
       {/* Moving game character */}
       <div 
         className="absolute w-16 h-16 transform -translate-x-1/2 -translate-y-1/2 transition-all duration-75 opacity-50"

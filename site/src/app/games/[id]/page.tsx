@@ -4,7 +4,7 @@ import EmbededCanvas from "./EmbededCanvas";
 import Image from "next/image";
 import { Button, Card, CardMedia, Chip, Typography } from "@mui/material";
 import { Download, PlayArrow } from "@mui/icons-material";
-import GamePoster from "@/components/GamePoster";
+import GamePoster from "@/components/GamePosters";
 
 export default async function ProductDetails({
   params,
@@ -15,30 +15,42 @@ export default async function ProductDetails({
   // now still in server component, just savely get game content
 
   const game = await getGameById(id);
+
   return (
-    <main>
+    <main className="w-full h-fit">
       {/* Background Cover Image */}
-      <div className="fixed inset-0 z-0">
+      <div className="fixed inset-0 -z-10">
         <Image
           src={game.cover_image}
           alt={game.title}
           fill
-          className="object-cover opacity-30"
+          className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black bg-opacity-60" />
+        <div className="absolute inset-0 bg-black opacity-50"></div>
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
+      <div
+        className="relative flex flex-col items-center 
+        gap-6 mx-auto pb-6 px-6 max-w-[90%] min-w-[55%] h-fit bg-[var(--background)]"
+        style={{
+          width: typeof game.online === "object" ? game.online.width : "80%",
+        }}
+      >
+        {/* 主要内容，使用页面包裹 */}
+        {/* Online Game full screen/embed Modal */}
+        {game.online ? (
+          <EmbededCanvas
+            online={game.online}
+            cover_img={game.cover_image}
+          ></EmbededCanvas>
+        ) : (
+          <></>
+        )}
+        <div className="flex flex-col lg:flex-row gap-8 lg:justify-between">
           {/* Left column - Game info */}
           <div className="lg:w-1/2 space-y-6">
-            <Typography
-              variant="h2"
-              component="h1"
-              className="text-white font-bold"
-            >
+            <Typography variant="h3" component="h3" className="font-bold">
               {game.title}
             </Typography>
 
@@ -46,7 +58,7 @@ export default async function ProductDetails({
               {game.description}
             </Typography>
 
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mt-2">
               {game.tags?.map((tag) => (
                 <Chip
                   key={tag.id}
@@ -58,7 +70,7 @@ export default async function ProductDetails({
               ))}
             </div>
 
-            <div className="bg-gray-800 bg-opacity-70 p-4 rounded-lg">
+            <div className="">
               <Typography variant="subtitle1" className="text-white">
                 作者: {game.developer.name}
               </Typography>
@@ -73,7 +85,6 @@ export default async function ProductDetails({
                 color="primary"
                 startIcon={<Download />}
                 href={game.download_url}
-                className="bg-blue-600 hover:bg-blue-700"
               >
                 下载游戏
               </Button>
@@ -81,31 +92,19 @@ export default async function ProductDetails({
           </div>
 
           {/* Right column - Screenshots */}
-          <div className="lg:w-1/2">
+          <div>
             <Typography variant="h5" className="text-white mb-4">
               游戏截图
             </Typography>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {game.screenshots.map((screenshot, index) => (
-                <GamePoster
-                  imgSrc={screenshot}
-                  key={`${game.title}_screen${index}`}
-                  alt={`${game.title}_screen${index}`}
-                />
-              ))}
-            </div>
+            <GamePoster
+              imageList={game.screenshots.map((screenshot, index) => ({
+                imgSrc: screenshot,
+                alt: `${game.title}_screen${index}`,
+              }))}
+            />
           </div>
         </div>
       </div>
-      {/* Online Game full screen/embed Modal */}
-      {game.online ? (
-        <EmbededCanvas
-          online={game.online}
-          cover_img={game.cover_image}
-        ></EmbededCanvas>
-      ) : (
-        <></>
-      )}
     </main>
   );
 }
