@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Button,
   TextField,
@@ -13,8 +13,11 @@ import {
   IconButton,
   SelectChangeEvent,
   Paper,
+  Chip,
+  Stack
 } from "@mui/material";
 import GamePoster from "@/components/GamePosters";
+import GameTags from "../../../public/mocks/GameTags"
 
 export default function NewGamePage() {
   const [kind, setKind] = useState(""); //类别(Downloaded/HTML)
@@ -30,6 +33,28 @@ export default function NewGamePage() {
   >([]); //相比于第11行多了一个[]代表是列表
 
   const screenshotRef = useRef<HTMLInputElement>(null); //上传截屏图片对应的<input>的引用
+
+  // const [allTags, setAllTags] = useState<{ id: string; name: string }[]>([]); // 存储所有的标签
+  // const getTags = async () => {
+  //   // 发送GET请求到服务器
+  //   try {
+  //     const response = await fetch("/tag", {
+  //       method: "GET",
+  //     });
+  //     if (!response.ok) throw new Error("Network response was not ok");
+  //     const tags = await response.json();
+  //     setAllTags(tags);
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+  // }
+  // // 在组件加载时调用 getTags
+  // useEffect(() => {
+  //   getTags();
+  // }, []);
+  const allTags = GameTags;// 存储所有的标签
+  
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);//记录所有已选择的tag的id.
 
   const handleKindChange = (e: SelectChangeEvent<string>) => {
     setKind(e.target.value);
@@ -86,7 +111,15 @@ export default function NewGamePage() {
     });
   };
 
-  //注：在form的提交时对应的handleSubmit函数中,应当将cover和screenshots的file内容传递给服务器
+  const handleTagChange = (tag: string) => {
+    setSelectedTags((prevSelected) =>
+      prevSelected.includes(tag)
+        ? prevSelected.filter((t) => t !== tag) // 取消选中
+        : [...prevSelected, tag]               // 添加选中
+    )
+  }
+
+  //注：在form的提交时对应的handleSubmit函数中,应当将cover和screenshots的file内容传递给服务器,SelectTags也要传递
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); //阻止默认提交行为
@@ -99,6 +132,8 @@ export default function NewGamePage() {
       if (screenshot.file)
         formData.append(`screenshot_${idx}`, screenshot.file);
     });
+    if (selectedTags.length > 0) formData.append("tags", selectedTags.join(","));
+    //传递的是逗号分隔的字符串数组,服务器端想转换回来需要const tags = JSON.parse(req.body.tags);
 
     for (let sth of formData.keys()) {
       console.log(sth, formData.get(sth));
@@ -135,7 +170,7 @@ export default function NewGamePage() {
               required
               margin="normal"
             />
-            <TextField
+            {/*<TextField
               id="tagline"
               name="tagline"
               label="Short description or tagline"
@@ -144,7 +179,7 @@ export default function NewGamePage() {
               fullWidth
               margin="normal"
               helperText="Shown when linking to your project. Avoid duplicating the title."
-            />
+            />*/}
             <FormControl fullWidth variant="outlined" margin="normal" required>
               <InputLabel id="kind-label">Kind of project</InputLabel>
               <Select
@@ -266,7 +301,7 @@ export default function NewGamePage() {
                 margin="normal"
                 helperText="This will make up the content of your game page."
               />
-              <FormControl
+              {/*<FormControl
                 fullWidth
                 variant="outlined"
                 margin="normal"
@@ -286,7 +321,23 @@ export default function NewGamePage() {
                   <MenuItem value="card">Card game</MenuItem>
                   <MenuItem value="other">Other</MenuItem>
                 </Select>
-              </FormControl>
+              </FormControl>*/}
+              <Typography variant="h6" gutterBottom>
+                Genre
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                {allTags.map((tag) => (
+                  <Chip
+                    key={tag.id}
+                    label={tag.name}
+                    clickable
+                    color={selectedTags.includes(tag.id) ? 'primary' : 'default'}
+                    variant={selectedTags.includes(tag.id) ? 'filled' : 'outlined'}
+                    onClick={() => handleTagChange(tag.id)}
+                    className="mb-1 mt-1"
+                  />
+                ))}
+              </Stack>
             </Box>
           </div>
 
