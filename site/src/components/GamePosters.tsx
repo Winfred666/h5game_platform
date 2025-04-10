@@ -1,7 +1,7 @@
 "use client";
 
-import { ClosedCaption } from "@mui/icons-material";
-import { Box, Button, Card, CardMedia, Dialog, IconButton } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+import {Button, Dialog, IconButton } from "@mui/material";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -17,29 +17,31 @@ export default function GamePosters({
 }) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   return (
-    <div className="flex flex-row justify-start gap-10">
+    <div className="flex flex-row flex-wrap justify-start gap-10">
       {imageList.map(({ imgSrc, alt },index) => (
-        <Card
-          className="overflow-hidden cursor-pointer hover:scale-[102%] transition-transform"
-          onClick={() => setSelectedImage(imgSrc || null)}
+        <div
+          className="relative overflow-hidden cursor-pointer shadow"
           key={alt}
         >
-          <CardMedia
-            component="img"
+          <Image
             height="200"
-            image={imgSrc || undefined}
+            width="300"
+            src={imgSrc}
             alt={alt}
-            className="h-48 object-cover"
+            className=" max-h-80 object-cover hover:scale-[102%] transition-transform rounded-sm"
+            onClick={() => setSelectedImage(imgSrc || null)}
           />
           {onDelete && (
+            <div className="absolute z-10 top-4 right-4 rounded-full bg-white/50">
             <IconButton
+              color="primary"
               onClick={() => onDelete(index)}
-              className="absolute top-8 right-8 bg-white bg-opacity-70 text-gray-800"
             >
               <DeleteIcon />
             </IconButton>
+            </div>
           )}
-        </Card>
+        </div>
       ))}
 
       {/* Screenshot Modal */}
@@ -50,19 +52,21 @@ export default function GamePosters({
         fullWidth
       >
         <div className="relative">
-          <Button
+          <div className="absolute top-2 right-2 rounded-full bg-white/50 z-10">
+          <IconButton
+            color='primary'
             onClick={() => setSelectedImage(null)}
-            className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full p-1 z-10"
           >
-            <ClosedCaption />
-          </Button>
+            <CloseIcon />
+          </IconButton>
+          </div>
           {selectedImage && (
             <Image
               src={selectedImage}
               alt="Screenshot"
               width={1200}
               height={800}
-              className="w-full h-auto"
+              className="w-full max-h-[700px] object-contain"
             />
           )}
         </div>

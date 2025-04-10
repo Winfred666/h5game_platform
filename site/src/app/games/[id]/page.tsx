@@ -32,7 +32,7 @@ export default async function ProductDetails({
 
       <div
         className="relative flex flex-col items-center 
-        gap-6 mx-auto pb-6 px-6 max-w-[90%] min-w-[55%] h-fit bg-[var(--background)]"
+        gap-6 mx-auto pb-6 px-6 max-w-[90%] min-w-[60%] h-fit bg-[var(--background)]"
         style={{
           width: typeof game.online === "object" ? game.online.width : "80%",
         }}
@@ -54,7 +54,7 @@ export default async function ProductDetails({
               {game.title}
             </Typography>
 
-            <Typography variant="body1" className="text-gray-200">
+            <Typography variant="body1">
               {game.description}
             </Typography>
 
@@ -65,16 +65,15 @@ export default async function ProductDetails({
                   label={tag.name}
                   color="primary"
                   size="small"
-                  className="bg-blue-600"
                 />
               ))}
             </div>
 
             <div className="">
-              <Typography variant="subtitle1" className="text-white">
+              <Typography variant="subtitle1">
                 作者: {game.developer.name}
               </Typography>
-              <Typography variant="subtitle2" className="text-gray-300">
+              <Typography variant="subtitle2">
                 发布日期: {new Date(game.release_date).toLocaleDateString()}
               </Typography>
             </div>
@@ -92,8 +91,8 @@ export default async function ProductDetails({
           </div>
 
           {/* Right column - Screenshots */}
-          <div>
-            <Typography variant="h5" className="text-white mb-4">
+          <div className="max-w-1/2">
+            <Typography variant="h5" sx={{mb:6}}>
               游戏截图
             </Typography>
             <GamePoster

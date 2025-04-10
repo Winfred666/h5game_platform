@@ -341,7 +341,7 @@ export default function NewGamePage() {
             </Box>
           </div>
 
-          <div>
+          <div className=" min-w-[40%]">
             {/* 右侧上传封面及截图 */}
             <Box sx={{ mb: 3 }}>
               <Typography variant="h6" gutterBottom>
