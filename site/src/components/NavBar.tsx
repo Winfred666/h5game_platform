@@ -15,10 +15,10 @@ export default function NavBar() {
         <Toolbar className="gap-10 h-full">
           <Link className="flex flex-row" href="/" passHref>
           <SportsEsportsIcon fontSize='large' color="primary" />
-          <Typography className="pl-4" variant="h6" component="div">
+          </Link>
+          <Typography className="select-none" variant="h6" component="div">
             ZJU H5游戏分享平台
           </Typography>
-          </Link>
           <div className="navbar-button navbar-active-button"> 登录 </div>
         </Toolbar>
       </AppBar>

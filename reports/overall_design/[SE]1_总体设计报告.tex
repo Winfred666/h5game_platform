@@ -129,16 +129,25 @@
 \subsection{目的}
 \subsection{体系结构风格}
 \subsubsection{以数据为中心的体系结构}
-\subsubsection{数据流体系结构}
+
 \subsubsection{调用和返回体系结构}
+
 \subsubsection{面向对象体系结构}
+
 \subsubsection{层次体系结构}
+
 \subsubsection{客户端-服务器架构}
+
 \subsubsection{浏览器-服务器架构}
-\subsubsection{微服务架构}
+
 \subsubsection{事件驱动架构}
+
+
 \subsection{本次设计采用的体系结构风格}
+
+
 \subsection{体系结构环境图和原型}
+
 \subsubsection{视图层}
 \subsubsection{控制层}
 \paragraph{控制器}
@@ -169,24 +178,75 @@
 \section{客户端设计}
 
 \subsection{客户端架构}
+
+
+
 \subsubsection{视图层}
 \subsection{客户端处理流程}
 
 \section{界面原型}
 
+本项目大量参考 \url{https://itch.io}{itch.io} 、\url{https://www.gcores.com/booom/game_lib}{BOOOM暴造} 等游戏资源分享网站
+并专注于游戏资源上传和分享、评分功能，大量简化博客、活动宣传、关注、私聊等社区功能。因此界面原型也大致参考这些网站搭建。就算经验不足，也保证不大幅偏离 “最佳实践”。
+
+以下标明 “参考” 的是参考网站的界面设计，其他的则是我们自己设计的界面原型。
 
 \subsection{登录界面}
-\subsection{商品收藏页}
-\subsection{购物车页}
-\subsection{注册界面}
-\subsection{用户主界面}
-\subsection{商品详情页一}
-\subsection{商品详情页二}
-\subsection{个人信息页}
-\subsection{个人商铺页}
-\subsection{发布商品页}
-\subsection{结算付款页}
-\subsection{查看订单页一}
-\subsection{查看订单页二}
+
+使用 UAuth2.0 协议登录，用户可以使用第三方账号（最好是zjuam）登录，因此没必要提供注册界面。
+
+\subsection{主页/游戏探索页}
+
+
+\subsection{游戏筛选页(参考)}
+
+提供按照某种游戏 tag，比如 `Horror` 标签，或者发布时间、游玩平台进行筛选。后续将直接加到首页，便于筛选。
+注意最终交付版本不提供价格/购买功能，因此也没有其筛选项。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{UI-tagged.png}
+  \caption{游戏探索页-按标签筛选}
+\end{figure}
+
+\subsection{游戏上传/编辑管理页}
+
+重复利用该表单以实现游戏的上传和所有者/管理员的编辑功能。用户可以在该表单中上传游戏资源，填写游戏信息。
+
+
+\subsection{游戏详情与进行页}
+
+主要分为纵向两部分，第一个是游玩通道与详细信息，目前已经实现其设计，如果是在线游戏，那么最上方嵌入画布：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{UI-detailed.png}
+  \caption{游戏详情页的游玩和介绍区}
+\end{figure}
+
+
+第二个是打分与评论区，评论区是 itch 网站参考图：
+
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{UI-comment.png}
+  \caption{游戏详情页的评论区}
+\end{figure}
+
+\subsection{个人信息页(参考)}
+
+在 itch.io 这样创意性十足的网页中，个人信息页是可以灵活编辑其排版和显示内容，甚至可以手动插入 CSS 样式。
+但最核心的功能还是个人联系方式和游戏制作列表的展示，简易版将在后续实现。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{UI-profile.png}
+  \caption{itch.io 的个人信息页}
+\end{figure}
+
+
+\subsection{管理员后台}
+
 
 \end{document}
