@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { StyledEngineProvider } from '@mui/material/styles';
 
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "../theme";
@@ -30,7 +31,8 @@ export default function RootLayout({
   return (
     <html lang="zh">
       <body>
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+        <AppRouterCacheProvider options={{ enableCssLayer: true, key:"css", prepend:true }}>
+        <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
             <div className="flex flex-col justify-start items-stretch min-h-screen">
               <NavBar />
@@ -38,6 +40,7 @@ export default function RootLayout({
               <Footer />
             </div>
           </ThemeProvider>
+        </StyledEngineProvider>
         </AppRouterCacheProvider>
       </body>
     </html>

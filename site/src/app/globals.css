@@ -1,9 +1,15 @@
-@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+/* delete preflight of tailwindcss */
+@import "tailwindcss/utilities.css" layer(utilities);
+
 
 :root {
   --background: #f4f4f4;
   --foreground: #171717;
-  --active-light-background: rgba(var(--mui-palette-primary-mainChannel) / var(--mui-palette-action-hoverOpacity));
+  --hover-light-background: rgba(var(--mui-palette-primary-mainChannel) / var(--mui-palette-action-hoverOpacity));
+
+  --active-light-background: rgba(var(--mui-palette-primary-mainChannel) / 0.2);
 }
 
 @theme inline {
@@ -24,10 +30,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  min-width: 100vw;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  margin: 0;
 }
 
 .my_link {
@@ -36,9 +41,10 @@ body {
 
 
 .navbar-button{
-  @apply flex items-center justify-center;
+  @apply flex items-center justify-center select-none cursor-pointer;
   @apply box-border px-4 self-stretch text-[var(--foreground)];
-  @apply hover:text-[var(--mui-palette-primary-main)] hover:bg-[var(--active-light-background)] transition-colors duration-150;
+  @apply hover:text-[var(--mui-palette-primary-main)] hover:bg-[var(--hover-light-background)] transition-colors duration-150;
+  @apply active:bg-[var(--active-light-background)]
 }
 .navbar-active-button{
   @apply border-b-6 border-[var(--mui-palette-primary-main)] pt-[6px];
