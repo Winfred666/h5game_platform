@@ -121,7 +121,7 @@ async def delete_game_image(url: str, id: str):
     if image["type"] == "cover":
         return
     db.delete_image(url)
-    client.remove_file("g" + str(image["id"]), url)
+    client.remove_file("g" + id, url)
     return {}
 
 

@@ -149,7 +149,7 @@ class GameDB:
 
     def get_game_images(self, game_id):
         sql = """
-        SELECT id, image_type, minio_path, position 
+        SELECT id, game_id, image_type, minio_path, position 
         FROM game_images 
         WHERE game_id = %s
         ORDER BY image_type, position NULLS LAST
@@ -161,16 +161,16 @@ class GameDB:
             return [
                 {
                     "id": row[0],
-                    "type": row[1],
-                    "url": self.minio_prefix + f"{row[0]}/{row[2]}",  #
-                    "position": row[3],
+                    "type": row[2],
+                    "url": self.minio_prefix + f"{row[1]}/{row[2]}",  #
+                    "position": row[4],
                 }
                 for row in cur.fetchall()
             ]  # list - dict
 
     def get_image(self, image_url: str):
         sql = """
-        SELECT id, image_type, minio_path, position 
+        SELECT id, game_id, image_type, minio_path, position 
         FROM game_images 
         WHERE minio_path = %s
         """
@@ -179,9 +179,9 @@ class GameDB:
             return [
                 {
                     "id": row[0],
-                    "type": row[1],
-                    "url": self.minio_prefix + f"{row[0]}/{row[2]}",
-                    "position": row[3],
+                    "type": row[2],
+                    "url": self.minio_prefix + f"{row[1]}/{row[3]}",
+                    "position": row[4],
                 }
                 for row in cur.fetchall()
             ]
