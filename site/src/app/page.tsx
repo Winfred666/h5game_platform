@@ -18,7 +18,7 @@ export default async function Home() {
 
   const swipers = games.map((game) => ({
     src: game.cover_image,
-    link: "/game/" + game.id,
+    link: "/games/" + game.id,
     title: game.title,
     screenshots: game.screenshots
   }));
