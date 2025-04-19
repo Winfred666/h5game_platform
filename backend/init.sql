@@ -33,6 +33,16 @@ CREATE INDEX idx_game_images ON game_images(game_id, image_type);
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(8) NOT NULL,
-    password VARCHAR(8) NOT NULL,
+    email VARCHAR(50) NOT NULL,
+    telephone VARCHAR(20) NOT NULL,
+    background VARCHAR(255),
+    profile_path VARCHAR(255),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+CREATE TABLE user_games (
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    game_id INTEGER REFERENCES games(id) ON DELETE CASCADE,
+    added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    PRIMARY KEY (user_id, game_id)
 );
