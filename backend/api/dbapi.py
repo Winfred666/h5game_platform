@@ -255,12 +255,12 @@ class Game:
         self.info["release_date"] = game_info_list[11]
         self.info["developer"] = game_info_list[14]
         self.info["tags"] = game_info_list[8]
-        self.info["download_url"] = minio_prefix + f"{self.info["id"]}/game.zip"
+        self.info["download_url"] = minio_prefix + f"{self.info['id']}/game.zip"
         if game_info_list[3] == "html":
             self.info["online"] = {
                 "width": game_info_list[5],
                 "height": game_info_list[6],
-                "url": minio_prefix + f"{self.info["id"]}/index.html",
+                "url": minio_prefix + f"{self.info['id']}/index.html",
             }
         else:
             self.info["online"] = None
