@@ -1,40 +1,38 @@
-# 1ms-helper
+# h5game_platform
 
-1ms-helper is a terminal-based application built with Go and the `tview` library. It provides a menu-driven interface for managing services and viewing logs.
+简单的 h5 在线游戏内容 CMS 分享平台 ，支持服务器 self-host。
+/site 文件夹为前端部分（包含管理平台），可以上传 h5 游戏包到服务器并生成展示页面，ZJU SE 课程作业
 
-## Features
 
-- **Service Management**: Start and manage services.
-- **Log Viewer**: View real-time logs.
+## /site
 
-## Requirements
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-- [颜色组件库：github.com/gookit/color](github.com/gookit/color)
-- [控制台库：github.com/spf13/cobra](github.com/spf13/cobra)
+### Getting Started
 
-## Installation
+安装依赖：
 
-1. Clone the repository:
-    ```sh
-    git clone https://cnb.cool/mliev/1ms.run/1ms-helper.git
-    ```
-2. Navigate to the project directory:
-    ```sh
-    cd 1ms-helper
-    ```
-3. Install dependencies:
-    ```sh
-    go mod tidy
-    ```
-
-## Usage
-
-Run the application:
-```sh
-go run main.go
+```
+npm i
 ```
 
-## 打包 提示:删除上次打包的dist目录
-```shell
-goreleaser release --snapshot --clean
+First, run the development server:
+
+如果出现加载错误请删除 “.next” 文件夹重新构建。
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+
+## /server
+
+使用 python fastAPI 创建的后端。同时使用 minIO + PosgresSQL 创建数据库
