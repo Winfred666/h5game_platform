@@ -7,3 +7,7 @@
 *.toc
 *.synctex.gz
 *.synctex(busy)
+# Python cache files
+__pycache__/
+# Python virtual environment
+venv/
