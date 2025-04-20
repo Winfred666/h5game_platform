@@ -453,12 +453,43 @@
 
 \section{客户端设计}
 
+本次使用全栈客户端 Next.js 框架，其具备的拓展性可帮助打破单纯 “视图层” 的特性。
+简单的 API Router 设计具备直接访问数据库的功能，但为了更好的分工安排，我们减轻全栈设计的复杂性， RESTful API 仍然由传统后端提供。
+但在涉及用户权限控制时，仍然会使用 Next.js 的 API Router 进行更灵活、安全的路由处理。而如果使用了服务器端数据获取和渲染，则也应该使用服务器端动态渲染的形式。
+
 \subsection{客户端架构}
 
+主要采用组件式设计，组件化设计的好处在于可以将复杂的 UI 拆分成更小的、可重用的组件。每个组件都可以独立开发、测试和维护，从而提高了代码的可读性和可维护性。
+组件化设计还可以提高开发效率，因为多个开发人员可以同时工作在不同的组件上，而不必担心相互之间的干扰。组件树示例如下：
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Client-tree.png}
+  \caption{组件树示例}
+\end{figure}
+
+\subsection{客户端路由}
+
+Next.js 的路由系统是基于文件系统的，页面文件存放在 `app` 目录下，文件名即为路由路径。每个页面都是一个 React 组件，Next.js 会自动处理路由和页面渲染。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Client-arch.png}
+  \caption{目前的客户端路由}
+\end{figure}
 
 
-\subsubsection{视图层}
-\subsection{客户端处理流程}
+\subsection{渲染与缓存}
+
+对于各部分的小块 data，采用视图和控制器分离的设计模式，以确保前端 model 的唯一性。而对于完整的页面，使用 Static Site Generation（增量静态再生）来进行渲染。
+在正常情况下，设置 validate 字段为较长的时期，以始终持有 Full Route Cache 。 而在一定时间后，或有新游戏上传，资讯需要更新时，才使用细粒度较好的 revalidatePath 或 revalidateTag 来进行页面的增量构建。
+这在极大减少客户端请求数目的同时，也能减轻服务器压力，并保证数据的实时性。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{Next-Cache.png}
+  \caption{Next.js 数据缓存时序图}
+\end{figure}
 
 \section{界面原型}
 
@@ -488,6 +519,12 @@
 \subsection{游戏上传/编辑管理页}
 
 重复利用该表单以实现游戏的上传和所有者/管理员的编辑功能。用户可以在该表单中上传游戏资源，填写游戏信息。
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{UI-upload.png}
+  \caption{游戏上传页}
+\end{figure}
 
 
 \subsection{游戏详情与进行页}

@@ -325,7 +325,7 @@ export default function NewGamePage() {
               <Typography variant="h6" gutterBottom>
                 Genre
               </Typography>
-              <Stack direction="row" spacing={1} flexWrap="wrap">
+              <Stack direction="row" spacing={1} flexWrap="wrap" gap={0.8}>
                 {allTags.map((tag) => (
                   <Chip
                     key={tag.id}
@@ -334,7 +334,6 @@ export default function NewGamePage() {
                     color={selectedTags.includes(tag.id) ? 'primary' : 'default'}
                     variant={selectedTags.includes(tag.id) ? 'filled' : 'outlined'}
                     onClick={() => handleTagChange(tag.id)}
-                    className="mb-1 mt-1"
                   />
                 ))}
               </Stack>
