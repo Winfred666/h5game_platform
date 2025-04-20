@@ -208,7 +208,7 @@ class GameDB:
             result = list(cur.fetchall())
             for game in result:
                 game = list(game)
-                game[3] = game[3].strip(",").split(",")
+                game[8] = game[8].strip(",").split(",")
             return result  # list - tuple,一个元组代表一行数据
 
     def get_games_by_genre(self, genre):
@@ -224,7 +224,7 @@ class GameDB:
             result = list(cur.fetchall())
             for game in result:
                 game = list(game)
-                game[3] = game[3].strip(",").split(",")
+                game[8] = game[8].strip(",").split(",")
             return result  # list
         #  最新创建的游戏记录会排在前面
 
@@ -264,9 +264,6 @@ class Game:
             }
         else:
             self.info["online"] = None
-        self.get_images(db)
-
-    def get_images(self, db: GameDB):
         result = db.get_game_images(self.info["id"])
         if len(result) > 1:
             self.info["screenshots"] = []
@@ -275,7 +272,6 @@ class Game:
                 self.info["cover_image"] = image["url"]
             elif image["type"] == "screenshot":
                 self.info["screenshots"].append(image["url"])
-        return
 
-    def getinfo(self):
+    def get_info(self):
         return self.info
