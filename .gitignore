@@ -7,3 +7,7 @@
 *.toc
 *.synctex.gz
 *.synctex(busy)
+
+# for unwanted files
+
+*.zip

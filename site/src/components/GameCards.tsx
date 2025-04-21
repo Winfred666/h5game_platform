@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Box } from '@mui/material';
 
 import { IGame } from "@/types/igame";
+import Link from "next/link";
 
 interface GameCardsProps {
   games: IGame[];
@@ -11,9 +12,10 @@ interface GameCardsProps {
 const GameCards: React.FC<GameCardsProps> = ({ games }) => {
   return (
     
-    <Box className="flex flex-wrap justify-center gap-6 mt-8">
+    <Box className="flex flex-wrap gap-6 mt-8">
       {/* flex-wrap允许子元素在容器宽度不足时换行 */}
       {games.map((game) => (
+        <Link href={`games/${game.id}`} key={game.id} className="no-underline">
         <Card
           key={game.id}
           className="w-64 flex flex-col rounded-2xl shadow-md hover:shadow-xl transition-transform hover:scale-[1.03]"
@@ -30,7 +32,7 @@ const GameCards: React.FC<GameCardsProps> = ({ games }) => {
             <Typography variant="h6" className="mb-1">
               {game.title}
             </Typography>
-            <Typography variant="body2" color="text.secondary" className="mb-2 text-sm text-gray-600">
+            <Typography variant="body2" color="text.secondary" className="mb-2 text-sm text-gray-600 line-clamp-3">
               {game.description}
             </Typography>
             <Typography variant="caption" color="text.secondary" className="text-xs text-gray-500">
@@ -38,6 +40,7 @@ const GameCards: React.FC<GameCardsProps> = ({ games }) => {
             </Typography>
           </CardContent>
         </Card>
+        </Link>
       ))}
     </Box>
   );
