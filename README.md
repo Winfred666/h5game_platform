@@ -34,3 +34,5 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 
 ## /server
+
+使用 python fastAPI 创建的后端。同时使用 minIO + PosgresSQL 创建数据库

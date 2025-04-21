@@ -103,10 +103,10 @@ async def get_game_by(
     tag: Optional[str] = Query(None),
 ):
     if id:
-        return Game(db.get_game(int(id)), db=db).getinfo()
+        return Game(db.get_game(int(id)), db=db).get_info()
     if tag:
-        return [Game(game, db=db).getinfo() for game in db.get_games_by_genre(tag)]
-    return [Game(game, db=db).getinfo() for game in db.list_games()]
+        return [Game(game, db=db).get_info() for game in db.get_games_by_genre(tag)]
+    return [Game(game, db=db).get_info() for game in db.list_games()]
 
 
 @app.get("/tag")
