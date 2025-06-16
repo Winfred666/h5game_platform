@@ -1,0 +1,30 @@
+# auxiliary files of latex
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.synctex(busy)
+
+# for unwanted files
+
+*.zip
+*.tar
+
+#for python virtual environment
+
+venv/
+
+# for python cache files
+
+**/__pycache__
+*.pyc*.env.prod
+python3.9.tar
+*.env.prod
+*.env
+
+site/public/mocks
+
+backup/
