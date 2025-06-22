@@ -1,7 +1,7 @@
 export interface IComment {
-    id: string;//评论的id
-    game_id: string;
-    user_id: string;
+    id: number;//评论的id
+    game_id: number;
+    user_id: number;
     user_name: string;//用户名
     user_profile: string;//用户头像
     

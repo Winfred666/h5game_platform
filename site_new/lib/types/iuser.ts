@@ -1,6 +1,6 @@
 // thumbnails of IGames, not paged.
 export interface IUserGame {
-    id: string;
+    id: number;
     title: string;
     cover_image: string;
 }
@@ -11,7 +11,7 @@ export interface IContact {
 }
 
 export interface IUser {
-    id: string;
+    id: number;
     qq: string;
     name: string;
 
@@ -23,7 +23,6 @@ export interface IUser {
     contacts: IContact[]; // 用户联系方式列表, 以IContact[]的形式存储
     //一个长字符串,以"way1,content1;way2,content2"的形式存储.使用时需要转化成IContact[]的形式
     games: IUserGame[]; // 用户参与开发的游戏列表
-    
     is_admin: boolean; // 是否为管理员
 }
 

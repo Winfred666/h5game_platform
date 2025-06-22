@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../lib/generated/prisma"
+  // output   = "../lib/generated/prisma" // just generate into node modules.
 }
 
 datasource db {
@@ -14,12 +14,7 @@ datasource db {
   url      = "file:./dev.db"
 }
 
-
-
 // schema.prisma
-
-// This version is much more powerful and what Prisma is designed for.
-
 model Game {
   id          Int      @id @default(autoincrement())
   title       String   @unique
@@ -35,8 +30,8 @@ model Game {
   downloads   BigInt   @default(0)
 
   // --- RELATIONAL FIELDS ---
-  // Replaces `genre`: a game can have many tags.
-  tags        Tag[]
+  // tags is like "a,b,c"
+  tags        String  
   // Replaces `author_ids`: a game can have many authors (users).
   authors     User[]
 
@@ -47,20 +42,18 @@ model User {
   id    Int     @id @default(autoincrement())
   name  String?
   email String  @unique
+
   // ... other user fields like password, etc.
   // A user can be the author of many games.
   games Game[]
+
+  @@map("users")
 }
 
+// only for select.
 model Tag {
   id    Int     @id @default(autoincrement())
   name  String  @unique // e.g., "Action", "Puzzle", "RPG"
 
-  // A tag can be applied to many games.
-  games Game[]
-}
-
-enum GameKind {
-  ONLINE
-  DOWNLOAD
+  @@map("tags")
 }

@@ -3,7 +3,7 @@ export type IGameTag = string;
 
 // Developer as a view from table "User"
 export interface IDeveloper {
-    id: string;
+    id: number;
     name: string;
 }
 
@@ -14,7 +14,7 @@ export interface IOnlineEmbed{
 }
 
 export interface IGame {
-    id: string; // id is always string.
+    id: number; // id is always string.
     title: string;
     description: string;
     cover_image: string;
