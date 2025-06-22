@@ -2,7 +2,7 @@ CREATE TABLE games (
     id SERIAL PRIMARY KEY,  -- 自增整数 
     title VARCHAR(50) NOT NULL,  --1
     kind VARCHAR(20) NOT NULL,  --2
-    embed_op VARCHAR(20) NOT NULL,--3
+    is_online VARCHAR(20) NOT NULL,--3
     width INTEGER DEFAULT NULL,--4
     height INTEGER DEFAULT NULL,--5
     description TEXT,--6
