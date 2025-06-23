@@ -18,42 +18,42 @@ datasource db {
 model Game {
   id          Int      @id @default(autoincrement())
   title       String   @unique
-  isOnline    Boolean  
+  isOnline    Boolean  @map("is_online") // true if the game can be played online.
   width       Int?
   height      Int?
-  description String?
+  description String // must has, can be "" empty string.
+
   isPrivate   Boolean  @default(true) @map("is_private")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  size        BigInt   @default(0)
-  views       BigInt   @default(0)
-  downloads   BigInt   @default(0)
+  size        Int   @default(0) // Store KB, displya in MB.
+  views       Int   @default(0) // incremented when the game is viewed.
+  downloads   Int   @default(0) // incremented when the game is downloaded.
 
   // --- RELATIONAL FIELDS ---
-  // tags is like "a,b,c"
+  // tags is like "a,b,c", no binding to a Tag model.
   tags        String  
-  // Replaces `author_ids`: a game can have many authors (users).
-  authors     User[]
-
-  @@map("games")
+  // Replaces `developer_ids`: a game can have many developers (users).
+  developers     User[]
+  
+  @@map("game")
+  // Indexes, for performance. WARNING: add `WHERE is_private = false;` when migrate
+  // @@index([createdAt])
 }
 
 model User {
   id    Int     @id @default(autoincrement())
-  name  String?
+  name  String
   email String  @unique
 
   // ... other user fields like password, etc.
   // A user can be the author of many games.
   games Game[]
-
-  @@map("users")
+  @@map("user")
 }
 
 // only for select.
 model Tag {
-  id    Int     @id @default(autoincrement())
-  name  String  @unique // e.g., "Action", "Puzzle", "RPG"
-
-  @@map("tags")
+  name  String @id @unique // e.g., "Action", "Puzzle", "RPG"
+  @@map("tag")
 }

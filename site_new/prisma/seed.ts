@@ -83,12 +83,12 @@ async function main() {
         height: faker.helpers.arrayElement([768, 720, 1080]),
         description: faker.lorem.paragraph(),
         isPrivate: faker.datatype.boolean(0.2), // 20% chance of being private
-        size: faker.number.bigInt({ min: 100000000, max: 99000000000 }),
-        views: faker.number.bigInt({ min: 0, max: 1000000 }),
-        downloads: faker.number.bigInt({ min: 0, max: 250000 }),
+        size: faker.number.int({ min: 100000000/1024, max: 99000000000/1024 }),
+        views: faker.number.int({ min: 0, max: 1000000 }),
+        downloads: faker.number.int({ min: 0, max: 250000 }),
         // --- RELATIONAL & CUSTOM FIELDS ---
         tags: gameTagsString,
-        authors: {
+        developers: {
           // This is how you connect a many-to-many relationship in Prisma
           connect: authorConnects,
         },

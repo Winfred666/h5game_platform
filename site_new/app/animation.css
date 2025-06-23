@@ -1,0 +1,37 @@
+
+/* Define custom utilities and animations here */
+@layer utilities {
+  @keyframes orbit {
+    from {
+      transform: rotate(var(--initial-rotation, 0deg));
+    }
+    to {
+      transform: rotate(calc(var(--initial-rotation, 0deg) + 360deg));
+    }
+  }
+  .animate-orbit {
+    animation: orbit linear infinite;
+  }
+
+  /* --- Keyframes for the "wander" animation --- */
+  @keyframes wander {
+    0% {
+      transform: translate(-50vw, -50vh) rotate(0deg);
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    75% {
+      opacity: 1;
+    }
+    100% {
+      transform: translate(50vw, 50vh) rotate(180deg);
+      opacity: 0;
+    }
+  }
+  /* --- Utility classes to apply the animations --- */
+  .animate-wander {
+    animation: wander linear infinite;
+  }
+}

@@ -42,3 +42,11 @@ next-env.d.ts
 
 /lib/generated/prisma
 /prisma/migrations
+
+/public/mocks
+
+
+# for unwanted files
+
+*.zip
+*.tar

@@ -26,3 +26,5 @@ export interface IUser {
     is_admin: boolean; // 是否为管理员
 }
 
+
+// also validate form using zod.
