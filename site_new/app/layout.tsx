@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import SWRConfigProvider from "@/components/SWRConfigProvider";
 
 export const metadata: Metadata = {
   title: "ZJU H5游戏中心",
@@ -24,12 +25,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <SWRConfigProvider>{children}</SWRConfigProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
-
 
 export const revalidate = 60; // 1 minute

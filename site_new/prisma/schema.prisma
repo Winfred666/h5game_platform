@@ -23,37 +23,67 @@ model Game {
   height      Int?
   description String // must has, can be "" empty string.
 
-  isPrivate   Boolean  @default(true) @map("is_private")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
-  size        Int   @default(0) // Store KB, displya in MB.
-  views       Int   @default(0) // incremented when the game is viewed.
-  downloads   Int   @default(0) // incremented when the game is downloaded.
-
-  // --- RELATIONAL FIELDS ---
-  // tags is like "a,b,c", no binding to a Tag model.
-  tags        String  
-  // Replaces `developer_ids`: a game can have many developers (users).
-  developers     User[]
   
+  isPrivate   Boolean  @default(true) @map("is_private")
+  
+  size        Int      @default(0) // Store KB, displya in MB.
+  views       Int      @default(0) // incremented when the game is viewed.
+  downloads   Int      @default(0) // incremented when the game is downloaded.
+  
+  // store webp, only need to record number of screenshots.
+  screenshotCount Int @default(0) @map("screenshot_count")
+  // coverPostfix  String   @map("cover_postfix") // only postfix of the cover image, coverImage URL need generate dynamically
+  // --- RELATIONAL FIELDS ---
+  // tags is like ",a,b,c,", no binding to a Tag model.
+  // tags        String  
+  tags        Tag[]
+  developers  User[]
+  comments    Comment[]
   @@map("game")
   // Indexes, for performance. WARNING: add `WHERE is_private = false;` when migrate
   // @@index([createdAt])
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  name  String
-  email String  @unique
+  id            Int     @id @default(autoincrement())
+  qq            String  @unique
+  name          String
+  
+  introduction  String  // optional, at least set ""
+  // only postfix of the avatar image, store webp. avatar URL
+  // avatarPostfix String  @map("avatar_postfix")
 
-  // ... other user fields like password, etc.
-  // A user can be the author of many games.
-  games Game[]
+  hash          String  // salted hashed password, not stored in plain text.
+  isAdmin       Boolean @default(false) @map("is_admin") // true if the user is an admin.
+  
+  // --- RELATIONAL FIELDS ---
+  games         Game[]
+  comments      Comment[]
   @@map("user")
 }
 
 // only for select.
 model Tag {
-  name  String @id @unique // e.g., "Action", "Puzzle", "RPG"
+  id        Int    @id @default(autoincrement())
+  name      String @unique // e.g., "Action", "Puzzle", "RPG"
+  // --- RELATIONAL FIELDS ---
+  games     Game[]
   @@map("tag")
 }
+
+model Comment {
+  id      Int    @id @default(autoincrement())
+  content String
+  createdAt DateTime @default(now()) @map("created_at")
+  userId  Int @map("user_id")
+  gameId  Int @map("game_id")
+  
+  user User @relation(fields: [userId], references: [id])
+  game Game @relation(fields: [gameId], references: [id])
+  
+  @@index([userId])
+  @@index([gameId])
+}
+

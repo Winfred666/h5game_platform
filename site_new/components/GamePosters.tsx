@@ -6,16 +6,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Trash2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { ImageDialog } from "./ui/image-dialog";
 
 // --- STYLING (using cva for variants) ---
 
 const galleryVariants = cva("flex w-full", {
   variants: {
     variant: {
-      default: "flex-wrap gap-4 md:gap-6",
-      small: "flex-nowrap gap-2 overflow-x-auto pb-3", // Added padding for scrollbar visibility
+      default: "flex-wrap gap-4 lg:gap-6",
+      small: "gap-2", // Added padding for scrollbar visibility
     },
   },
   defaultVariants: {
@@ -24,12 +24,12 @@ const galleryVariants = cva("flex w-full", {
 });
 
 const imageCardVariants = cva(
-  "group relative aspect-[4/3] overflow-hidden rounded-lg shadow-md transition-shadow hover:shadow-xl",
+  "group relative shadow-sm transition-shadow hover:shadow-md overflow-hidden",
   {
     variants: {
       variant: {
-        default: "w-full sm:w-64 md:w-80",
-        small: "w-48 flex-shrink-0", // Prevent shrinking in a flex row
+        default: "h-48 lg:h-56 rounded-md aspect-[4/3]",
+        small: "grow lg:grow-0 lg:aspect-[4/3] h-32",
       },
     },
     defaultVariants: {
@@ -59,45 +59,47 @@ export default function GamePosters({
   variant,
   className,
 }: GamePostersProps) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
+    null
+  );
 
   const handleOpenDialog = (index: number) => setSelectedImageIndex(index);
   const handleCloseDialog = () => setSelectedImageIndex(null);
 
-  const selectedImage =
-    selectedImageIndex !== null ? imageList[selectedImageIndex] : null;
+  const handleNext = () => {
+    if (selectedImageIndex === null) return
+    // Loop back to the start if at the end
+    setSelectedImageIndex((selectedImageIndex + 1) % imageList.length)
+  }
+
+  const handlePrev = () => {
+    if (selectedImageIndex === null) return
+    // Loop to the end if at the beginning
+    setSelectedImageIndex(
+      (selectedImageIndex - 1 + imageList.length) % imageList.length
+    )
+  }
 
   return (
-    <>
+    <div className={cn(galleryVariants({ variant }), className)}>
       {/* The Gallery Grid */}
-      <div className={cn(galleryVariants({ variant }), className)}>
-        {imageList.map((image, index) => (
-          <ImageCard
-            key={`${image.alt}-${index}`}
-            image={image}
-            variant={variant}
-            onClick={() => handleOpenDialog(index)}
-            onDelete={onDelete ? () => onDelete(index) : undefined}
-          />
-        ))}
-      </div>
-
+      {imageList.map((image, index) => (
+        <ImageCard
+          key={`${image.alt}-${index}`}
+          image={image}
+          variant={variant}
+          onClick={() => handleOpenDialog(index)}
+          onDelete={onDelete ? () => onDelete(index) : undefined}
+        />
+      ))}
       {/* A SINGLE Dialog for the entire gallery */}
-      <Dialog open={!!selectedImage} onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}>
-        <DialogContent className="max-w-6xl p-0 bg-transparent border-none shadow-none">
-          {selectedImage && (
-            <Image
-              width={1920}
-              height={1080}
-              src={selectedImage.imgSrc}
-              alt={selectedImage.alt}
-              className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
-            />
-          )}
-          {/* The default 'X' close button provided by Shadcn will appear automatically */}
-        </DialogContent>
-      </Dialog>
-    </>
+      <ImageDialog
+        images={imageList}
+        selectedIndex={selectedImageIndex}
+        onClose={handleCloseDialog}
+        onNext={handleNext}
+        onPrev={handlePrev} />
+    </div>
   );
 }
 
@@ -111,12 +113,13 @@ interface ImageCardProps extends VariantProps<typeof imageCardVariants> {
 
 function ImageCard({ image, variant, onClick, onDelete }: ImageCardProps) {
   return (
-    <div className={cn(imageCardVariants({ variant }))}>
+    <div className={imageCardVariants({ variant })}>
       <Image
         fill
+        sizes="200px"
         src={image.imgSrc}
         alt={image.alt}
-        className="cursor-pointer object-cover transition-transform duration-300 group-hover:scale-105"
+        className=" cursor-pointer object-cover transition-transform duration-300 group-hover:scale-105"
         onClick={onClick}
       />
 

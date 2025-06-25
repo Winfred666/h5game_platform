@@ -26,8 +26,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-secondary-foreground: var(--secondary-foreground);
 
-  --color-primary-accent: var(--primary-accent);
   --color-primary-active: var(--primary-active);
+  --color-primary-accent: var(--primary-accent);
 
   /* 交互元素，如组件等 */
   --color-primary: var(--primary);
@@ -36,11 +36,7 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -53,137 +49,91 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+
 :root {
-  /* --- Neutral colors - UNCHANGED as requested --- */
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --muted: oklch(0.967 0.001 286.375); /* Kept original light gray for muted */
-  --muted-foreground: oklch(0.552 0.016 285.938);
+  --background: #f9f9f9;
+  --foreground: #1e1e1e;
+  --card: #ffffff;
+  --card-foreground: #1e1e1e;
+  --popover: #ffffff;
+  --popover-foreground: #1e1e1e;
+  --primary: #e45882;
 
-  /* --- Your new Soft Pink color palette in oklch --- */
-  --soft-pink-50: oklch(0.946 0.041 12.3);
-  --soft-pink-100: oklch(0.887 0.081 12.06);
-  --soft-pink-200: oklch(0.822 0.12 12.39);
-  --soft-pink-300: oklch(0.758 0.158 13.01);
-  --soft-pink-400: oklch(0.706 0.187 13.56);
-  --soft-pink-500: oklch(0.655 0.213 14.15); /* The main '#e54664' */
-  --soft-pink-600: oklch(0.659 0.201 14.28);
-  --soft-pink-700: oklch(0.609 0.219 14.86);
-  --soft-pink-800: oklch(0.589 0.224 15.2);
-  --soft-pink-900: oklch(0.548 0.237 16.03);
+  --primary-active: #c24c70;
+  --primary-accent: #f7739b;
 
-  /* --- Primary colors - UPDATED to Soft Pink --- */
-  --primary: var(--soft-pink-500);
-  --primary-foreground: oklch(1 0 0); /* Pure white for best contrast */
-  --primary-accent: oklch(
-    0.655 0.213 14.15 / 0.15
-  ); /* Transparent version of primary */
-  --primary-active: oklch(
-    0.655 0.213 14.15 / 0.25
-  ); /* Transparent version of primary */
-
-  /* --- Secondary/Accent colors - UPDATED to Soft Pink --- */
-  --secondary: var(--soft-pink-100);
-  --secondary-foreground: var(--soft-pink-900);
-  --accent: var(--soft-pink-50);
-  --accent-foreground: var(--soft-pink-900);
-
-  /* --- Other colors - UPDATED for theme consistency --- */
-  --destructive: oklch(0.65 0.22 25); /* A strong but not clashing red */
-  --ring: var(--soft-pink-500);
-
-  /* --- Chart colors - Mapped to your new palette --- */
-  --chart-1: var(--soft-pink-500);
-  --chart-2: var(--soft-pink-700);
-  --chart-3: var(--soft-pink-300);
-  --chart-4: oklch(0.828 0.189 84.429); /* Kept a complementary yellow */
-  --chart-5: oklch(0.6 0.118 184.704); /* Kept a complementary blue */
-
-  /* --- Custom Sidebar colors - UNCHANGED Neutrals, UPDATED Pinks --- */
-  --sidebar: oklch(0.985 0 0); /* Kept original sidebar background */
-  --sidebar-foreground: oklch(
-    0.141 0.005 285.823
-  ); /* Kept original text color */
-  --sidebar-border: oklch(0.92 0.004 286.32); /* Kept original border */
-  --sidebar-primary: var(--primary); /* Uses new pink */
-  --sidebar-primary-foreground: var(
-    --primary-foreground
-  ); /* Uses new pink's foreground */
-  --sidebar-accent: var(--accent); /* Uses new pink accent */
-  --sidebar-accent-foreground: var(
-    --accent-foreground
-  ); /* Uses new pink accent's foreground */
-  --sidebar-ring: var(--ring); /* Uses new pink ring */
+  --primary-foreground: #ffffff;
+  --secondary: #f5d1d8;
+  --secondary-foreground: #992b44;
+  --muted: #eaeaea;
+  --muted-foreground: #6b7280;
+  --accent: #fde7ec;
+  --accent-foreground: #992b44;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e0e0e0;
+  --input: #ffffff;
+  --ring: #e45882;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1e1e1e;
+  --sidebar-primary: #e45882;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fff0f3;
+  --sidebar-accent-foreground: #992b44;
+  --sidebar-border: #e0e0e0;
+  --sidebar-ring: #e45882;
+  --radius: 0.5rem;
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
 }
 
 .dark {
-  /* --- Neutral colors - UNCHANGED as requested --- */
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033); /* Kept original dark gray for muted */
-  --muted-foreground: oklch(0.705 0.015 286.067);
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+  --card: #1e1e1e;
+  --card-foreground: #f5f5f5;
+  --popover: #292929;
+  --popover-foreground: #f5f5f5;
+  
+  --primary: #e45882;
+  --primary-active: #c24c70;
+  --primary-accent: #f7739b;
 
-  /* --- The Soft Pink palette is already defined in :root --- */
-
-  /* --- Primary colors - UPDATED to Soft Pink (slightly brighter for dark mode) --- */
-  --primary: var(
-    --soft-pink-400
-  ); /* A slightly brighter pink pops better on dark backgrounds */
-  --primary-foreground: oklch(
-    0.141 0.005 285.823
-  ); /* A dark color for contrast on the lighter pink */
-  --primary-accent: oklch(
-    0.706 0.187 13.56 / 0.15
-  ); /* Transparent version of primary */
-  --primary-active: oklch(
-    0.706 0.187 13.56 / 0.25
-  ); /* Transparent version of primary */
-
-  /* --- Secondary/Accent colors - UPDATED to Soft Pink --- */
-  --secondary: oklch(0.25 0.05 15); /* A very dark, muted pink for dark mode */
-  --secondary-foreground: var(--soft-pink-100);
-  --accent: oklch(
-    0.25 0.05 15 / 0.5
-  ); /* A transparent version of the dark secondary */
-  --accent-foreground: var(--soft-pink-100);
-
-  /* --- Other colors - UPDATED for theme consistency --- */
-  --destructive: oklch(
-    0.7 0.2 25
-  ); /* A slightly brighter destructive for dark mode */
-  --ring: var(--soft-pink-400);
-
-  /* --- Chart colors - Mapped for dark mode --- */
-  --chart-1: var(--soft-pink-400);
-  --chart-2: var(--soft-pink-600);
-  --chart-3: var(--soft-pink-200);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.6 0.118 184.704);
-
-  /* --- Custom Sidebar colors - UNCHANGED Neutrals, UPDATED Pinks --- */
-  --sidebar: oklch(
-    0.21 0.006 285.885
-  ); /* Kept original dark sidebar background */
-  --sidebar-foreground: oklch(0.985 0 0); /* Kept original text color */
-  --sidebar-border: oklch(1 0 0 / 10%); /* Kept original border */
-  --sidebar-primary: var(--primary); /* Uses new pink */
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: var(--accent);
-  --sidebar-accent-foreground: var(--accent-foreground);
-  --sidebar-ring: var(--ring);
+  --primary-foreground: #ffffff;
+  --secondary: #2a1a22;
+  --secondary-foreground: #f5d1d8;
+  --muted: #333333;
+  --muted-foreground: #a3a3a3;
+  --accent: #331e28;
+  --accent-foreground: #f5d1d8;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #333333;
+  --input: #292929;
+  --ring: #e45882;
+  --sidebar: #1e1e1e;
+  --sidebar-foreground: #f5f5f5;
+  --sidebar-primary: #e45882;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #331e28;
+  --sidebar-accent-foreground: #f5d1d8;
+  --sidebar-border: #333333;
+  --sidebar-ring: #e45882;
+  --radius: 0.5rem;
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 1px 2px -1px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 2px 4px -1px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 4px 6px -1px hsl(0 0% 0% / 0.10);
+  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.10), 0 8px 10px -1px hsl(0 0% 0% / 0.10);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
 }
 
 @layer base {
@@ -194,14 +144,64 @@
     font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
     @apply bg-background text-foreground;
   }
+  h1 {
+    @apply text-3xl lg:text-6xl font-semibold leading-none;
+  }
+  h2 {
+    @apply text-2xl font-medium leading-none;
+  }
+  h3 {
+    @apply text-xl leading-none;
+  }
+  img {
+    @apply rounded-sm
+  }
 }
 
+@layer utilities {
+  .icon-lg {
+    @apply scale-125 w-6 h-6;
+  }
+}
+
+
 .navbar-button {
-  @apply flex items-center justify-center select-none cursor-pointer;
+  @apply relative flex items-center justify-center select-none cursor-pointer;
   @apply box-border px-4 self-stretch text-foreground;
-  @apply hover:bg-primary-accent hover:text-sidebar-primary transition-colors duration-150;
-  @apply active:bg-primary-active;
+  @apply hover:bg-accent hover:text-accent-foreground transition-colors duration-150;
+  @apply active:bg-primary/30;
 }
+
 .navbar-active-button {
-  @apply border-b-4 border-primary pt-[4px];
+  @apply  border-b-4 border-primary pt-[4px];
+  bottom: -1px;
 }
+
+
+.homepage-swiper {
+  --swiper-theme-color: var(--primary);
+  --swiper-pagination-color: var(--primary);
+  --swiper-pagination-bullet-size: 10px;
+}
+
+.screen_layout{
+  @apply flex flex-col items-stretch min-h-screen
+}
+
+.swiper-slide {
+  height: auto !important;
+  align-self: stretch !important;
+  width: 92% !important;
+  margin: 0 4%;
+}
+.swiper-slide-prev {
+  right: -6%;
+}
+.swiper-slide-next {
+  left: -6%;
+}
+
+.swiper-slide {
+  
+}
+

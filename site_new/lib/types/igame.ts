@@ -1,5 +1,8 @@
 // define data for a game to upload/display.
-export type IGameTag = string;
+export type IGameTag = {
+    id: number; // id is always number.
+    name:string;
+};
 
 // Developer as a view from table "User"
 export interface IDeveloper {
@@ -10,7 +13,7 @@ export interface IDeveloper {
 export interface IOnlineEmbed{
     width?: number; // pixel, optional, undefined for full screen
     height?: number; // pixel, optional, undefined for full screen
-    url: string;
+    url: string; // the url for online play, like "https://example.com/game/index.html"
 }
 
 export interface IGame {

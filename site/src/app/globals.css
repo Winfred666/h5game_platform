@@ -52,6 +52,7 @@ a {
   @apply hover:text-[var(--mui-palette-primary-main)] hover:bg-[var(--hover-light-background)] transition-colors duration-150;
   @apply active:bg-[var(--active-light-background)];
 }
+
 .navbar-active-button {
   @apply border-b-6 border-[var(--mui-palette-primary-main)] pt-[6px];
 }

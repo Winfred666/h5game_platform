@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Ghost, TriangleAlert } from "lucide-react";
-import { ALL_NAVPATH } from "@/lib/router_info";
+import { ALL_NAVPATH } from "@/lib/routerInfo";
 
 import "./animation.css"
 
@@ -41,15 +41,15 @@ export default function NotFound() {
       ))}
 
       {/* Main content card */}
-      <Card className="z-10 w-full max-w-md text-center shadow-2xl bg-card/80 backdrop-blur-sm">
+      <Card className="z-10 w-4/5 lg:w-full max-w-md text-center shadow-2xl bg-card/80 backdrop-blur-sm">
         <CardHeader>
           <h1
-            className="text-9xl font-black text-primary"
+            className="font-black text-primary"
             data-text="404"
           >
             404
           </h1>
-          <CardTitle className="flex items-center justify-center gap-2 text-2xl font-bold pt-4">
+          <CardTitle className="flex items-center justify-center gap-2 font-bold pt-4">
             <TriangleAlert className="h-6 w-6" />
             这里没有游戏
           </CardTitle>
@@ -63,7 +63,7 @@ export default function NotFound() {
             effectively styling the link as a button. This is the correct pattern.
           */}
           <Button asChild size="lg">
-            <Link href={ALL_NAVPATH.home.href}>返回首页</Link>
+            <Link href={ALL_NAVPATH.home.href()}>返回首页</Link>
           </Button>
         </CardContent>
       </Card>

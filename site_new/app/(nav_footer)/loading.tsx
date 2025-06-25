@@ -19,15 +19,8 @@ const ORBITING_HEXAGONS = [
     initialRotation: Math.floor(Math.random() * 360),
   },
   {
-    size: "w-8 h-8",
-    colorClass: "text-secondary/60",
-    orbitRadius: 220,
-    animationDuration: "12s",
-    initialRotation: Math.floor(Math.random() * 360),
-  },
-  {
     size: "w-12 h-12",
-    colorClass: "text-accent-foreground/40",
+    colorClass: "text-primary/30",
     orbitRadius: 280,
     animationDuration: "15s",
     initialRotation: Math.floor(Math.random() * 360),
@@ -73,7 +66,7 @@ export default function Loading() {
         <CardContent className="pt-6">
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <h2 className="text-3xl font-bold text-primary">内容加载中</h2>
+            <h2 className="font-bold text-primary">内容加载中</h2>
             <p className="text-muted-foreground">请稍候，精彩即将呈现...</p>
           </div>
         </CardContent>

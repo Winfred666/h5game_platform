@@ -3,14 +3,14 @@ import { IGameTag } from "@/lib/types/igame";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge"; // Replaced MUI Chip with Badge
 import { cn } from "@/lib/utils"; // Optional, but good for class merging
-import { ALL_NAVPATH } from "@/lib/router_info";
+import { ALL_NAVPATH } from "@/lib/routerInfo";
 
 // The props are kept the same for a seamless drop-in replacement.
 export default function GameTags({
   id,
   tags,
   color = "primary",
-  size = "medium",
+  size = "small",
 }: {
   id?: string;
   tags: IGameTag[];
@@ -34,10 +34,7 @@ export default function GameTags({
             variant={variant}
             // Add Tailwind classes for interactivity and sizing.
             // The Badge component already has hover styles built-in for its variants!
-            className={cn(
-              "cursor-pointer transition-colors",
-              sizeClasses
-            )}
+            className={sizeClasses}
             onClick={(e) => {
               // Stop propagation is important if tags are inside another clickable element.
               e.stopPropagation();

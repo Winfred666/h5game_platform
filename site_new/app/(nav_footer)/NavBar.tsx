@@ -1,7 +1,8 @@
 "use client";
+// warning: because navbar use client, the page using nav_footer layout can still be statistic
+// if not rendering using dynamic data to build page.
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -9,15 +10,19 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Gamepad2, Search, User, LogOut, UserRound } from "lucide-react";
+import { Gamepad2, User, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
-import { ALL_NAVPATH } from "@/lib/router_info";
+import { ALL_NAVPATH } from "@/lib/routerInfo";
 import { usePathname } from "next/navigation";
+import SearchBar from "@/components/SearchBar";
+import {GameListItem} from "@/components/GameListItem";
+import { IGame } from "@/lib/types/igame";
+
 
 export default function NavBar() {
   const pathName = usePathname();
   const navLinks = [
-    ALL_NAVPATH.home,
+    {...ALL_NAVPATH.home, href: ALL_NAVPATH.home.href()},
     ALL_NAVPATH.upload,
     ALL_NAVPATH.community,
   ];
@@ -33,11 +38,11 @@ export default function NavBar() {
         {/* 1. Logo 和标题 */}
         <div className="flex items-center">
           <Link
-            href={ALL_NAVPATH.home.href}
+            href={ALL_NAVPATH.home.href()}
             className="flex items-center gap-2"
           >
             <Gamepad2 className="h-6 w-6 text-primary" />
-            <h1 className=" font-medium hidden lg:block">ZJU H5游戏分享平台</h1>
+            <h3 className="font-medium hidden lg:block">ZJU H5游戏分享平台</h3>
           </Link>
         </div>
 
@@ -56,17 +61,9 @@ export default function NavBar() {
             </Link>
           ))}
         </nav>
-        {/* 3. 搜索框 */}
-        <div className="grow">
-          <div className="relative max-w-xs">
-            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="搜索游戏名称..."
-              className="w-full pl-8"
-            />
-          </div>
-        </div>
+
+        {/* 3. 搜索框，高频搜索是唯一需要 API 的客户端组件 */}
+        <SearchBar thing="game" renderListItem={(game)=>GameListItem({game} as {game:IGame})}/>
 
         {/* 4. 用户头像和下拉菜单 */}
         <DropdownMenu>
@@ -83,6 +80,7 @@ export default function NavBar() {
                 <AvatarFallback> <UserRound className="h-5 w-5"/> </AvatarFallback>
               </Avatar>
               <span className="hidden lg:inline">用户名</span>
+
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className=" lg:w-48" align="end" forceMount>
@@ -90,7 +88,7 @@ export default function NavBar() {
               <User className="mr-2 h-4 w-4" />
               <span>个人主页</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10">
+            <DropdownMenuItem className="text-destructive">
               <LogOut className="mr-2 h-4 w-4" />
               <span>退出登录</span>
             </DropdownMenuItem>
