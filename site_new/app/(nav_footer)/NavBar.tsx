@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
 import {GameListItem} from "@/components/GameListItem";
 import { IGame } from "@/lib/types/igame";
+import { UserThumbnail } from "@/components/UserListItem";
 
 
 export default function NavBar() {
@@ -70,17 +71,10 @@ export default function NavBar() {
           <DropdownMenuTrigger asChild>
             <Button
               variant="ghost"
-              className=" cursor-pointer relative flex items-center gap-2 p-1 h-auto"
+              className=" cursor-pointer relative p-1 h-auto"
             >
-              <Avatar className="h-8 w-8">
-                <AvatarImage
-                  src="https://github.com/shadcn.png"
-                  alt="用户头像"
-                />
-                <AvatarFallback> <UserRound className="h-5 w-5"/> </AvatarFallback>
-              </Avatar>
-              <span className="hidden lg:inline">用户名</span>
-
+              {/* TODO: add auth and get user info later !*/}
+              <UserThumbnail user={undefined} />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className=" lg:w-48" align="end" forceMount>

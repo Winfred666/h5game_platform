@@ -1,15 +1,17 @@
 import React from "react";
 
 import GameCards from '@/components/GameCards';
-import { getGamesByTitle, getGamesByTag, getGameByTagCount } from "@/lib/services/getGame";
+import { getGamesByTitle, getGamesByTag, getGameByTagCount, getTagById } from "@/lib/services/getGame";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name?: string, tag?: string, page?: string}> }) {
   const { name, tag, page } = await searchParams;
   const curPage = parseInt(page || "1") - 1;
-  const [games_name, games_tag, tag_counts] = await Promise.all([
+  const tagId = tag ? parseInt(tag) : undefined;
+  const [games_name, tag_name, games_tag, tag_counts] = await Promise.all([
     name ? getGamesByTitle(name) : [],
-    tag ? getGamesByTag(tag, curPage) : [],
-    tag ? getGameByTagCount(tag) : 0
+    tagId ? getTagById(tagId) : undefined,
+    tagId ? getGamesByTag(tagId, curPage) : [],
+    tagId ? getGameByTagCount(tagId) : 0
   ]);
   
   // merge the two results
@@ -23,9 +25,9 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             “{name}”的搜索结果
           </h2>
         )}
-        { tag && (
+        { tag_name && (
           <h2>
-            标签“{tag}”的搜索结果
+            标签“{tag_name.name}”的搜索结果
           </h2>
         )}
       </div>

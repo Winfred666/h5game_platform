@@ -85,7 +85,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                 </div>
 
                 <div className="hidden lg:block w-full">
-                  {val.joinDevelopers}
+                  {val.developers.map(dev=>dev.name).join(", ")}
                 </div>
                 <GameTags tags={val.tags} id={`swiper_${index}`} />
                 <GamePosters

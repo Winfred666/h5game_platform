@@ -16,11 +16,13 @@ export default function SearchBar({
   renderListItem,
   onSelect,
   onEnter,
+  onBlur,
 }: {
   thing: "game" | "user";
   renderListItem: (item: OptionType) => React.ReactNode;
   onSelect?: (selectOption: OptionType) => void;
   onEnter?: (searchTerm: string) => void;
+  onBlur?: () => void;
 }) {
   const { searchOptions, searchTerm, setSearchTerm, isLoading } =
     useSearchOptions_debounce("game");
@@ -48,6 +50,10 @@ export default function SearchBar({
               : undefined
           }
           onFocus={() => setShowList(true)}
+          onBlur={() => {
+            setShowList(false);
+            if (onBlur) onBlur();
+          }}
         />  
         {/* not show command list when not focus on command input */}
         <CommandList hidden={!showList} className=" h-fit absolute top-full bg-popover w-full shadow-sm">

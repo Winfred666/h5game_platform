@@ -1,5 +1,7 @@
+"use client";
+import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -7,110 +9,174 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { IGame } from "@/types/game"; // A placeholder type for your game data
+import {
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { IGame, IGameTag } from "@/lib/types/igame";
+import { genGameDownloadURL } from "@/lib/utils";
+import { GameFormInputType } from "@/lib/types/zforms";
+import SearchBar from "@/components/SearchBar";
+import {
+  DeletableTags,
+  SelectableTags,
+} from "@/components/inputs/InteractiveTag";
+import { UserThumbnail } from "@/components/UserListItem";
+import { IUser } from "@/lib/types/iuser";
+import { X } from "lucide-react";
+import { InputWithLabel } from "@/components/inputs/InputWithLabel";
+import { SelectWithLabel } from "@/components/inputs/SelectWithLabel";
+import { TextAreaWithLabel } from "@/components/inputs/TextAreaWithLabel";
 
-// Define a type for your game data. Adjust as needed.
-// You might already have this defined elsewhere.
-export interface GameData {
-  id: string;
-  title: string;
-  kind: "downloadable" | "html";
-  game_filename?: string;
-  embed_op?: "embed_in_page" | "fullscreen";
-  width?: number;
-  height?: number;
-  description: string;
-  tags: string[];
-  developers_string?: string; // e.g., "user1,user2,user3"
+interface GameFormLeftProps {
+  allTags: IGameTag[]; // All available tags for the game
+  form: UseFormReturn<GameFormInputType>;
+  game?: IGame;
 }
 
-interface GameFormMainDetailsProps {
-  allTags: string[];
-  game?: GameData;
-}
-
-export function GameFormMainDetails({ allTags, game }: GameFormMainDetailsProps) {
+export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
+  const kindOfProject = form.watch("kind");
+  // This function handles the logic for toggling a tag
   return (
-    <div className="md:col-span-2 space-y-6">
-      {/* Hidden input for the ID, only used in edit mode */}
-      {game && <input type="hidden" name="gameId" value={game.id} />}
+    <div className="w-3/5 md:col-span-2 flex flex-col gap-6">
+      <InputWithLabel<GameFormInputType>
+        fieldTitle="标题"
+        nameInSchema="title"
+        placeholder="输入您的游戏名称"
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="title">Title</Label>
-        <Input id="title" name="title" defaultValue={game?.title} placeholder="Enter your game name" required />
-      </div>
+      <SelectWithLabel<GameFormInputType>
+        fieldTitle="项目类型"
+        nameInSchema="kind"
+        placeholder="选择一个项目类型"
+        data={[
+          { id: "downloadable", description: "只下载" },
+          { id: "html", description: "HTML (浏览器内可玩)" },
+        ]}
+      />
 
-      <div className="space-y-2">
-        <Label htmlFor="kind">Kind of Project</Label>
-        <Select name="kind" defaultValue={game?.kind} required>
-          <SelectTrigger id="kind"><SelectValue placeholder="Select a project type" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="downloadable">Downloadable - Files to be downloaded.</SelectItem>
-            <SelectItem value="html">HTML - Playable in the browser.</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {kindOfProject === "html" && (
+        <div className=" flex flex-col gap-6">
+          <SelectWithLabel<GameFormInputType>
+            fieldTitle="在线显示模式"
+            nameInSchema="embed_op"
+            placeholder="选择在线显示方式"
+            data={[
+              { id: "embed_in_page", description: "内嵌在页面中" },
+              { id: "fullscreen", description: "浏览器窗口全屏模式" },
+            ]}
+          />
 
-      <div className="space-y-2">
-        <Label htmlFor="uploadfile">Game File</Label>
-        {game?.game_filename && (
-            <p className="text-sm text-muted-foreground">
-                Current file: <strong>{game.game_filename}</strong>. Uploading a new file will replace it.
-            </p>
-        )}
-        <Input id="uploadfile" name="uploadfile" type="file" required={!game} />
-        <p className="text-sm text-muted-foreground">Upload a .zip or .html file. Max size: 1GB.</p>
-      </div>
-
-      <div className="space-y-4 rounded-lg border p-4">
-        <h3 className="font-semibold">Embed Options (for HTML games)</h3>
-        <div className="space-y-2">
-          <Label htmlFor="embedop">Display Mode</Label>
-          <Select name="embedop" defaultValue={game?.embed_op || "fullscreen"}>
-            <SelectTrigger id="embedop"><SelectValue placeholder="Select display mode" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="embed_in_page">Embed in page</SelectItem>
-              <SelectItem value="fullscreen">Click to launch in fullscreen</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Viewport Dimensions (if embedded)</Label>
-          <div className="flex items-center gap-2">
-            <Input name="width" placeholder="Width" defaultValue={game?.width || 960} className="w-24" />
-            <span>x</span>
-            <Input name="height" placeholder="Height" defaultValue={game?.height || 540} className="w-24" />
-            <span>px</span>
+          <div className="flex flex-col gap-2">
+            <FormLabel>游戏窗口尺寸 (内嵌时)</FormLabel>
+            <div className="flex items-baseline gap-1">
+              <InputWithLabel<GameFormInputType>
+                nameInSchema="width"
+                placeholder="宽度"
+                type="number"
+              />
+              <span className="text-muted-foreground"> px </span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <InputWithLabel<GameFormInputType>
+                nameInSchema="height"
+                placeholder="高度"
+                type="number"
+              />
+              <span className="text-muted-foreground"> px </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Textarea id="description" name="description" defaultValue={game?.description} placeholder="Describe your game..." rows={6} />
-      </div>
+      <FormField
+        name="uploadfile"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>游戏文件</FormLabel>
+            <FormControl>
+              <Input type="file" {...field} />
+            </FormControl>
+            <FormDescription>
+              <span>
+                上传 .zip 文件；在线游戏需根目录内含 index.html；最大体积：1GB；
+              </span>
+              {game && (
+                <span>
+                  当前文件:
+                  <a href={genGameDownloadURL(game.id)}>
+                    {genGameDownloadURL(game.id)}
+                  </a>
+                  ；上传新文件将会替换它。
+                </span>
+              )}
+            </FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      ></FormField>
 
-      <div className="space-y-3">
-        <Label>Genre / Tags</Label>
-        <div className="flex flex-wrap gap-x-4 gap-y-2">
-          {allTags.map((tag) => (
-            <div key={tag} className="flex items-center space-x-2">
-              <Checkbox id={`tag-${tag}`} name="tags" value={tag} defaultChecked={game?.tags.includes(tag)} />
-              <Label htmlFor={`tag-${tag}`} className="font-normal cursor-pointer">{tag}</Label>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-       <div className="space-y-2">
-        <Label htmlFor="developers">Co-Developers</Label>
-        <Input id="developers" name="developers" defaultValue={game?.developers_string} placeholder="Enter co-developer usernames, comma-separated" />
-         <p className="text-sm text-muted-foreground">
-          The current user is automatically added. This field is for collaborators.
-        </p>
-      </div>
+      <TextAreaWithLabel<GameFormInputType>
+        fieldTitle="游戏描述"
+        nameInSchema="description"
+        placeholder="描述游戏的游玩方法、特性和背景故事..."
+      />
+
+      {/* --- REWRITTEN TAGS FIELD --- */}
+      <FormField
+        control={form.control}
+        name="tags"
+        render={({ field: { value, onChange } }) => (
+          <FormItem>
+            <FormLabel>游戏标签</FormLabel>
+            <FormControl>
+              <SelectableTags
+                allTags={allTags}
+                selectedTagIds={value}
+                onSelect={(tagId) => onChange([...value, tagId])}
+                onCancel={(tagId) =>
+                  onChange(value.filter((id) => id !== tagId))
+                }
+              />
+            </FormControl>
+            <FormDescription>点击标签来选择或取消选择。</FormDescription>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="developers"
+        render={({ field: { value, onChange, onBlur } }) => (
+          <FormItem>
+            <FormLabel>开发者列表</FormLabel>
+            <FormControl>
+              <div className=" flex flex-col gap-2">
+                <DeletableTags
+                  onDelete={(tagId) =>
+                    onChange(value.filter((dev) => dev.id !== tagId))
+                  }
+                  selectedTags={value}
+                  emptyText="没有选择开发者"
+                />
+                <SearchBar
+                  thing="user"
+                  onSelect={(user) => onChange([...value, user.id])}
+                  renderListItem={(user) => (
+                    <UserThumbnail user={user as IUser} />
+                  )}
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </div>
   );
 }

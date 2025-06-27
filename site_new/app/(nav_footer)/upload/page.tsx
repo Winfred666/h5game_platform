@@ -1,27 +1,14 @@
-import {
-  GameFormLayout,
-  GameFormMainDetails,
-  GameFormImages,
-} from "@/components/forms/game-form";
-import { createGame } from "@/app/actions/game-actions"; // Your server action
+import { getAllTags } from "@/lib/services/getGame";
+import GameForm from "./GameForm";
 
-async function getAllTags() {
-  // Fetch tags from your database
-  return ["Action", "Adventure", "RPG", "Strategy", "Shooter", "Puzzle"];
-}
-
-export default async function NewGamePage() {
+export default async function UploadPage() {
   const allTags = await getAllTags();
-
   return (
-    <GameFormLayout
-      action={createGame}
-      title="Create a New Project"
-      description="Fill out the details below to add your new game."
-      submitButtonText="Submit Project"
-    >
-      <GameFormMainDetails allTags={allTags} />
-      <GameFormImages />
-    </GameFormLayout>
+    <div className="my-4 mx-8 p-4 rounded-lg bg-card border">
+      <h2 className="my-4"> 上传新游戏 </h2>
+      <div className="flex w-full justify-between">
+      <GameForm allTags={allTags} />
+      </div>
+    </div>
   );
 }

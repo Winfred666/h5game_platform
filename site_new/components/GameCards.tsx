@@ -77,7 +77,7 @@ export default function GameCards({
               <CardContent className="p-0 flex-grow">
                 {/* Tags Section */}
                 <div className="h-10 overflow-hidden mb-2">
-                  <GameTags tags={game.tags} />
+                  <GameTags id={`card_${game.id}`} tags={game.tags} />
                 </div>
 
                 {/* Description Section */}

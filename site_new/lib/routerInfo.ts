@@ -1,6 +1,6 @@
 export const ALL_NAVPATH = {
     home: {name:"浏览", href:(page?:number) => `/${page? "?page=" + page : ""}`}, // default to home page
-    game_tag: {name:"按tag搜游戏", href:(tag: string) => `/games?tag=${tag}`},
+    game_tag: {name:"按tag搜游戏", href:(tagId: number) => `/games?tag=${tagId}`},
     game_name: {name:"按名称搜游戏", href:(name: string) => `/games?name=${name}`},
     game_id: {name:"指定id游戏", href:(id: number) => `/games/${id}`},
     upload: {name:"上传", href:"/upload"},

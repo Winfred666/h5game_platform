@@ -10,7 +10,7 @@ export default function GameTags({
   id,
   tags,
   color = "primary",
-  size = "small",
+  size = "medium",
 }: {
   id?: string;
   tags: IGameTag[];
@@ -21,14 +21,14 @@ export default function GameTags({
 
   // Map the old MUI props to the new Shadcn/Tailwind equivalents
   const variant = color === "primary" ? "default" : "secondary";
-  const sizeClasses = size === "small" ? "text-sm" : "text-md";
+  const sizeClasses = size === "small" ? " text-xs" : " text-sm";
 
   return (
     <div className="my-2 flex flex-wrap gap-2">
       {tags.length > 0 ? (
         tags.map((tag) => (
           <Badge
-            key={`${id || "unique"}_${tag}`}
+            key={`${id || "unique"}_${tag.id}`}
             // The variant prop of Badge controls its color scheme.
             // "default" uses the primary color, "secondary" is a muted gray.
             variant={variant}
@@ -38,10 +38,10 @@ export default function GameTags({
             onClick={(e) => {
               // Stop propagation is important if tags are inside another clickable element.
               e.stopPropagation();
-              router.push(ALL_NAVPATH.game_tag.href(tag));
+              router.push(ALL_NAVPATH.game_tag.href(tag.id));
             }}
           >
-            {tag}
+            {tag.name}
           </Badge>
         ))
       ) : (

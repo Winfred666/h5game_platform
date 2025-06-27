@@ -3,7 +3,7 @@ export interface IComment {
     game_id: number;
     user_id: number;
     user_name: string;//用户名
-    user_profile: string;//用户头像
+    user_avatar: string;//用户头像
     
     content: string;
 

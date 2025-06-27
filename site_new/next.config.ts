@@ -19,11 +19,15 @@ process.env.NEXT_PUBLIC_BASEPATH = extractBasePath(
   process.env.NEXT_PUBLIC_FRONT_URL
 );
 
+const minioRemote = new URL(process.env.NEXT_PUBLIC_MINIO_URL || "");
+minioRemote.pathname = "/**"
+minioRemote.protocol = minioRemote.protocol.slice(0, -1); // remove trailing colon
+
 const nextConfig: NextConfig = {
   /* images is used for next.js server to fetch image from remote and cache for optimized */
   images: {
     remotePatterns: [
-      new URL(process.env.NEXT_PUBLIC_MINIO_URL || "")
+      minioRemote
     ],
   },
   output: "standalone",

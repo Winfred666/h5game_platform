@@ -12,10 +12,11 @@ export default async function Home({
   const curPage = parseInt(page || "1") - 1; // page start from 1 while index from 0.
   const pageSize = 30; // assuming page size is 30
   // it is server component, just wait for all data.
-  const [pagedGames, gameCount] = await Promise.all([
+  let [pagedGames, gameCount] = await Promise.all([
     getAllGames(curPage, pageSize),
     getGameCount(),
   ]);
+
   return (
       <GameCards games={pagedGames} currentPage={curPage} pageSize={pageSize} totalCount={gameCount}/>
   );

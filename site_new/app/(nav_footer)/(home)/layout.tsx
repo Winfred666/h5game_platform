@@ -7,7 +7,7 @@ export default async function HomeLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [top_games, all_tags] = await Promise.all([
+  let [top_games, all_tags] = await Promise.all([
     getTopGames(),
     getAllTags(),
   ]);
@@ -21,7 +21,7 @@ export default async function HomeLayout({
         <h2>最新游戏</h2>
         {children}
         <h2>全部分类</h2>
-        <GameTags tags={all_tags} color="default" size="medium"/>
+        <GameTags id="all_tag" tags={all_tags} color="default" />
       </div>
     </div>
   );

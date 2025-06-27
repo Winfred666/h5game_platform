@@ -15,7 +15,7 @@ export interface IUser {
     qq: string;
     name: string;
 
-    profile?:string;//头像图片的url
+    avatar?:string;//头像图片的url
     introduction?:string;//用户自我介绍
 
     created_at:string;//用户注册日期

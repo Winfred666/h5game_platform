@@ -28,7 +28,7 @@ model Game {
   
   isPrivate   Boolean  @default(true) @map("is_private")
   
-  size        Int      @default(0) // Store KB, displya in MB.
+  size        Int      @default(0) // Store in byte, disply in MB, max 1 GB.
   views       Int      @default(0) // incremented when the game is viewed.
   downloads   Int      @default(0) // incremented when the game is downloaded.
   
@@ -85,5 +85,7 @@ model Comment {
   
   @@index([userId])
   @@index([gameId])
+
+  @@map("comment")
 }
 

@@ -44,7 +44,7 @@ async function main() {
   console.log('👤 Seeding users...');
   const createdUsers = [];
   const saltRounds = 10; // Standard salt rounds for bcrypt
-  const defaultPassword = 'password123';
+  const defaultPassword = 'password123'; // WARNING: Only for development.
   const hashedPassword = await bcrypt.hash(defaultPassword, saltRounds);
   console.log(`🔑 Default password for all users is "${defaultPassword}"`);
 
@@ -81,6 +81,7 @@ async function main() {
     const selectedTags = faker.helpers.shuffle(allTags).slice(0, numTags);
 
     // --- Create the Game record with its relations ---
+    const screenshotCount = faker.number.int({ min: 0, max: 3 });
     const game = await prisma.game.create({
       data: {
         title: `${faker.hacker.adjective()} ${faker.hacker.noun()} #${i}`,
@@ -92,7 +93,7 @@ async function main() {
         size: faker.number.int({ min: 50 * 1024, max: 5 * 1024 * 1024 }), // 50MB to 5GB in KB
         views: faker.number.int({ min: 0, max: 100000 }),
         downloads: faker.number.int({ min: 0, max: 25000 }),
-        screenshotCount: faker.number.int({ min: 1, max: 5 }),
+        screenshotCount: screenshotCount,
         
         // --- RELATIONAL FIELDS ---
         // This is the correct implicit many-to-many connection syntax
@@ -104,6 +105,8 @@ async function main() {
         },
       },
     });
+    // add game cover and screenshots URLs based on the game ID
+    
     createdGames.push(game);
   }
   console.log(`✅ ${createdGames.length} games created with relations.`);

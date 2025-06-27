@@ -31,10 +31,10 @@ CREATE INDEX "game_created_at_idx" ON "game"("created_at") WHERE is_private=fals
     sql += `
 -- CreateTrigger
 CREATE TRIGGER delete_game_after_delete_user_game
-AFTER DELETE ON user_on_game
+AFTER DELETE ON _GameToUser
 FOR EACH ROW
 BEGIN
-    DELETE FROM game WHERE id = OLD.game_id AND NOT EXISTS (SELECT 1 FROM user_on_game WHERE game_id = OLD.game_id);
+    DELETE FROM game WHERE id = OLD.A AND NOT EXISTS (SELECT 1 FROM _GameToUser WHERE A = OLD.A);
 END;
 `;
     // Finally write back sql
