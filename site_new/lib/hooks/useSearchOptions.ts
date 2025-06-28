@@ -3,7 +3,7 @@ import useSWR from 'swr';
 
 export default function useSearchOptions_debounce(
   thing: "game"|"user",
-  delay: number = 500, // default debounce delay
+  delay: number = 800, // default debounce delay
 ) {
   // useRef to store the search options
   // keep one function/object alive across renders and do not trigger any effect.

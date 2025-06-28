@@ -2,7 +2,7 @@
 export interface IUserGame {
     id: number;
     title: string;
-    cover_image: string;
+    coverImage: string;
 }
 
 export interface IContact {
@@ -15,15 +15,15 @@ export interface IUser {
     qq: string;
     name: string;
 
-    avatar?:string;//头像图片的url
-    introduction?:string;//用户自我介绍
-
-    created_at:string;//用户注册日期
-
+    introduction:string;//用户自我介绍
+    avatar?:string; //头像图片的url，可为 undefined
     contacts: IContact[]; // 用户联系方式列表, 以IContact[]的形式存储
     //一个长字符串,以"way1,content1;way2,content2"的形式存储.使用时需要转化成IContact[]的形式
+    
+    isAdmin: boolean; // 是否为管理员
+    createdAt:string;//用户注册日期
+
     games: IUserGame[]; // 用户参与开发的游戏列表
-    is_admin: boolean; // 是否为管理员
 }
 
 

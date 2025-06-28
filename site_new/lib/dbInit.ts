@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import * as Minio from "minio";
-import { GameExtension } from "./dbExtensions";
+import { GameExtension, UserExtension } from "./dbExtensions";
 const REQUIRED_BUCKETS = ["games", "images", "photo"];
 
 // This declaration extends the global scope with our prisma instance.
@@ -8,7 +8,7 @@ const REQUIRED_BUCKETS = ["games", "images", "photo"];
 declare global {
   // We use `var` here because `let` and `const` have block scope.
   // The global object is not affected by Hot Module Replacement (HMR).
-  var prisma: ReturnType<typeof createExtendedPrismaClient>  | undefined;
+  var prisma: ReturnType<typeof createExtendedPrismaClient> | undefined;
   var minio: Minio.Client | undefined;
   // var relationFields: Map<string, string[]> | undefined;
 }
@@ -25,9 +25,16 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 function createExtendedPrismaClient() {
-  return (new PrismaClient()).$extends(GameExtension);
+  return new PrismaClient({
+    omit: {
+      user: {
+        hash: true, // omit password hash
+      },
+    },
+  })
+    .$extends(GameExtension)
+    .$extends(UserExtension);
 }
-
 
 // 创建 MinIO 客户端实例的函数
 async function createMinioClient(): Promise<Minio.Client | undefined> {

@@ -62,21 +62,20 @@ export function DeletableTags({
       {selectedTags.map((tag) => (
         <Badge
           key={`cancelable_tag_${tag.id}`}
-          variant="default"
+          variant="static"
+          className=" space-x-1"
           // For accessibility: make it behave like a button
         >
-          {tag.name}
-          <Button
-            variant="secondary"
-            size="icon"
-            className="ml-1 p-0"
+          <span> {tag.name} </span>
+          <span className="cursor-pointer rounded-full bg-primary-active hover:bg-primary-accent active:bg-primary-active">
+          <X
             onClick={(e) => {
               e.stopPropagation(); // Prevent badge click event
               onDelete(tag.id);
             }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
+            className=" icon-sm h-5 w-5"
+          />
+          </span>
         </Badge>
       ))}
     </div>

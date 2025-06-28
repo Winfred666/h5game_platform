@@ -18,10 +18,12 @@ import SearchBar from "@/components/SearchBar";
 import {GameListItem} from "@/components/GameListItem";
 import { IGame } from "@/lib/types/igame";
 import { UserThumbnail } from "@/components/UserListItem";
+import { useRouter } from "next/navigation";
 
 
 export default function NavBar() {
   const pathName = usePathname();
+  const router = useRouter();
   const navLinks = [
     {...ALL_NAVPATH.home, href: ALL_NAVPATH.home.href()},
     ALL_NAVPATH.upload,
@@ -46,7 +48,6 @@ export default function NavBar() {
             <h3 className="font-medium hidden lg:block">ZJU H5游戏分享平台</h3>
           </Link>
         </div>
-
         {/* 2. 中间的主要导航链接 */}
         <nav className="hidden lg:flex h-full items-center gap-6 mr-6">
           {navLinks.map((link, index) => (
@@ -64,7 +65,9 @@ export default function NavBar() {
         </nav>
 
         {/* 3. 搜索框，高频搜索是唯一需要 API 的客户端组件 */}
-        <SearchBar thing="game" renderListItem={(game)=>GameListItem({game} as {game:IGame})}/>
+        <SearchBar thing="game" renderListItem={(game)=>GameListItem({game} as {game:IGame})}
+          onEnter={(term)=>router.push(ALL_NAVPATH.game_name.href(term))}
+          onSelect={(game)=>router.push(ALL_NAVPATH.game_id.href((game as IGame).id))}/>
 
         {/* 4. 用户头像和下拉菜单 */}
         <DropdownMenu>
@@ -74,7 +77,7 @@ export default function NavBar() {
               className=" cursor-pointer relative p-1 h-auto"
             >
               {/* TODO: add auth and get user info later !*/}
-              <UserThumbnail user={undefined} />
+              <UserThumbnail user={undefined} shrinkName />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className=" lg:w-48" align="end" forceMount>

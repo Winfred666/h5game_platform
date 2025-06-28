@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { IOnlineEmbed } from "@/lib/types/igame";
 import { Button } from "@/components/ui/button";
 import { Fullscreen, Play } from "lucide-react";
+import { useWindowSize } from "@/lib/hooks/useBrowser";
 
 export default function EmbededCanvas({
   online,
@@ -26,10 +27,10 @@ export default function EmbededCanvas({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);
-  "use client";
-  const finalWidth = (online.width &&  online.width > window.innerWidth) ? "100%"
+  const {width, height} = useWindowSize();
+  const finalWidth = (online.width && width &&  online.width > width) ? "100%"
    : `${online.width}px`; // 如果在线游戏的宽度大于屏幕宽度
-  const finalHeight = (online.height && online.height > window.innerHeight) ? "85vh"
+  const finalHeight = (online.height && height && online.height > height) ? "85vh"
     : `${online.height}px`; // 如果在线游戏的高度大于屏幕高度
   // first show the cover image, after clicking, show the online game
   return (

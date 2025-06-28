@@ -5,16 +5,16 @@ import {
   genGameDownloadURL,
   genGamePlayableURL,
   genGameScreenshotsURL,
+  genUserAvatarURL,
 } from "./utils";
-
 
 export const GameExtension = Prisma.defineExtension({
   query: {
-    // WARNING: do not use allOperations as it is execute before "result"!!!
+    // WARNING: do not use allOperations as it is execute manually by calling convertToPlainObj !!!
     // async $allOperations({ operation, model, args, query }) {
     //   const result = await query(args);
     //   return JSON.parse(JSON.stringify(result, customReplacer));
-    // },d
+    // },
     game: {
       async findMany({ args, query }) {
         return query({
@@ -86,6 +86,32 @@ export const GameExtension = Prisma.defineExtension({
         needs: { id: true },
         compute: ({ id }) => genGameDownloadURL(id),
       },
+    },
+  },
+});
+
+export const UserExtension = Prisma.defineExtension({
+  query: {
+    user: {
+    },
+  },
+  result: {
+    user: {
+      contacts: {
+        needs: { contacts: true },
+        compute: ({ contacts }) => {
+          if (!contacts) return [];
+          return contacts.split(",").map((contact) => {
+            const [way, content] = contact.split(":");
+            return { way, content };
+          });
+        },
+      },
+      avatar: {
+        needs: { avatar: true, id: true},
+        compute: ({avatar, id}) =>(avatar ? genUserAvatarURL(id) : undefined)
+      },
+
     },
   },
 });

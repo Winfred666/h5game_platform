@@ -40,7 +40,7 @@ export default async function GameIdDetails({
       {/* 主要内容，使用页面包裹 */}
       <div
         className="relative flex grow flex-col items-center
-  gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[90%] min-w-3/5 lg:min-w-[50%] w-full lg:w-3/5 h-fit 
+  gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[90%] min-w-3/5 lg:min-w-[50%] w-full h-fit 
    bg-card"
       >
         {/* Online Game full screen/embed Modal */}

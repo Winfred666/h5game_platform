@@ -12,7 +12,7 @@ interface UserListItemProps {
   onDelete: (user: IUser) => void;
 }
 
-export function UserThumbnail({ user, className }: { user?: IUser, className?: string }) {
+export function UserThumbnail({ user, className, shrinkName = false }: { user?: IUser, className?: string , shrinkName?: boolean}) {
   return (
     <div className={cn(" flex items-center gap-2", className)}>
       <Avatar className="h-8 w-8">
@@ -21,7 +21,7 @@ export function UserThumbnail({ user, className }: { user?: IUser, className?: s
           <UserRound className="h-5 w-5" />
         </AvatarFallback>
       </Avatar>
-      <span className="hidden lg:inline">{user?.name ?? "游客"}</span>
+      <span className={shrinkName ? "hidden lg:inline" : ""}>{user?.name ?? "游客"}</span>
     </div>
   );
 }
@@ -35,11 +35,11 @@ function UserListItem({ user, onEdit, onDelete }: UserListItemProps) {
 
       <div className="w-40 text-muted-foreground pr-4">{user.qq}</div>
       <div className="w-48 text-muted-foreground pr-4">
-        {new Date(user.created_at).toLocaleString()}
+        {new Date(user.createdAt).toLocaleString()}
       </div>
       <div className="w-28 pr-4">
-        <Badge variant={user.is_admin ? "default" : "secondary"}>
-          {user.is_admin ? "Admin" : "User"}
+        <Badge variant={user.isAdmin ? "default" : "secondary"}>
+          {user.isAdmin ? "Admin" : "User"}
         </Badge>
       </div>
       <div className="w-24 flex justify-center gap-1">

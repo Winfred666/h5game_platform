@@ -40,6 +40,7 @@ interface GameFormLeftProps {
 
 export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
   const kindOfProject = form.watch("kind");
+  const embedOpProject = form.watch("embed_op");
   // This function handles the logic for toggling a tag
   return (
     <div className="w-3/5 md:col-span-2 flex flex-col gap-6">
@@ -70,26 +71,27 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
               { id: "fullscreen", description: "浏览器窗口全屏模式" },
             ]}
           />
-
-          <div className="flex flex-col gap-2">
-            <FormLabel>游戏窗口尺寸 (内嵌时)</FormLabel>
-            <div className="flex items-baseline gap-1">
-              <InputWithLabel<GameFormInputType>
-                nameInSchema="width"
-                placeholder="宽度"
-                type="number"
-              />
-              <span className="text-muted-foreground"> px </span>
+          {embedOpProject === "embed_in_page" && (
+            <div className="flex flex-col gap-2">
+              <FormLabel>游戏窗口尺寸 (内嵌时)</FormLabel>
+              <div className="flex items-baseline gap-1">
+                <InputWithLabel<GameFormInputType>
+                  nameInSchema="width"
+                  placeholder="宽度"
+                  type="number"
+                />
+                <span className="text-muted-foreground"> px </span>
+              </div>
+              <div className="flex items-baseline gap-1">
+                <InputWithLabel<GameFormInputType>
+                  nameInSchema="height"
+                  placeholder="高度"
+                  type="number"
+                />
+                <span className="text-muted-foreground"> px </span>
+              </div>
             </div>
-            <div className="flex items-baseline gap-1">
-              <InputWithLabel<GameFormInputType>
-                nameInSchema="height"
-                placeholder="高度"
-                type="number"
-              />
-              <span className="text-muted-foreground"> px </span>
-            </div>
-          </div>
+          )}
         </div>
       )}
 
@@ -166,7 +168,13 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
                 />
                 <SearchBar
                   thing="user"
-                  onSelect={(user) => onChange([...value, user.id])}
+                  onSelect={(user) => {
+                    if (value.some((dev) => dev.id === user.id)) {
+                      // TODO: show toast that user is already selected!!
+                    } else {
+                      onChange([...value, user]);
+                    }
+                  }}
                   renderListItem={(user) => (
                     <UserThumbnail user={user as IUser} />
                   )}
