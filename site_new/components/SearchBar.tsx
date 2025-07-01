@@ -1,13 +1,13 @@
-"use client";
-
 // 目前唯一使用 API 的组件
 import useSearchOptions_debounce from "@/lib/hooks/useSearchOptions";
 import { Command, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { CommandEmpty, CommandLoading } from "cmdk";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IGame } from "@/lib/types/igame";
 import { IUser } from "@/lib/types/iuser";
 import { useOutsideClick } from "@/lib/hooks/useBrowser";
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 type OptionType = IGame | IUser;
 export default function SearchBar({
@@ -16,12 +16,16 @@ export default function SearchBar({
   onSelect,
   onEnter,
   onBlur,
+  className = "",
+  listClassName = "",
 }: {
   thing: "game" | "user";
   renderListItem: (item: OptionType) => React.ReactNode;
   onSelect?: (selectOption: OptionType) => void;
   onEnter?: (searchTerm: string) => void;
   onBlur?: () => void;
+  className?: string; // for custom styling
+  listClassName?: string; // for custom styling of the list
 }) {
   const { searchOptions, searchTerm, setSearchTerm, isLoading } =
     useSearchOptions_debounce(thing);
@@ -32,11 +36,28 @@ export default function SearchBar({
     setShowList(false);
   });
 
-  console.log("searchOptions", searchOptions, showList);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const closeSearchBar = () => {
+    setShowList(false);
+    inputRef.current?.blur();
+  };
+
+  useEffect(() => {
+    const handleEsc = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeSearchBar();
+    };
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  });
+
+  // console.log("searchOptions", searchOptions, showList);
 
   return (
-    <div className="relative grow">
-      <div className=" relative lg:w-3/5">
+    <div className="relative grow" ref={outsideRef}>
+      <div className={cn("relative", className)}>
         <Command shouldFilter={false} className=" border bg-popover">
           <CommandInput
             placeholder={
@@ -47,13 +68,30 @@ export default function SearchBar({
             }}
             onFocus={() => setShowList(true)}
             onBlur={onBlur ?? undefined}
-            ref={outsideRef}
+            ref={inputRef}
           />
           {/* not show command list when not focus on command input */}
           <CommandList
             hidden={!showList}
-            className=" h-fit absolute top-full bg-popover w-full shadow-sm"
+            className={cn(
+              "h-fit absolute top-full bg-popover w-full shadow-sm",
+              listClassName
+            )}
           >
+            <div className=" text-muted-foreground w-full text-center my-2">
+              {searchTerm.length > 0 && (isLoading ? (
+                <CommandLoading asChild className=" flex flex-row gap-2 justify-center">
+                    <Loader2 className="animate-spin" />
+                  <div>正在搜索...</div>
+                </CommandLoading>
+              ) : (
+                searchOptions.length === 0 && (
+                  <CommandEmpty>
+                    {thing === "game" ? "未搜索到游戏" : "未搜索到用户"}
+                  </CommandEmpty>
+                )
+              ))}
+            </div>
             {/* Default when no select */}
             <CommandItem
               value="-"
@@ -61,8 +99,7 @@ export default function SearchBar({
               onSelect={
                 onEnter
                   ? (e) => {
-                      setShowList(false);
-                      outsideRef.current?.blur();
+                      thing === "game" && closeSearchBar(); // game:close the list when select an option
                       searchTerm && onEnter(searchTerm);
                     }
                   : undefined
@@ -70,28 +107,15 @@ export default function SearchBar({
             />
             {searchOptions.map((option: OptionType) => (
               <CommandItem
-                key={thing+option.id}
+                key={thing + option.id}
                 onSelect={() => {
-                  setShowList(false);
-                  outsideRef.current?.blur(); // close the list when select an option
+                  thing === "game" && closeSearchBar(); // game:close the list when select an option
                   onSelect && onSelect(option);
                 }}
               >
                 {renderListItem(option)}
               </CommandItem>
             ))}
-            <div className=" text-muted-foreground w-full text-center my-2">
-              {isLoading ? (
-                <CommandLoading>正在搜索...</CommandLoading>
-              ) : (
-                searchTerm.length > 0 &&
-                searchOptions.length === 0 && (
-                  <CommandEmpty>
-                    {thing === "game" ? "未搜索到游戏" : "未搜索到用户"}
-                  </CommandEmpty>
-                )
-              )}
-            </div>
           </CommandList>
           {/* command list should be popped up when focus */}
         </Command>

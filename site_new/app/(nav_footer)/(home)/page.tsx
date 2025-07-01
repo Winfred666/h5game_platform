@@ -1,5 +1,5 @@
 import GameCards from "@/components/GameCards";
-import { getAllGames, getGameCount } from "@/lib/services/getGame";
+import { getAllGames, getGameCount } from "@/lib/actions/getGame";
 
 
 // deal with pagination.

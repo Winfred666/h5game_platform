@@ -3,7 +3,7 @@ import { IGameTag } from "@/lib/types/igame";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge"; // Replaced MUI Chip with Badge
 import { cn } from "@/lib/utils"; // Optional, but good for class merging
-import { ALL_NAVPATH } from "@/lib/routerInfo";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 
 // The props are kept the same for a seamless drop-in replacement.
 export default function GameTags({

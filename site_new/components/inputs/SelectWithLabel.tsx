@@ -46,7 +46,7 @@ export function SelectWithLabel<S>({
       name={nameInSchema}
       render={({ field }) => (
         <FormItem>
-          <FormLabel className="text-base" htmlFor={nameInSchema}>
+          <FormLabel htmlFor={nameInSchema}>
             {fieldTitle}
           </FormLabel>
 
@@ -54,7 +54,7 @@ export function SelectWithLabel<S>({
             <FormControl>
               <SelectTrigger
                 id={nameInSchema}
-                className={`w-full max-w-xs ${className}`}
+                className={`w-full max-w-none ${className}`}
               >
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>

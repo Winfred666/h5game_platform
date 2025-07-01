@@ -53,7 +53,7 @@ model User {
   
   introduction  String  @default("")   // optional, at least set ""
   // only postfix of the avatar image, store webp. avatar URL
-  avatar     Boolean @default(false) @map("has_avatar") // true if the user has an avatar.
+  hasAvatar     Boolean @default(false) @map("has_avatar") // true if the user has an avatar.
   // avatarPostfix String  @map("avatar_postfix")
   contacts       String  @default("")  // like "QQ:xxx,phone:xxx,"
   hash          String  // salted hashed password, not stored in plain text.

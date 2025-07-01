@@ -1,7 +1,7 @@
 import React from "react";
 
 import GameCards from '@/components/GameCards';
-import { getGamesByTitle, getGamesByTag, getGameByTagCount, getTagById } from "@/lib/services/getGame";
+import { getGamesByTitle, getGamesByTag, getGameByTagCount, getTagById } from "@/lib/actions/getGame";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name?: string, tag?: string, page?: string}> }) {
   const { name, tag, page } = await searchParams;
@@ -37,3 +37,5 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     </div>
   );
 }
+
+export const revalidate = 10; // revalidate every 10 seconds

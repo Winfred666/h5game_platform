@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Gamepad2, User, LogOut, UserRound } from "lucide-react";
 import Link from "next/link";
-import { ALL_NAVPATH } from "@/lib/routerInfo";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
 import {GameListItem} from "@/components/GameListItem";
@@ -65,10 +65,12 @@ export default function NavBar() {
         </nav>
 
         {/* 3. 搜索框，高频搜索是唯一需要 API 的客户端组件 */}
-        <SearchBar thing="game" renderListItem={(game)=>GameListItem({game} as {game:IGame})}
+        <SearchBar thing="game" className="lg:w-3/5"
+          renderListItem={(game)=>GameListItem({game} as {game:IGame})}
           onEnter={(term)=>router.push(ALL_NAVPATH.game_name.href(term))}
-          onSelect={(game)=>router.push(ALL_NAVPATH.game_id.href((game as IGame).id))}/>
-
+          onSelect={(game)=>router.push(ALL_NAVPATH.game_id.href((game as IGame).id))}
+          listClassName=" max-h-[40vh]"
+          />
         {/* 4. 用户头像和下拉菜单 */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

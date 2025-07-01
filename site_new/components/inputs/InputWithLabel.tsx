@@ -33,7 +33,7 @@ export function InputWithLabel<S>({
       render={({ field }) => (
         <FormItem>
           {fieldTitle && (
-            <FormLabel className="text-base" htmlFor={nameInSchema}>
+            <FormLabel htmlFor={nameInSchema}>
               {fieldTitle}
             </FormLabel>
           )}

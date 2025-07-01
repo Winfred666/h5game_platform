@@ -10,7 +10,7 @@ import { useState } from "react";
 import GamePosters from "@/components/GamePosters";
 import { useRouter } from "next/navigation";
 import { IGame } from "@/lib/types/igame";
-import { ALL_NAVPATH } from "@/lib/routerInfo";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { ArrowRight, Cloud, Laptop } from "lucide-react";
 
 type SwiperPropItem = IGame;
@@ -37,6 +37,8 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
               alt={`bg_${val.title}`}
               src={val.coverImage}
               fill
+              priority
+              sizes="50vw"
               className=" object-cover blur-sm lg:blur-lg"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/30 to-black/60"></div>
@@ -91,7 +93,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                 <GamePosters
                   variant="small"
                   imageList={val.screenshots.map((screenshot, index) => ({
-                    imgSrc: screenshot,
+                    src: screenshot,
                     alt: `${val.title}_screen${index}`,
                   }))}
                 />

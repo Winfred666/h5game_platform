@@ -30,6 +30,12 @@ const nextConfig: NextConfig = {
       minioRemote
     ],
   },
+  experimental : {
+    serverActions: {
+      bodySizeLimit: '1gb',
+    }
+  },
+  
   output: "standalone",
   basePath: process.env.NEXT_PUBLIC_BASEPATH,
 };

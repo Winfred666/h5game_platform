@@ -1,12 +1,10 @@
-"use client";
-
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Cloud, FilePenLine, Laptop, X } from "lucide-react"; // Replaced MUI icons with Lucide
 import { IGame } from "@/lib/types/igame";
-import { ALL_NAVPATH } from "@/lib/routerInfo";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 import React from "react";
 
 type GameListItemProps = {
@@ -18,18 +16,23 @@ type GameListItemAdminProps = GameListItemProps & {
 
 const GameThumbnail = (game:IGame): React.ReactNode => {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex gap-4">
       <Image
         width={50}
         height={50}
         src={game.coverImage}
         alt={game.title}
-        className="rounded-md object-cover" // Added rounding and object-fit for better visuals
+        className=" object-cover" // Added rounding and object-fit for better visuals
       />
       {/* Replaced Typography with a simple span and Tailwind classes */}
-      <span className="font-semibold text-base text-card-foreground">
+      <div className="text-base text-card-foreground">
+      <p className="font-semibold ">
         {game.title}
-      </span>
+      </p>
+      <p className="text-sm text-muted-foreground">
+        {game.developers.map(dev=>dev.name).join(", ")}
+      </p>
+      </div>
     </div>
   );
 };

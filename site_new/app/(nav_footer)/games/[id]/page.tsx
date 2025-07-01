@@ -5,8 +5,8 @@ import GameTags from "@/components/GameTags";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import React from "react";
-import { getGameById } from "@/lib/services/getGame";
-import { ALL_NAVPATH } from "@/lib/routerInfo";
+import { getGameById } from "@/lib/actions/getGame";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 // import DevBanner from "./DevBanner";
@@ -100,7 +100,7 @@ export default async function GameIdDetails({
             {game.screenshots.length > 0 ? (
               <GamePoster
                 imageList={game.screenshots.map((screenshot, index) => ({
-                  imgSrc: screenshot,
+                  src: screenshot,
                   alt: `${game.title}_screen${index}`,
                 }))}
               />

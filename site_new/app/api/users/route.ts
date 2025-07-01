@@ -1,4 +1,4 @@
-import { getUsersByNameOrQQ } from "@/lib/services/getUser";
+import { getUsersByNameOrQQ } from "@/lib/actions/getUser";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {

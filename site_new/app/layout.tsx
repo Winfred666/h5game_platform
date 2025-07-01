@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SWRConfigProvider from "@/components/SWRConfigProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 // hot start prisma sqlite + minio.
 
@@ -28,6 +29,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SWRConfigProvider>{children}</SWRConfigProvider>
+          <Toaster
+            richColors
+            position="top-center"
+            toastOptions={{ style: { fontFamily: "var(--default-font-family)" } }}
+          />
         </ThemeProvider>
       </body>
     </html>

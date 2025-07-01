@@ -1,3 +1,5 @@
+export {};
+
 import fs from 'fs';
 import path from 'path';
 
@@ -21,6 +23,12 @@ async function main(){
     console.log("find in migration file: ", migrationFile);
     // Now is the process to add prisma-unsupportted feature to sql
     
+    // if it has "This is an empty migration" in first line, skip adding new sql.
+    if (sql.startsWith('-- This is an empty migration')) {
+        console.log('Skipping migration file as it is second time running');
+        return;
+    }
+
     // 1. just add a new partial index for game.
     
     sql += `

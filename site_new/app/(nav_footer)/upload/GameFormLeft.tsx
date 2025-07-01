@@ -1,14 +1,6 @@
 "use client";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   FormControl,
   FormDescription,
@@ -27,10 +19,11 @@ import {
 } from "@/components/inputs/InteractiveTag";
 import { UserThumbnail } from "@/components/UserListItem";
 import { IUser } from "@/lib/types/iuser";
-import { X } from "lucide-react";
 import { InputWithLabel } from "@/components/inputs/InputWithLabel";
 import { SelectWithLabel } from "@/components/inputs/SelectWithLabel";
 import { TextAreaWithLabel } from "@/components/inputs/TextAreaWithLabel";
+import { X } from "lucide-react";
+import { toast } from "sonner";
 
 interface GameFormLeftProps {
   allTags: IGameTag[]; // All available tags for the game
@@ -43,7 +36,7 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
   const embedOpProject = form.watch("embed_op");
   // This function handles the logic for toggling a tag
   return (
-    <div className="w-3/5 md:col-span-2 flex flex-col gap-6">
+    <div className="w-3/5 min-w-2/5 flex flex-col gap-6">
       <InputWithLabel<GameFormInputType>
         fieldTitle="标题"
         nameInSchema="title"
@@ -72,17 +65,16 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
             ]}
           />
           {embedOpProject === "embed_in_page" && (
-            <div className="flex flex-col gap-2">
+            <div className=" space-y-2">
               <FormLabel>游戏窗口尺寸 (内嵌时)</FormLabel>
-              <div className="flex items-baseline gap-1">
+              <div className=" flex items-baseline justify-between  gap-1">
                 <InputWithLabel<GameFormInputType>
                   nameInSchema="width"
                   placeholder="宽度"
                   type="number"
                 />
                 <span className="text-muted-foreground"> px </span>
-              </div>
-              <div className="flex items-baseline gap-1">
+                <X className=" grow relative top-1 icon-sm text-muted-foreground" />
                 <InputWithLabel<GameFormInputType>
                   nameInSchema="height"
                   placeholder="高度"
@@ -97,11 +89,16 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
 
       <FormField
         name="uploadfile"
-        render={({ field }) => (
+        render={({ field: { onChange, onBlur } }) => (
           <FormItem>
             <FormLabel>游戏文件</FormLabel>
             <FormControl>
-              <Input type="file" {...field} />
+              <Input
+                type="file"
+                accept=".zip,.rar,.7zip"
+                onChange={(e) => onChange(Array.from(e.target.files ?? []))}
+                onBlur={onBlur}
+              />
             </FormControl>
             <FormDescription>
               <span>
@@ -128,6 +125,48 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
         placeholder="描述游戏的游玩方法、特性和背景故事..."
       />
 
+      <FormField
+        control={form.control}
+        name="developers"
+        render={({ field: { value, onChange, onBlur } }) => (
+          <FormItem>
+            <FormLabel>开发者列表</FormLabel>
+            <FormControl>
+              <div
+                className=" flex flex-col gap-2"
+                style={{
+                  "--cmdk-list-height": "300px", // Adjust height as needed
+                } as any}
+              >
+                <DeletableTags
+                  onDelete={(tagId) =>
+                    onChange(value.filter((dev) => dev.id !== tagId))
+                  }
+                  selectedTags={value}
+                  emptyText="没有选择开发者"
+                />
+                <SearchBar
+                  thing="user"
+                  onSelect={(user) => {
+                    if (value.some((dev) => dev.id === user.id)) {
+                      toast.warning("开发者已存在于列表中");
+                    } else {
+                      onChange([...value, user]);
+                    }
+                  }}
+                  onBlur={onBlur}
+                  renderListItem={(user) => (
+                    <UserThumbnail user={user as IUser} />
+                  )}
+                  listClassName=" max-h-60"
+                />
+              </div>
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
       {/* --- REWRITTEN TAGS FIELD --- */}
       <FormField
         control={form.control}
@@ -146,41 +185,6 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
               />
             </FormControl>
             <FormDescription>点击标签来选择或取消选择。</FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="developers"
-        render={({ field: { value, onChange, onBlur } }) => (
-          <FormItem>
-            <FormLabel>开发者列表</FormLabel>
-            <FormControl>
-              <div className=" flex flex-col gap-2">
-                <DeletableTags
-                  onDelete={(tagId) =>
-                    onChange(value.filter((dev) => dev.id !== tagId))
-                  }
-                  selectedTags={value}
-                  emptyText="没有选择开发者"
-                />
-                <SearchBar
-                  thing="user"
-                  onSelect={(user) => {
-                    if (value.some((dev) => dev.id === user.id)) {
-                      // TODO: show toast that user is already selected!!
-                    } else {
-                      onChange([...value, user]);
-                    }
-                  }}
-                  renderListItem={(user) => (
-                    <UserThumbnail user={user as IUser} />
-                  )}
-                />
-              </div>
-            </FormControl>
             <FormMessage />
           </FormItem>
         )}

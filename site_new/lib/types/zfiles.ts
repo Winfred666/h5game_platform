@@ -1,27 +1,11 @@
-"use client"
 import { z } from "zod";
 import { byteToMB } from "../utils";
+import { ACCEPTED_IMG_MINE_TYPES, ACCEPTED_ZIP_MIME_TYPES, MAX_IMG_SIZE, MAX_SCREENSHOT_NUMBER, MAX_ZIP_SIZE } from "../clientConfig";
 
-// Define this outside your component or in a config file
-const MAX_ZIP_SIZE = 1024 * 1024 * 1000; // 1GB
-const ACCEPTED_ZIP_MIME_TYPES = [
-  "application/zip",
-  "application/x-zip-compressed",
-];
-
-const MAX_IMG_SIZE = 1024 * 1024 * 10; // 10MB
-const MAX_SCREENSHOT_NUMBER = 4; // Maximum number of screenshots allowed
-
-const ACCEPTED_IMG_MINE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/gif",
-  "image/webp",
-  "image/svg+xml",
-];
+// use for both client and server, so in clientConfig.
 
 export const ZipSchema = z
-  .any()
+  .array(z.any())
   .superRefine((value, ctx) => {
     // 空值检查 - 如果没提供文件，包体是必需的
     if (!value || value.length !== 1) {
@@ -48,15 +32,14 @@ export const ZipSchema = z
   });
 
 export const ScreenshotsSchema = z
-  .any()
-  .optional()
-  .superRefine((value, ctx) => {
-    const fileArr:any[] = Array.from(value || []);
+  .array(z.any())
+  .superRefine((fileArr, ctx) => {
     if(fileArr.length > MAX_SCREENSHOT_NUMBER) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `最多只能上传 ${MAX_SCREENSHOT_NUMBER} 张图片。`,
       });
+      return false;
     }
     // 检查每个文件的大小
     if (fileArr.some((file) => file.size > MAX_IMG_SIZE)) {
@@ -64,6 +47,7 @@ export const ScreenshotsSchema = z
         code: z.ZodIssueCode.custom,
         message: `每张图片大小不能超过 ${byteToMB(MAX_IMG_SIZE)}。`,
       });
+      return false;
     }
     // 检查每个文件的类型
     if (
@@ -73,6 +57,7 @@ export const ScreenshotsSchema = z
         code: z.ZodIssueCode.custom,
         message: `只接受 ${ACCEPTED_IMG_MINE_TYPES.join(",")} 格式的图片。`,
       });
+      return false;
     }
   })
   // .transform(
@@ -82,7 +67,7 @@ export const ScreenshotsSchema = z
 
 // must have, cannot be empty
 export const CoverSchema = z
-  .any()
+  .array(z.any())
   .superRefine((value, ctx) => {
     // 空值检查 - 如果没提供文件，封面图是必需的
     if (!value || value.length !== 1) {
@@ -105,14 +90,15 @@ export const CoverSchema = z
     if (!ACCEPTED_IMG_MINE_TYPES.includes(file.type)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `封面图只能是 ${ACCEPTED_IMG_MINE_TYPES.join(",")} 格式。`,
+        message: `封面图只能是 ${ACCEPTED_IMG_MINE_TYPES.join(", ")} 格式。`,
       });
+      return false;
     }
   });
 
 // optional , can be empty
 export const avatarSchema = z
-  .any()
+  .array(z.any())
   .optional()
   .superRefine((value, ctx) => {
     // 空值检查 - 如果没提供文件，头像是可选项

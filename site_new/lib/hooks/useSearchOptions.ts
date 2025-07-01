@@ -34,11 +34,12 @@ export default function useSearchOptions_debounce(
       }, delay);
     }
     return () => {
+      setIsTimeLoading(false);
       if (timerRef.current) {
         clearTimeout(timerRef.current); // clear the timer when the component unmounts or searchTerm changes
       }
     };
-  }, [searchTerm, setSearchTermDebounced, delay]);
+  }, [searchTerm, setSearchTermDebounced, delay, setIsTimeLoading]);
   
   return {searchOptions, searchTerm, setSearchTerm, isLoading:(isLoading || isTimeLoading)};
 }

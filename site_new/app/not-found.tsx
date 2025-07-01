@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Ghost, TriangleAlert } from "lucide-react";
-import { ALL_NAVPATH } from "@/lib/routerInfo";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 
 import "./animation.css"
 

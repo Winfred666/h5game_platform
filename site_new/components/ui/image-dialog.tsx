@@ -1,6 +1,5 @@
 // components/ui/image-lightbox.tsx
 
-import * as React from "react"
 import Image from "next/image"
 import {
   Dialog,
@@ -9,10 +8,11 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useEffect } from "react"
 
 // Define the shape of our image object
 export interface LightboxImage {
-  imgSrc: string
+  src: string
   alt: string
 }
 
@@ -32,7 +32,7 @@ export function ImageDialog({
   onPrev,
 }: ImageLightboxProps) {
   // Effect for keyboard navigation
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (selectedIndex === null) return
 
@@ -72,7 +72,7 @@ export function ImageDialog({
             <Image
               width={900}
               height={600}
-              src={selectedImage.imgSrc}
+              src={selectedImage.src}
               alt={selectedImage.alt}
               className="w-full h-auto max-h-[90vh] object-contain rounded-lg"
               priority

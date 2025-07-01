@@ -25,8 +25,6 @@ export interface IGame {
     createdAt: string;
     
     developers: IDeveloper[];
-    
-    // joinDevelopers: string; // a long string, like "dev1,dev2,dev3", computed attribute.
     tags: IGameTag[];
     // most important: url for download
     downloadUrl: string;

@@ -1,4 +1,4 @@
-import { IUser } from "@/lib/types/iuser";
+import { IUser, IUserSelf } from "@/lib/types/iuser";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Pencil, Trash2, UserRound } from "lucide-react";
@@ -7,12 +7,20 @@ import { AlertDialogTrigger } from "./ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
 interface UserListItemProps {
-  user: IUser;
+  user: IUserSelf;
   onEdit: (user: IUser) => void;
   onDelete: (user: IUser) => void;
 }
 
-export function UserThumbnail({ user, className, shrinkName = false }: { user?: IUser, className?: string , shrinkName?: boolean}) {
+export function UserThumbnail({
+  user,
+  className,
+  shrinkName = false,
+}: {
+  user?: { id: number; name: string; avatar?: string };
+  className?: string;
+  shrinkName?: boolean;
+}) {
   return (
     <div className={cn(" flex items-center gap-2", className)}>
       <Avatar className="h-8 w-8">
@@ -21,12 +29,14 @@ export function UserThumbnail({ user, className, shrinkName = false }: { user?: 
           <UserRound className="h-5 w-5" />
         </AvatarFallback>
       </Avatar>
-      <span className={shrinkName ? "hidden lg:inline" : ""}>{user?.name ?? "游客"}</span>
+      <span className={shrinkName ? "hidden lg:inline" : ""}>
+        {user?.name ?? "游客"}
+      </span>
     </div>
   );
 }
 
-function UserListItem({ user, onEdit, onDelete }: UserListItemProps) {
+export function UserListItem({ user, onEdit, onDelete }: UserListItemProps) {
   return (
     <div className="flex items-center p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors text-sm">
       <div className="flex-1 min-w-0 font-medium truncate pr-4">

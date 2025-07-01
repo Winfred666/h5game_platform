@@ -1,4 +1,4 @@
-import { getAllTags, getTopGames } from "@/lib/services/getGame";
+import { getAllTags, getTopGames } from "@/lib/actions/getGame";
 import GameSwiper from "./GameSwiper";
 import GameTags from "@/components/GameTags";
 

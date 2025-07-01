@@ -11,7 +11,7 @@ import {
 import GameTags from "./GameTags"; // Reusing your existing GameTags component
 import { IGame } from "@/lib/types/igame";
 import { useRouter } from "next/navigation";
-import { ALL_NAVPATH } from "@/lib/routerInfo";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { PaginationWithLinks } from "./ui/pagination-with-link";
 
 interface GameCardsProps {

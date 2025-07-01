@@ -1,3 +1,5 @@
+"server-only";
+
 import { Prisma } from "@prisma/client";
 import {
   byteToMB,
@@ -69,6 +71,18 @@ export const GameExtension = Prisma.defineExtension({
       //   needs: { updatedAt: true },
       //   compute: ({ updatedAt }) => dateToLocaleString(updatedAt),
       // },
+      width: {
+        needs: {},
+        compute: () => undefined,
+      },
+      height: {
+        needs: {},
+        compute: () => undefined,
+      },
+      isPrivate: {
+        needs: {},
+        compute: () => undefined, // do not return isPrivate to client, it is a server-side only mark.
+      },
       size: {
         needs: { size: true },
         compute: ({ size }) => byteToMB(size), // 转换为MB并保留两位小数
@@ -93,6 +107,15 @@ export const GameExtension = Prisma.defineExtension({
 export const UserExtension = Prisma.defineExtension({
   query: {
     user: {
+      async findMany({ args, query }) {
+        return query({
+          ...args,
+          orderBy: {
+            createdAt: "desc", // order by creation time
+            ...args.orderBy, // keep other orderBy clauses
+          },
+        });
+      },
     },
   },
   result: {
@@ -108,10 +131,14 @@ export const UserExtension = Prisma.defineExtension({
         },
       },
       avatar: {
-        needs: { avatar: true, id: true},
-        compute: ({avatar, id}) =>(avatar ? genUserAvatarURL(id) : undefined)
+        needs: { hasAvatar: true, id: true },
+        compute: ({ hasAvatar, id }) =>
+          hasAvatar ? genUserAvatarURL(id) : undefined,
       },
-
+      hasAvatar: {
+        needs: {},
+        compute: () => undefined,
+      },
     },
   },
 });

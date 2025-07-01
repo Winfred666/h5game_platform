@@ -1,27 +1,16 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Schema } from "zod";
+import { MINIO_BUCKETS } from "./serverConfig";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const processClientWorkload = (
-  params: unknown,
-  validator: Schema<any>
-): any => {
-  const validation = validator.safeParse(params);
-  if (!validation.success) {
-    throw new Error("Invalid parameters: " + validation.error.message);
-  }
-  return validation.data;
-};
-
 export const genGamePlayableURL = (gameId: number) =>
-  `${process.env.NEXT_PUBLIC_MINIO_URL}/games/${gameId}/index.html`;
+  `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.GAME}/${gameId}/index.html`;
 
 export const genGameCoverURL = (gameId: number) =>
-  `${process.env.NEXT_PUBLIC_MINIO_URL}/images/${gameId}/cover.webp`;
+  `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.IMAGE}/${gameId}/cover.webp`;
 
 export const genGameScreenshotsURL = (
   gameId: number,
@@ -30,37 +19,106 @@ export const genGameScreenshotsURL = (
   const screenshotsURL = [];
   for (let i = 0; i < screenshotNum; i++) {
     screenshotsURL.push(
-      `${process.env.NEXT_PUBLIC_MINIO_URL}/images/${gameId}/screenshot${i}.webp`
+      `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.IMAGE}/${gameId}/screenshot${i}.webp`
     );
   }
   return screenshotsURL;
 };
 
 export const genGameDownloadURL = (gameId: number) =>
-  `${process.env.NEXT_PUBLIC_MINIO_URL}/games/${gameId}/game.zip`;
+  `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.GAME}/${gameId}/game.zip`;
 
 export const genUserAvatarURL = (userId: number) =>
-  `${process.env.NEXT_PUBLIC_MINIO_URL}/photo/${userId}.webp`;
+  `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.AVATAR}/${userId}.webp`;
 
 export const byteToMB = (bytes: number): string =>
   (bytes / (1024 * 1024)).toFixed(2) + " MB";
 
+export const isFileLike = (value: any): value is File => {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    typeof value.name === "string" &&
+    //typeof value.size === 'number' && // react-hook-form could temporarily set it to 0
+    typeof value.type === "string" &&
+    typeof value.lastModified === "number"
+  );
+};
 
-const customReplacer = (key: string, value: any) => {
-  if (value === null) {
-    return undefined; // remove null values!! to ensure serializability
+export const isNullLike = (subItem: any) =>
+  subItem === undefined || subItem === null;
+
+const _buildFormData = (
+  formData: FormData,
+  obj: Record<string, any>,
+  parentKey?: string
+) => {
+
+  const _buildItem = (subItem:any, key:string, formKey:string) => {
+    if (isFileLike(subItem)) {
+      formData.append(formKey, subItem);
+      obj[key] = undefined;
+    } else if (typeof subItem === "object") {
+      _buildFormData(formData, subItem, formKey);
+    }
   }
-  return value; // return other values as is
+  for (let [key, item] of Object.entries(obj)) {
+    if (isNullLike(item)) {
+      continue; // skip undefined or null values
+    }
+    if (item instanceof FileList) {
+      obj[key] = item = Array.from(item);
+    }
+    const formKey = parentKey ? `${parentKey}.${key}` : key; // build nested key
+    if (Array.isArray(item)) {
+      let flag = false;
+      item.forEach((subItem) => {
+        // only recursion when meet sub object, not array.
+        _buildItem(subItem, key, formKey);
+      });
+      if (flag) obj[key] = undefined;
+    } else {
+      _buildItem(item, key, formKey);
+    }
+  }
 };
 
-Date.prototype.toJSON = function () {
-  return this.toLocaleDateString("zh-CN", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+// WARNING: obj should json stringable and only consist of shallow File-list for Blob part, no single File.
+export const objectToFormData = (obj: Record<string, any>): FormData => {
+  const formData = new FormData();
+  _buildFormData(formData, obj);
+  formData.append("_payload_", JSON.stringify(obj));
+  return formData;
 };
 
-export const convertToPlainObj = (data: any): any => JSON.parse(JSON.stringify(data, customReplacer));
+export const formDataToObject = (formData: FormData): Record<string, any> => {
+  const payload = formData.get("_payload_");
+  if (typeof payload !== "string")
+    throw Error("Lack of valid payload in formdata");
+  const obj: Record<string, any> = JSON.parse(payload);
+
+  const keys = Array.from(new Set(formData.keys())).filter(
+    (k) => k !== "_payload_"
+  ); // Get unique keys from FormData
+  console.log(keys);
+  for (let key of keys) {
+    const values = formData.getAll(key);
+    const path = key.split(".");
+
+    // Start at the root of the result object
+    let current = obj;
+    // Iterate through the path to build the nested structure
+    for (let i = 0; i < path.length - 1; i++) {
+      const part = path[i];
+      // If the next level in the path doesn't exist, create it as an empty object
+      if (!current[part]) {
+        current[part] = {};
+      }
+      // Move deeper into the object
+      current = current[part];
+    }
+    // Set the value at the final destination
+    current[path[path.length - 1]] = values;
+  }
+  return obj;
+};

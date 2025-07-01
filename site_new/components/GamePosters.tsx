@@ -24,7 +24,7 @@ const galleryVariants = cva("flex w-full", {
 });
 
 const imageCardVariants = cva(
-  "group relative shadow-sm transition-shadow hover:shadow-md overflow-hidden",
+  "relative shadow-sm overflow-hidden",
   {
     variants: {
       variant: {
@@ -41,14 +41,15 @@ const imageCardVariants = cva(
 // --- TYPE DEFINITIONS ---
 
 interface ImageItem {
-  imgSrc: string;
+  src: string;
   alt: string;
 }
 
 interface GamePostersProps extends VariantProps<typeof galleryVariants> {
   imageList: ImageItem[];
-  onDelete?: (index: number) => void;
+  onDelete?: (img: ImageItem) => void;
   className?: string;
+  onBlur?: () => void;
 }
 
 // --- MAIN COMPONENT ---
@@ -58,6 +59,7 @@ export default function GamePosters({
   onDelete,
   variant,
   className,
+  onBlur,
 }: GamePostersProps) {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(
     null
@@ -89,7 +91,8 @@ export default function GamePosters({
           image={image}
           variant={variant}
           onClick={() => handleOpenDialog(index)}
-          onDelete={onDelete ? () => onDelete(index) : undefined}
+          onDelete={onDelete ? () => onDelete(image) : undefined}
+          onBlur={onBlur}
         />
       ))}
       {/* A SINGLE Dialog for the entire gallery */}
@@ -108,31 +111,34 @@ export default function GamePosters({
 interface ImageCardProps extends VariantProps<typeof imageCardVariants> {
   image: ImageItem;
   onClick: () => void;
-  onDelete?: () => void;
+  onDelete?: (img:ImageItem) => void;
+  onBlur?: () => void;
 }
 
-function ImageCard({ image, variant, onClick, onDelete }: ImageCardProps) {
+function ImageCard({ image, variant, onClick, onDelete, onBlur }: ImageCardProps) {
   return (
     <div className={imageCardVariants({ variant })}>
       <Image
         fill
         sizes="200px"
-        src={image.imgSrc}
+        src={image.src}
         alt={image.alt}
-        className=" cursor-pointer object-cover transition-transform duration-300 group-hover:scale-105"
+        className=" cursor-pointer object-cover transition-transform duration-300 hover:scale-105"
         onClick={onClick}
       />
 
       {onDelete && (
         <Button
+          type="button"
           variant="destructive"
           size="icon"
-          className="absolute z-10 top-2 right-2 h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute z-10 top-2 right-2 h-8 w-8"
           onClick={(e) => {
             e.stopPropagation(); // Prevent opening the dialog when clicking delete
-            onDelete();
+            onDelete(image);
           }}
           aria-label={`Delete image: ${image.alt}`}
+          onBlur={onBlur}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
