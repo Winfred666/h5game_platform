@@ -130,7 +130,7 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
         name="developers"
         render={({ field: { value, onChange, onBlur } }) => (
           <FormItem>
-            <FormLabel>开发者列表</FormLabel>
+            <FormLabel>协作者列表</FormLabel>
             <FormControl>
               <div
                 className=" flex flex-col gap-2"
@@ -143,7 +143,7 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
                     onChange(value.filter((dev) => dev.id !== tagId))
                   }
                   selectedTags={value}
-                  emptyText="没有选择开发者"
+                  emptyText="没有选择协作者"
                 />
                 <SearchBar
                   thing="user"
@@ -162,6 +162,9 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
                 />
               </div>
             </FormControl>
+            <FormDescription>
+              不需要选择你自己，上传时会自动将你列为开发者。
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

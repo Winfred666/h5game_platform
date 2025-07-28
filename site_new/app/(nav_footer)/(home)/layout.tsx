@@ -7,7 +7,7 @@ export default async function HomeLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let [top_games, all_tags] = await Promise.all([
+  const [top_games, all_tags] = await Promise.all([
     getTopGames(),
     getAllTags(),
   ]);

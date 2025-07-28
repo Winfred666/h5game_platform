@@ -71,7 +71,7 @@ const _buildFormData = (
     }
     const formKey = parentKey ? `${parentKey}.${key}` : key; // build nested key
     if (Array.isArray(item)) {
-      let flag = false;
+      const flag = false;
       item.forEach((subItem) => {
         // only recursion when meet sub object, not array.
         _buildItem(subItem, key, formKey);
@@ -96,12 +96,14 @@ export const formDataToObject = (formData: FormData): Record<string, any> => {
   if (typeof payload !== "string")
     throw Error("Lack of valid payload in formdata");
   const obj: Record<string, any> = JSON.parse(payload);
-
+  // payload is expected to be a JSON string, we only deserialize that.
+  
+  // all these are prepared for nested FileList structure.
   const keys = Array.from(new Set(formData.keys())).filter(
     (k) => k !== "_payload_"
   ); // Get unique keys from FormData
-  console.log(keys);
-  for (let key of keys) {
+  // console.log(keys);
+  for (const key of keys) {
     const values = formData.getAll(key);
     const path = key.split(".");
 

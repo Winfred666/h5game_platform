@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+
 import { ThemeProvider } from "@/components/ThemeProvider";
 import SWRConfigProvider from "@/components/SWRConfigProvider";
+import { SessionProvider } from "next-auth/react";
+
 import { Toaster } from "@/components/ui/sonner";
 
 // hot start prisma sqlite + minio.
@@ -22,13 +25,18 @@ export default function RootLayout({
   return (
     <html lang="zh" suppressHydrationWarning>
       <body className="antialiased">
+        {/* Only for follow the theme of system */}
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <SWRConfigProvider>{children}</SWRConfigProvider>
+          <SWRConfigProvider>
+            <SessionProvider basePath={process.env.NEXT_PUBLIC_BASEPATH + "/api/auth"}>
+              {children}
+            </SessionProvider>
+          </SWRConfigProvider>
           <Toaster
             richColors
             position="top-center"

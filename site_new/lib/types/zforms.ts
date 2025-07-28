@@ -29,8 +29,7 @@ export const GameFormInputSchema = z
     tags: z.array(z.number()),
     // need name to show.
     developers: z
-      .array(z.object({ id: z.number().int().nonnegative(), name: z.string() }))
-      .min(1, "至少需要一个开发者"),
+      .array(z.object({ id: z.number().int().nonnegative(), name: z.string() })),
     cover: CoverSchema,
     screenshots: z.object({
       add: ScreenshotsSchema,
@@ -58,4 +57,20 @@ export const LoginFormInputSchema = z.object({
 export type LoginFormInputType = z.input<typeof LoginFormInputSchema>;
 
 // transform is available in ServerSchema ; and any preprocess should only write in serverSchema to do server-side validtaion.
-export const GameFormServerSchema = z.instanceof(FormData).transform(formDataToObject).pipe(GameFormInputSchema);
+export const GameFormServerSchema = z.instanceof(FormData).transform(formDataToObject).pipe(GameFormInputSchema
+  .transform((form) => {
+    return {
+      ...form,
+      kind: undefined,
+      embed_op: undefined,
+      isOnline: form.kind === "html",
+      width: form.embed_op === "embed_in_page" ? parseInt(form.width) : null,
+      height: form.embed_op === "embed_in_page" ? parseInt(form.height) : null,
+      developers: {
+        connect: form.developers.map(dev => ({ id: dev.id })),
+      },
+      tags: {
+        connect: form.tags.map(tagId => ({ id: tagId })),
+      }
+    };
+  }));

@@ -1,16 +1,17 @@
 import NavBar from "./NavBar";
 import Footer from "./Footer";
 
-export default function NavFooterLayout({
+export default async function NavFooterLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // console.log(session);
   return (
-      <div className="flex flex-col justify-start items-stretch min-h-screen">
+    <div className="flex flex-col justify-start items-stretch min-h-screen">
         <NavBar />
         <main className="flex-grow flex flex-col">{children}</main>
         <Footer />
-      </div>
+    </div>
   );
 }

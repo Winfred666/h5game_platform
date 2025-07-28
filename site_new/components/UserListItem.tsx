@@ -16,20 +16,34 @@ export function UserThumbnail({
   user,
   className,
   shrinkName = false,
+  size = "default",
 }: {
   user?: { id: number; name: string; avatar?: string };
   className?: string;
   shrinkName?: boolean;
+  size?: "default" | "large";
 }) {
+  const avatarSize = size === "large" ? "h-12 w-12" : "h-8 w-8";
   return (
-    <div className={cn(" flex items-center gap-2", className)}>
-      <Avatar className="h-8 w-8">
+    <div
+      className={cn(
+        " flex items-center",
+        size === "large" ? "gap-4" : "gap-2",
+        className
+      )}
+    >
+      <Avatar className={avatarSize}>
         <AvatarImage src={user?.avatar} alt={user?.name ?? "用户头像"} />
         <AvatarFallback>
-          <UserRound className="h-5 w-5" />
+          <UserRound className={avatarSize} />
         </AvatarFallback>
       </Avatar>
-      <span className={shrinkName ? "hidden lg:inline" : ""}>
+      <span
+        className={cn(
+          shrinkName ? "hidden lg:inline" : "",
+          size === "large" ? "text-xl" : ""
+        )}
+      >
         {user?.name ?? "游客"}
       </span>
     </div>

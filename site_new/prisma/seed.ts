@@ -6,12 +6,12 @@ import * as bcrypt from "bcryptjs";
 import * as Minio from "minio";
 
 // awesome that next.js 15 has sharp built-in, webp is a great format for images
-// WARNING: all use default environment variables, do not set in .env (.env is for production)
 import sharp from "sharp";
 
 
+// WARNING: all use default environment variables, do not set in .env (.env is for production)
 const DEFAULT_PASSWORD = "password123"; // WARNING: Only for development, do not use in production
-const ADMIN_QQ = "00000000"; // Default admin QQ, used for the first user
+const ADMIN_QQ = "10000000"; // Default admin QQ, used for the first user
 
 const REQUIRED_BUCKETS = [
   "games",
@@ -82,7 +82,7 @@ function generateBucketPolicy(
 
   const policy = {
     Version: "2012-10-17",
-    Statement: [] as any[],
+    Statement: [] as unknown[],
   };
 
   // 1. 管理员权限（保持不变）

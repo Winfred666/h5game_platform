@@ -2,9 +2,9 @@
 import { InputWithLabel } from "@/components/inputs/InputWithLabel";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { userLoginAction } from "@/lib/actions/authUser";
 import { LoginFormInputSchema, LoginFormInputType } from "@/lib/types/zforms";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -32,13 +32,15 @@ export default function LoginPage({
   const onSubmit: SubmitHandler<LoginFormInputType> = async (data) => {
     // Handle login logic here
     try {
-      console.log("Login data submitted:", data);
-      const formData = new FormData();
-      formData.append("qq", data.qq);
-      formData.append("password", data.password);
-      await userLoginAction("credentials", formData);
-      // Redirect after successful login
-      // router.push(callback || "/");
+      // console.log("Login data submitted:", data);
+      const res = await signIn("credentials", {
+        redirect: false, // if redirect, will manage router automatically
+        ...data
+      });
+      if (res.ok && !res.error) {
+        // Redirect after successful login
+        router.push(callback || "/");
+      } else throw new Error(res.error || "登录失败");
     } catch (e) {
       console.error("Login failed:", e);
       toast.error("登录失败，请检查您的QQ号和密码");

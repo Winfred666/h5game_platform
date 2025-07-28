@@ -27,9 +27,4 @@ export interface IUserSelf extends IUser {
     isAdmin: boolean; // 是否为管理员
 }
 
-export type IUserJWT = {
-    id: string,       // 兼容 NextAuth， 只能为 string
-    isAdmin: boolean; // 是否为管理员
-}
-
 // also validate form using zod.

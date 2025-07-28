@@ -2,7 +2,6 @@
 import { Form } from "@/components/ui/form";
 import { GameFormInputSchema, GameFormInputType } from "@/lib/types/zforms";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
 import { FieldErrors, SubmitHandler, useForm } from "react-hook-form";
 import { GameFormLeft } from "./GameFormLeft";
 import { IGame, IGameTag } from "@/lib/types/igame";

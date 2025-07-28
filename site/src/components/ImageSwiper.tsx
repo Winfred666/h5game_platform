@@ -84,7 +84,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                     onClick={() => router.push(val.link)}
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
-                    className=" text-md font-semibold lg:text-xl rounded-sm cursor-pointer
+                    className=" font-semibold lg:text-xl rounded-sm cursor-pointer
                     flex flex-row gap-2 items-center py-1 px-2 lg:py-2 lg:px-4 border-solid border-2 border-white"
                     style={{
                       backgroundColor: isHovered

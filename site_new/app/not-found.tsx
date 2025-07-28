@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Ghost, TriangleAlert } from "lucide-react";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 
-import "./animation.css"
+import "./animation.css";
+import { cn } from "@/lib/utils";
 
 // --- Configuration for background wandering elements ---
 // This runs once on the server during render.
@@ -21,9 +22,14 @@ const wanderingElements = [
   },
 ];
 
-export default function NotFound() {
+export function NotFoundComponent({ isFullPage=false }: { isFullPage: boolean }) {
   return (
-    <div className="flex grow items-center justify-center relative overflow-hidden h-screen bg-background">
+    <div
+      className={cn(
+        isFullPage ? "h-screen" : "h-auto",
+        "flex grow items-center justify-center relative overflow-hidden bg-background"
+      )}
+    >
       {/* Subtle wandering background elements */}
       {wanderingElements.map((el, i) => (
         <div
@@ -43,10 +49,7 @@ export default function NotFound() {
       {/* Main content card */}
       <Card className="z-10 w-4/5 lg:w-full max-w-md text-center shadow-2xl bg-card/80 backdrop-blur-sm">
         <CardHeader>
-          <h1
-            className="font-black text-primary"
-            data-text="404"
-          >
+          <h1 className="font-black text-primary" data-text="404">
             404
           </h1>
           <CardTitle className="flex items-center justify-center gap-2 font-bold pt-4">
@@ -69,4 +72,8 @@ export default function NotFound() {
       </Card>
     </div>
   );
+}
+
+export default function NotFound() {
+  return <NotFoundComponent isFullPage/>;
 }

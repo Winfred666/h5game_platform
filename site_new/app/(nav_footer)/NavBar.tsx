@@ -3,14 +3,13 @@
 // if not rendering using dynamic data to build page.
 
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Gamepad2, User, LogOut, UserRound } from "lucide-react";
+import { Gamepad2, User, LogOut } from "lucide-react";
 import Link from "next/link";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { usePathname } from "next/navigation";
@@ -19,11 +18,18 @@ import {GameListItem} from "@/components/GameListItem";
 import { IGame } from "@/lib/types/igame";
 import { UserThumbnail } from "@/components/UserListItem";
 import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 
 export default function NavBar() {
   const pathName = usePathname();
   const router = useRouter();
+  const { data: session } = useSession()
+  const thumbnailUser = session?.user ? {
+    ...session.user,
+    id: parseInt(session.user.id),
+  } : undefined;
+
   const navLinks = [
     {...ALL_NAVPATH.home, href: ALL_NAVPATH.home.href()},
     ALL_NAVPATH.upload,
@@ -79,15 +85,18 @@ export default function NavBar() {
               className=" cursor-pointer relative p-1 h-auto"
             >
               {/* TODO: add auth and get user info later !*/}
-              <UserThumbnail user={undefined} shrinkName />
+              <UserThumbnail user={thumbnailUser} shrinkName />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className=" lg:w-48" align="end" forceMount>
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => router.push(ALL_NAVPATH.profile.href)}>
               <User className="mr-2 h-4 w-4" />
               <span>个人主页</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive">
+            <DropdownMenuItem className="text-destructive"
+              onClick={() => signOut({redirect: false})}
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>退出登录</span>
             </DropdownMenuItem>

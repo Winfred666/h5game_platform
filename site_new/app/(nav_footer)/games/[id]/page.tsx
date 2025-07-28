@@ -2,7 +2,7 @@ import EmbededCanvas from "./EmbededCanvas";
 import Image from "next/image";
 import GamePoster from "@/components/GamePosters";
 import GameTags from "@/components/GameTags";
-import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import React from "react";
 import { getGameById } from "@/lib/actions/getGame";
@@ -21,7 +21,7 @@ export default async function GameIdDetails({
   // now still in server component, just savely get game content
   const game = await getGameById(parseInt(id));
   if (!game) {
-    redirect(ALL_NAVPATH.not_found.href);
+    notFound();
   }
   return (
     <div className="w-full flex flex-col grow">
@@ -70,28 +70,30 @@ export default async function GameIdDetails({
             </div>
             <GameTags tags={game.tags} id="game_detail_" />
             <div>
-              <div className="flex flex-row gap-3">
-                作者:
-                {game.developers.map((dev) => (
-                  <Link
+              <div className="flex flex-row items-baseline">
+                <div>作者：</div>
+                {game.developers.map((dev, index) => (
+                  <div
                     key={"developer_" + dev.id}
-                    href={ALL_NAVPATH.user_id.href(dev.id)}
+                    className="flex items-center"
                   >
-                    {dev.name}
-                  </Link>
+                    <Button asChild variant="ghost" className="py-0 px-1">
+                      <Link href={ALL_NAVPATH.user_id.href(dev.id)}>
+                        {dev.name}
+                      </Link>
+                    </Button>
+                    {index < game.developers.length - 1 && <div>，</div>}
+                  </div>
                 ))}
               </div>
-              <div>发布日期: {game.createdAt}</div>
+              <div>发布日期： {game.createdAt}</div>
             </div>
-              <Button
-                asChild
-                className="w-fit"
-              >
-                <Link href={game.downloadUrl}>
+            <Button asChild className="w-fit">
+              <Link href={game.downloadUrl}>
                 <Download />
                 下载游戏（{game.size}）
-                </Link>
-              </Button>
+              </Link>
+            </Button>
           </div>
 
           {/* Right column - Screenshots */}
