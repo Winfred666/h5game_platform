@@ -3,12 +3,15 @@
 import { Prisma } from "@prisma/client";
 import {
   byteToMB,
+} from "./utils";
+
+import {
   genGameCoverURL,
   genGameDownloadURL,
   genGamePlayableURL,
   genGameScreenshotsURL,
-  genUserAvatarURL,
-} from "./utils";
+  genUserAvatarURL
+} from "./serverConfig";
 
 export const GameExtension = Prisma.defineExtension({
   query: {
@@ -47,16 +50,16 @@ export const GameExtension = Prisma.defineExtension({
     // here is the post-processing of game result
     game: {
       online: {
-        needs: { id: true, isOnline: true, width: true, height: true },
-        compute({ id, isOnline, width, height }) {
-          if (isOnline) return undefined; // online game does not need this
+        needs: { id: true, isOnline: true, width: true, height: true, isPrivate: true },
+        compute({ id, isOnline, width, height, isPrivate }) {
+          if (!isOnline) return undefined; // downloadable game does not need this
           if (!width || !height) {
             return {
-              url: genGamePlayableURL(id),
+              url: genGamePlayableURL(id, isPrivate),
             };
           }
           return {
-            url: genGamePlayableURL(id),
+            url: genGamePlayableURL(id, isPrivate),
             width,
             height,
           };
@@ -79,10 +82,7 @@ export const GameExtension = Prisma.defineExtension({
         needs: {},
         compute: () => undefined,
       },
-      isPrivate: {
-        needs: {},
-        compute: () => undefined, // do not return isPrivate to client, it is a server-side only mark.
-      },
+      // is private is protected by omit.
       size: {
         needs: { size: true },
         compute: ({ size }) => byteToMB(size), // 转换为MB并保留两位小数
@@ -97,8 +97,8 @@ export const GameExtension = Prisma.defineExtension({
           genGameScreenshotsURL(id, screenshotCount),
       },
       downloadUrl: {
-        needs: { id: true },
-        compute: ({ id }) => genGameDownloadURL(id),
+        needs: { id: true, isPrivate: true },
+        compute: ({ id, isPrivate }) => genGameDownloadURL(id, isPrivate),
       },
     },
   },

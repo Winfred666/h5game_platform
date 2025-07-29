@@ -9,6 +9,7 @@ import { getGameById } from "@/lib/actions/getGame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
+import DevBanner from "./DevBanner";
 // import DevBanner from "./DevBanner";
 
 export default async function GameIdDetails({
@@ -20,6 +21,7 @@ export default async function GameIdDetails({
   // try
   // now still in server component, just savely get game content
   const game = await getGameById(parseInt(id));
+  console.log("games: ", game);
   if (!game) {
     notFound();
   }
@@ -36,11 +38,13 @@ export default async function GameIdDetails({
         />
         <div className="absolute inset-0 bg-black opacity-50"></div>
       </div>
-      {/* <DevBanner game_id={game.id} developers={game.developer} /> */}
+
+      <DevBanner gameId={game.id} isPrivate={game.isPrivate} />
+      
       {/* 主要内容，使用页面包裹 */}
       <div
         className="relative flex grow flex-col items-center
-  gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[90%] min-w-3/5 lg:min-w-[50%] w-full h-fit 
+  gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[90%] min-w-3/5 lg:min-w-[60%] h-fit 
    bg-card"
       >
         {/* Online Game full screen/embed Modal */}
@@ -70,14 +74,14 @@ export default async function GameIdDetails({
             </div>
             <GameTags tags={game.tags} id="game_detail_" />
             <div>
-              <div className="flex flex-row items-baseline">
+              <div className="flex flex-row flex-wrap items-baseline">
                 <div>作者：</div>
                 {game.developers.map((dev, index) => (
                   <div
                     key={"developer_" + dev.id}
                     className="flex items-center"
                   >
-                    <Button asChild variant="ghost" className="py-0 px-1">
+                    <Button asChild variant="ghost" className="py-0 px-1 h-auto">
                       <Link href={ALL_NAVPATH.user_id.href(dev.id)}>
                         {dev.name}
                       </Link>
@@ -107,7 +111,7 @@ export default async function GameIdDetails({
                 }))}
               />
             ) : (
-              <h2>暂无游戏截图~</h2>
+              <div>暂无游戏截图~</div>
             )}
           </div>
         </div>

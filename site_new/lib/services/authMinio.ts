@@ -1,39 +1,64 @@
-"server-only"
+// file: lib/minio-sts.ts (or wherever your server-side function lives)
+"use server";
 
-// provide authentication services of MinIO to admin. (temp 1h session)
-import { STS } from 'aws-sdk'; // MinIO兼容STS API
+import { STSClient, AssumeRoleCommand } from "@aws-sdk/client-sts";
 
-// 生成管理员临时访问凭据
-async function generateAdminToken(userId: string, bucket: string) {
-  const sts = new STS({
-    endpoint: 'http://minio:9000',
-    accessKeyId: 'ADMIN_ROOT_KEY',
-    secretAccessKey: 'ADMIN_ROOT_SECRET'
+export async function generateTemporaryMinioCredentials(
+  userId: string,
+  bucketName: string
+) {
+  // Configure the STS Client to connect to your MinIO server
+  const stsClient = new STSClient({
+    endpoint: process.env.MINIO_ENDPOINT,
+    credentials: {
+      accessKeyId: process.env.MINIO_STS_ACCESS_KEY!,
+      secretAccessKey: process.env.MINIO_STS_SECRET_KEY!,
+    },
+    region: "us-east-1",
+    // REMOVED: forcePathStyle: true, as it's not a valid property for STSClient
   });
-  
-  // 创建具有有限权限的会话
-  const session = await sts.assumeRole({
-    RoleArn: `arn:minio:iam:::role/AdminTempRole-${bucket}`,
-    RoleSessionName: `audit-session-${userId}`,
-    DurationSeconds: 3600, // 1小时有效期
-    Policy: JSON.stringify({
-      Version: "2012-10-17",
-      Statement: [{
-        Action: ["s3:*"],
+
+  // Define the inline policy for the temporary session
+  const temporaryPolicy = JSON.stringify({
+    Version: "2012-10-17",
+    Statement: [
+      {
         Effect: "Allow",
+        Action: ["s3:*"],
         Resource: [
-          `arn:aws:s3:::${bucket}`,
-          `arn:aws:s3:::${bucket}/*`
-        ]
-      }]
-    })
-  }).promise();
-  
-  // 返回客户端可直接使用的凭证
-  return {
-    accessKey: session.Credentials?.AccessKeyId,
-    secretKey: session.Credentials?.SecretAccessKey,
-    sessionToken: session.Credentials?.SessionToken,
-    expiration: session.Credentials?.Expiration
-  };
+          `arn:aws:s3:::${bucketName}`,
+          `arn:aws:ss3:::${bucketName}/*`,
+        ],
+      },
+    ],
+  });
+
+  // Create the command to assume a role
+  const command = new AssumeRoleCommand({
+    RoleArn: "arn:aws:iam::123456789012:role/S3Access",
+    RoleSessionName: `client-session-${userId}-${Date.now()}`,
+    Policy: temporaryPolicy,
+    DurationSeconds: 3600,
+  });
+
+  try {
+    const { Credentials } = await stsClient.send(command);
+
+    if (!Credentials) {
+      throw new Error("Failed to assume role, credentials not returned.");
+    }
+
+    console.log("Successfully generated temporary credentials for bucket:", bucketName);
+
+    // Return the credentials for the client to use
+    return {
+      accessKeyId: Credentials.AccessKeyId,
+      secretAccessKey: Credentials.SecretAccessKey,
+      sessionToken: Credentials.SessionToken,
+      expiration: Credentials.Expiration,
+    };
+  } catch (error) {
+    console.error("Error assuming role with MinIO STS:", error);
+    throw new Error("Could not generate temporary access token.");
+  }
 }

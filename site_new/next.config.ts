@@ -29,13 +29,14 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       minioRemote
     ],
+    unoptimized: true, // because using user changeable minio image, 
+    // to enable unoptimized, need to add version control for image.
   },
   experimental : {
     serverActions: {
       bodySizeLimit: '1gb',
     }
   },
-  
   output: "standalone",
   basePath: process.env.NEXT_PUBLIC_BASEPATH,
 };

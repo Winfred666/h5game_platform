@@ -33,3 +33,33 @@ export async function uploadImage(
     "Content-Type": "image/webp", // Set the correct content type for WebP
   });
 }
+
+// delete image from minio
+export async function deleteImage(bucketName: MINIO_BUCKETS, objectName: string) {
+  if (!minio) throw new Error("MinIO client is not initialized.");
+  await minio.removeObject(bucketName, objectName);
+}
+
+export async function deleteImageFolder(bucketName: MINIO_BUCKETS, folderName: string) {
+  if (!minio) throw new Error("MinIO client is not initialized.");
+  // List all objects in the specified folder
+  const objectsStream = minio.listObjects(bucketName, folderName, true);
+  // Collect all object names
+  const objectNames: string[] = [];
+  for await (const obj of objectsStream) {
+    objectNames.push(obj.name);
+  }
+  // Remove each object
+  for (const objectName of objectNames) {
+    await minio.removeObject(bucketName, objectName);
+  }
+}
+
+// rename image in minio
+export async function renameImage(bucketName: MINIO_BUCKETS, oldObjectName: string, newObjectName: string) {
+  if (!minio) throw new Error("MinIO client is not initialized.");
+  // Copy the object to the new name
+  await minio.copyObject(bucketName, newObjectName, `${bucketName}/${oldObjectName}`);
+  // Delete the old object
+  await minio.removeObject(bucketName, oldObjectName);
+}

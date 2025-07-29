@@ -6,7 +6,7 @@ export default async function UploadPage() {
   return (
     <>
       <h2 className="my-4"> 上传新游戏 </h2>
-      <div className="flex w-full justify-between">
+      <div className="flex flex-col lg:flex-row w-full justify-between">
       <GameForm allTags={allTags} />
       </div>
     </>

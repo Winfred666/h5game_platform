@@ -9,8 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { IGame, IGameTag } from "@/lib/types/igame";
-import { genGameDownloadURL } from "@/lib/utils";
+import { IGameTag } from "@/lib/types/igame";
 import { GameFormInputType } from "@/lib/types/zforms";
 import SearchBar from "@/components/SearchBar";
 import {
@@ -24,14 +23,16 @@ import { SelectWithLabel } from "@/components/inputs/SelectWithLabel";
 import { TextAreaWithLabel } from "@/components/inputs/TextAreaWithLabel";
 import { X } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface GameFormLeftProps {
   allTags: IGameTag[]; // All available tags for the game
   form: UseFormReturn<GameFormInputType>;
-  game?: IGame;
+  downloadUrl?: string;
 }
 
-export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
+export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) {
   const kindOfProject = form.watch("kind");
   const embedOpProject = form.watch("embed_op");
   // This function handles the logic for toggling a tag
@@ -104,12 +105,15 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
               <span>
                 上传 .zip 文件；在线游戏需根目录内含 index.html；最大体积：1GB；
               </span>
-              {game && (
+              {downloadUrl && (
                 <span>
+                  <br />
                   当前文件:
-                  <a href={genGameDownloadURL(game.id)}>
-                    {genGameDownloadURL(game.id)}
-                  </a>
+                  <Button variant="link" size="sm" className="h-fit" asChild>
+                    <Link href={downloadUrl} target="_blank">
+                    {downloadUrl}
+                    </Link>
+                  </Button>
                   ；上传新文件将会替换它。
                 </span>
               )}
@@ -134,13 +138,17 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
             <FormControl>
               <div
                 className=" flex flex-col gap-2"
-                style={{
-                  "--cmdk-list-height": "300px", // Adjust height as needed
-                } as any}
+                style={
+                  {
+                    "--cmdk-list-height": "300px", // Adjust height as needed
+                  } as any
+                }
               >
                 <DeletableTags
                   onDelete={(tagId) =>
-                    onChange(value.filter((dev) => dev.id !== tagId))
+                    onChange(
+                      value.filter((dev: { id: number }) => dev.id !== tagId)
+                    )
                   }
                   selectedTags={value}
                   emptyText="没有选择协作者"
@@ -148,7 +156,9 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
                 <SearchBar
                   thing="user"
                   onSelect={(user) => {
-                    if (value.some((dev) => dev.id === user.id)) {
+                    if (
+                      value.some((dev: { id: number }) => dev.id === user.id)
+                    ) {
                       toast.warning("开发者已存在于列表中");
                     } else {
                       onChange([...value, user]);
@@ -163,7 +173,9 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
               </div>
             </FormControl>
             <FormDescription>
-              不需要选择你自己，上传时会自动将你列为开发者。
+              {downloadUrl
+                ? "谨慎删除自己，删除自己之后将无法修改该游戏"
+                : "不需要选择自己，上传时会自动将你列为开发者。"}
             </FormDescription>
             <FormMessage />
           </FormItem>
@@ -183,7 +195,7 @@ export function GameFormLeft({ allTags, game, form }: GameFormLeftProps) {
                 selectedTagIds={value}
                 onSelect={(tagId) => onChange([...value, tagId])}
                 onCancel={(tagId) =>
-                  onChange(value.filter((id) => id !== tagId))
+                  onChange(value.filter((id: number) => id !== tagId))
                 }
               />
             </FormControl>

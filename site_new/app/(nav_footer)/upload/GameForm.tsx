@@ -1,6 +1,6 @@
 "use client";
 import { Form } from "@/components/ui/form";
-import { GameFormInputSchema, GameFormInputType } from "@/lib/types/zforms";
+import { IncreGameFormInputSchema, GameFormInputSchema, GameFormInputType } from "@/lib/types/zforms";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldErrors, SubmitHandler, useForm } from "react-hook-form";
 import { GameFormLeft } from "./GameFormLeft";
@@ -9,8 +9,10 @@ import { GameFormRight } from "./GameFormRight";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
-import { submitNewGameAction } from "@/lib/actions/postGame";
+import { submitNewGameAction, updateGameAction } from "@/lib/actions/postGame";
 import { objectToFormData } from "@/lib/utils";
+import { useRouter } from "next/navigation";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 
 export default function GameForm({
   allTags,
@@ -20,9 +22,10 @@ export default function GameForm({
   game?: IGame;
 }) {
   // add compoennt
+  const router = useRouter();
   // default value with / without game
   const gameForm = useForm<GameFormInputType>({
-    resolver: zodResolver(GameFormInputSchema),
+    resolver: zodResolver(game ? IncreGameFormInputSchema : GameFormInputSchema),
     mode: "onBlur",
     defaultValues: (() => {
       if (game) {
@@ -72,16 +75,26 @@ export default function GameForm({
       desp ? { description: desp } : undefined
     );
   };
+
   const onSubmit: SubmitHandler<GameFormInputType> = async (values) => {
     console.log("Submitted values:", values);
-    // directly wrap to formData.
+    // directly wrap to formData;
+    // into loading state.
     try {
       const obj = objectToFormData(values);
-      await submitNewGameAction(obj);
+      const actionRes = await (game
+        ? updateGameAction(game.id, obj)
+        : submitNewGameAction(obj));
+      
+      if (actionRes.success) {
+        gameForm.reset();
+        // jump to game preview page (private, need token)
+        router.push(ALL_NAVPATH.game_id.href(actionRes.data));
+      } else throw new Error(actionRes.msg || "网络错误，请稍后再试");
     } catch (e) {
       console.error("Error submitting form:", e);
       toast.error(
-        "提交失败，请稍后再试",
+        "提交失败",
         e instanceof Error ? { description: e.message } : undefined
       );
       return;
@@ -91,9 +104,13 @@ export default function GameForm({
   return (
     <Form {...gameForm}>
       <form onSubmit={gameForm.handleSubmit(onSubmit, onInvalid)}>
-        <div className="flex gap-10 2xl:gap-20 ">
-          <GameFormLeft allTags={allTags} form={gameForm} />
-          <GameFormRight form={gameForm} />
+        <div className="flex gap-10 2xl:gap-20">
+          <GameFormLeft allTags={allTags} form={gameForm} downloadUrl={game?.downloadUrl} />
+          <GameFormRight
+            form={gameForm}
+            oldCoverSrc={game?.coverImage}
+            oldScreenshotsSrc={game?.screenshots}
+          />
         </div>
         <Button type="submit" className=" mt-4">
           <Upload /> 提交

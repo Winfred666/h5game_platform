@@ -15,7 +15,7 @@ export const getSelfUnauditGames = buildServerQuery([], async () => {
           coverImage: true,
         },
         where: {
-          isPrivate: false, // only get public games
+          isPrivate: true, // only get unaudit private games
         },
       },
     },
@@ -30,7 +30,7 @@ export const getAllUnauditGames = buildServerQuery([], async () => {
   await authModule(true); // true means this query need admin privilege
   return db.game.findMany({
     where: {
-      isPrivate: false, // only get public games
+      isPrivate: true, // only get unaudit private games
     },
   });
 }); // true means this query need admin privilege

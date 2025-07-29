@@ -34,6 +34,7 @@ function createExtendedPrismaClient() {
         qq: true,   // omit qq number for security, only admin can see it
         isAdmin: true,
       },
+      // need to expose game.isPrivate for smart URL gen.
     },
   })
     .$extends(GameExtension)

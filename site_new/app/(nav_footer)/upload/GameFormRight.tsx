@@ -48,7 +48,6 @@ function CoverForm(
           {coverPreview && (
             <Image
               fill
-              unoptimized
               className=" object-cover"
               src={coverPreview}
               alt="Cover Preview"

@@ -28,12 +28,12 @@ model Game {
   
   isPrivate   Boolean  @default(true) @map("is_private")
   
-  size        Int      @default(0) // Store in byte, disply in MB, max 1 GB.
+  size        Int                  // Store in byte, disply in MB, max 1 GB.
   views       Int      @default(0) // incremented when the game is viewed.
   downloads   Int      @default(0) // incremented when the game is downloaded.
   
   // store webp, only need to record number of screenshots.
-  screenshotCount Int @default(0) @map("screenshot_count")
+  screenshotCount Int @map("screenshot_count")
   // coverPostfix  String   @map("cover_postfix") // only postfix of the cover image, coverImage URL need generate dynamically
   // --- RELATIONAL FIELDS ---
   // tags is like ",a,b,c,", no binding to a Tag model.

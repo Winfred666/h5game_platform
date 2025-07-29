@@ -1,9 +1,9 @@
-"server-only"
+"server-only";
 // WARNING: getGame is only get props in server component, not action
 import { db } from "@/lib/dbInit";
 import { IntSchema, StringSchema } from "../types/zparams";
 import { cache } from "react"; // for single term of build.
-import { buildServerQuery } from "../services/builder";
+import { authModule, buildServerQuery } from "../services/builder";
 
 const IncludeDeveloperTag = {
   // for include developers in game
@@ -41,12 +41,33 @@ export const getAllGames = buildServerQuery(
     })
 ); // true means it is a query, not mutation, so it can return 404
 
-export const getGameById = buildServerQuery([IntSchema], (id) =>
-  db.game.findUnique({
-    where: { id: id },
+export const getGameById = buildServerQuery([IntSchema], async (id) => {
+  const game = await db.game.findUnique({
+    where: { id: id, isPrivate: undefined },
     ...IncludeDeveloperTag,
-  })
-); // true means it is a query, not mutation, so it can return 404
+  });
+
+  if (!game) return game; // return null instead of call notFound(equal to throw error)
+  const userSession = await authModule(false);
+  if (
+    userSession.isAdmin ||
+    game.developers.some((dev) => dev.id === userSession.id)
+  ) {
+    // 1. authorization check: if game is private, only developer can see it.
+    return game;
+  } else {
+    if (game.isPrivate) {
+      // 2. if not admin or developer, check if game is private
+      return null;
+    } else {
+      // 3. remove isPrivate field to avoid exposing it to public
+      return {
+        ...game,
+        isPrivate: undefined, // remove isPrivate field
+      };
+    }
+  }
+});
 
 export const getAllTags = cache(buildServerQuery([], () => db.tag.findMany()));
 
@@ -68,25 +89,29 @@ export const getTagsByTitle = buildServerQuery([StringSchema], (title) =>
   })
 ); // true means it is a query, not mutation, so it can return 404
 
-export const getGamesByTitle_thumbnail = buildServerQuery([StringSchema], (title)=>db.game.findMany({
-  // not include developer because only search thumbnail.
-  where: {
-    title: {
-      contains: title,
-    },
-  },
-  select:{
-    developers: {
+export const getGamesByTitle_thumbnail = buildServerQuery(
+  [StringSchema],
+  (title) =>
+    db.game.findMany({
+      // not include developer because only search thumbnail.
+      where: {
+        title: {
+          contains: title,
+        },
+      },
       select: {
-        name: true,
-      }
-    },
-    id: true,
-    title: true,
-    coverImage: true,
-  },
-   take: 10, // limit to 10 results for performance
-}))
+        developers: {
+          select: {
+            name: true,
+          },
+        },
+        id: true,
+        title: true,
+        coverImage: true,
+      },
+      take: 10, // limit to 10 results for performance
+    })
+);
 
 export const getGamesByTitle = buildServerQuery([StringSchema], (title) =>
   db.game.findMany({
@@ -117,12 +142,14 @@ export const getGamesByTag = buildServerQuery(
     })
 );
 
-export const getGameByTagCount = buildServerQuery([IntSchema], tagId=>db.game.count({
-  where: {
-    tags: {
-      some: {
-        id: tagId,
+export const getGameByTagCount = buildServerQuery([IntSchema], (tagId) =>
+  db.game.count({
+    where: {
+      tags: {
+        some: {
+          id: tagId,
+        },
       },
     },
-  },
-}))
+  })
+);
