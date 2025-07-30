@@ -35,16 +35,16 @@ async function main(){
 -- CreateIndex
 CREATE INDEX "game_created_at_idx" ON "game"("created_at") WHERE is_private=false;
 `;
-    // 2. add trigger, when delete on user_game, and a game have no user_game, then delete the game.
-    sql += `
--- CreateTrigger
-CREATE TRIGGER delete_game_after_delete_user_game
-AFTER DELETE ON _GameToUser
-FOR EACH ROW
-BEGIN
-    DELETE FROM game WHERE id = OLD.A AND NOT EXISTS (SELECT 1 FROM _GameToUser WHERE A = OLD.A);
-END;
-`;
+    // 2. DEPRECTED, because bypass all server logic. add trigger, when delete on user_game, and a game have no user_game, then delete the game.
+//     sql += `
+// -- CreateTrigger
+// CREATE TRIGGER delete_game_after_delete_user_game
+// AFTER DELETE ON _GameToUser
+// FOR EACH ROW
+// BEGIN
+//     DELETE FROM game WHERE id = OLD.A AND NOT EXISTS (SELECT 1 FROM _GameToUser WHERE A = OLD.A);
+// END;
+// `;
     // Finally write back sql
     fs.writeFileSync(migrationFile, sql, 'utf8');
 }

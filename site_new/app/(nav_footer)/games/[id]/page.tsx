@@ -5,7 +5,7 @@ import GameTags from "@/components/GameTags";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import React from "react";
-import { getGameById } from "@/lib/actions/getGame";
+import { getGameById } from "@/lib/querys&actions/getGame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
@@ -21,9 +21,9 @@ export default async function GameIdDetails({
   // try
   // now still in server component, just savely get game content
   const game = await getGameById(parseInt(id));
-  console.log("games: ", game);
+  // console.log("games: ", game);
   if (!game) {
-    notFound();
+    return notFound();
   }
   return (
     <div className="w-full flex flex-col grow">

@@ -3,7 +3,7 @@
 import { db } from "@/lib/dbInit";
 import { IntSchema, StringSchema } from "../types/zparams";
 import { cache } from "react"; // for single term of build.
-import { authModule, buildServerQuery } from "../services/builder";
+import { authProtectedModule, buildServerQuery } from "../services/builder";
 
 const IncludeDeveloperTag = {
   // for include developers in game
@@ -45,10 +45,10 @@ export const getGameById = buildServerQuery([IntSchema], async (id) => {
   const game = await db.game.findUnique({
     where: { id: id, isPrivate: undefined },
     ...IncludeDeveloperTag,
-  });
+  }); // could search private game if has privilege
 
   if (!game) return game; // return null instead of call notFound(equal to throw error)
-  const userSession = await authModule(false);
+  const userSession = await authProtectedModule(false);
   if (
     userSession.isAdmin ||
     game.developers.some((dev) => dev.id === userSession.id)
@@ -153,3 +153,13 @@ export const getGameByTagCount = buildServerQuery([IntSchema], (tagId) =>
     },
   })
 );
+
+export const getAllUnauditGames = buildServerQuery([], async () => {
+  await authProtectedModule(true); // true means this query need admin privilege
+  return db.game.findMany({
+    ...IncludeDeveloperTag,
+    where: {
+      isPrivate: true, // only get unaudit private games
+    },
+  });
+}); // true means this query need admin privilege

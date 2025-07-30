@@ -1,4 +1,4 @@
-import { getGamesByTitle_thumbnail } from "@/lib/actions/getGame";
+import { getGamesByTitle_thumbnail } from "@/lib/querys&actions/getGame";
 import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {

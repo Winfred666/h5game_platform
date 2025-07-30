@@ -4,7 +4,7 @@ import { Schema, z } from "zod";
 import { notFound } from "next/navigation";
 import { isNullLike } from "../utils";
 import { auth } from "./authSQL";
-import { IntSchema, UserSessionSchema } from "../types/zparams";
+import { UserSessionSchema } from "../types/zparams";
 
 // change behavior on server side
 Date.prototype.toJSON = function () {
@@ -142,10 +142,11 @@ export function buildServerQuery<
 }
 
 // return current user in the session.
-export async function authModule(isAdmin: boolean) {
+export async function authProtectedModule(isAdmin: boolean) {
   // if isQuery, do not need auth
   const session = await auth();
-  if (!session || !session.user) {
+  // console.log("SESSION: ", session);
+  if (!session || !session.user) { // do not need to check expire, auth() auto handle this
     throw new Error("请先登录！");
   }
   if (isAdmin && !session.user.isAdmin) {

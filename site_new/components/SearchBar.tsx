@@ -98,9 +98,9 @@ export default function SearchBar({
               className="hidden"
               onSelect={
                 onEnter
-                  ? (e) => {
-                      thing === "game" && closeSearchBar(); // game:close the list when select an option
-                      searchTerm && onEnter(searchTerm);
+                  ? () => {
+                      if(thing === "game") closeSearchBar(); // game:close the list when select an option
+                      if(searchTerm) onEnter(searchTerm);
                     }
                   : undefined
               }
@@ -109,8 +109,8 @@ export default function SearchBar({
               <CommandItem
                 key={thing + option.id}
                 onSelect={() => {
-                  thing === "game" && closeSearchBar(); // game:close the list when select an option
-                  onSelect && onSelect(option);
+                  if(thing === "game") closeSearchBar(); // game:close the list when select an option
+                  if(onSelect) onSelect(option);
                 }}
               >
                 {renderListItem(option)}

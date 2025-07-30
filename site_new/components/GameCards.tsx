@@ -103,6 +103,7 @@ export default function GameCards({
     totalCount &&
     pageSize &&
     totalCount > pageSize;
+    
   // console.log(`Current Page: ${currentPage}, Page Size: ${pageSize}, Total Games: ${totalCount}, ${showPagination}`);
   return (
     // The main container, using Tailwind classes directly

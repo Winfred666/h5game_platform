@@ -1,18 +1,22 @@
 "use server";
+
 import JSZip from "jszip";
 import { db } from "../dbInit";
 import { MINIO_BUCKETS } from "../serverConfig";
-import { authModule, buildServerAction } from "../services/builder";
+import { authProtectedModule, buildServerAction } from "../services/builder";
 import {
   checkZipHasIndexHtml,
   deleteGameFolder,
   uploadGameFolder,
 } from "../services/uploadGameZip";
+
 import { deleteImageFolder, renameImage, uploadImage } from "../services/uploadImage";
 // with this mark every function exported will be server action (for mutate)
 // define server actions here, directly use prisma-client to fetch data from sqlite
 import { GameFormServerSchema, IncreGameFormServerSchema } from "../types/zforms";
 import { IntSchema } from "../types/zparams";
+import { revalidatePath } from "next/cache";
+import { ALL_NAVPATH } from "../clientConfig";
 
 const validateGameContent = async (
   data: {
@@ -46,7 +50,7 @@ export const submitNewGameAction = buildServerAction(
   [GameFormServerSchema],
   async (data) => {
     // 1. Auth users
-    const userSession = await authModule(false); // false means this action do not need admin privilege
+    const userSession = await authProtectedModule(false); // false means this action do not need admin privilege
 
     // 2. add user id to data.developers if not in array
     if (!data.developers.connect.some((dev) => dev.id === userSession.id)) {
@@ -99,8 +103,8 @@ export const submitNewGameAction = buildServerAction(
       promiseList.push(
         uploadImage(MINIO_BUCKETS.IMAGE, `${game.id}/cover.webp`, data.cover[0])
       );
-
       await Promise.all(promiseList);
+      
     } catch (error) {
       // clean up game metadata if file upload failed
       await db.game.delete({ where: { id: game.id } });
@@ -118,7 +122,7 @@ export const updateGameAction = buildServerAction(
   [IntSchema, IncreGameFormServerSchema],
   async (gameId, data) => {
     // 1. Auth users as admin or this game developer
-    const userSession = await authModule(false); // false means this action do not need admin privilege
+    const userSession = await authProtectedModule(false); // false means this action do not need admin privilege
     const oldGame = await db.game.findUnique({
       where: { id: gameId },
       include: {
@@ -218,6 +222,9 @@ export const updateGameAction = buildServerAction(
         ...dataWithoutFiles,
       },
     });
+
+    // update old game, need revalidate game page
+    revalidatePath(ALL_NAVPATH.game_id.href(gameId));
     
     return gameId;
   }

@@ -91,25 +91,24 @@ export const LoginFormInputSchema = z.object({
 
 export type LoginFormInputType = z.input<typeof LoginFormInputSchema>;
 
-
 const serverGameTransform = (form: GameFormInputType) => {
-    return {
-      ...form,
-      kind: undefined,
-      embed_op: undefined,
-      isOnline: form.kind === "html",
-      width: form.embed_op === "embed_in_page" ? parseInt(form.width) : null,
-      height: form.embed_op === "embed_in_page" ? parseInt(form.height) : null,
-      developers: {
-        connect: form.developers.map((dev: { id: number }) => ({
-          id: dev.id,
-        })),
-      },
-      tags: {
-        connect: form.tags.map((tagId: number) => ({ id: tagId })),
-      },
-    };
-  }
+  return {
+    ...form,
+    kind: undefined,
+    embed_op: undefined,
+    isOnline: form.kind === "html",
+    width: form.embed_op === "embed_in_page" ? parseInt(form.width) : null,
+    height: form.embed_op === "embed_in_page" ? parseInt(form.height) : null,
+    developers: {
+      set: form.developers.map((dev: { id: number }) => ({
+        id: dev.id,
+      })),
+    },
+    tags: {
+      set: form.tags.map((tagId: number) => ({ id: tagId })),
+    },
+  };
+};
 
 // transform is available in ServerSchema ; and any preprocess should only write in serverSchema to do server-side validtaion.
 export const GameFormServerSchema = z

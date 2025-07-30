@@ -37,7 +37,7 @@ export const config = {
     // only check the protected route
     "/user/me:path*",
     "/upload/:path*",
-    "/admin_dashboard/:path*",
+    "/admin-dashboard/:path*",
     "/login/:path*",
   ],
 };
@@ -66,7 +66,7 @@ export default async function middleware(request: NextRequest) {
           createUrl(ALL_NAVPATH.not_found.href, baseUrlWithPath)
         );
       } else return NextResponse.next();
-    } catch (error) {
+    } catch (error: any) {
       // Auth check failed, redirect to login
       // redirect to login page
       const loginUrl = createUrl(

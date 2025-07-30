@@ -9,7 +9,7 @@ import { GameFormRight } from "./GameFormRight";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { toast } from "sonner";
-import { submitNewGameAction, updateGameAction } from "@/lib/actions/postGame";
+import { submitNewGameAction, updateGameAction } from "@/lib/querys&actions/postGame";
 import { objectToFormData } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
@@ -89,7 +89,7 @@ export default function GameForm({
       if (actionRes.success) {
         gameForm.reset();
         // jump to game preview page (private, need token)
-        router.push(ALL_NAVPATH.game_id.href(actionRes.data));
+        router.replace(ALL_NAVPATH.game_id.href(actionRes.data));
       } else throw new Error(actionRes.msg || "网络错误，请稍后再试");
     } catch (e) {
       console.error("Error submitting form:", e);

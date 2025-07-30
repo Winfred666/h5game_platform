@@ -1,3 +1,5 @@
+// could expose to client side.
+
 export const MAX_ZIP_SIZE = 1024 * 1024 * 1000; // 1GB
 
 export const ACCEPTED_ZIP_MIME_TYPES = [
@@ -16,6 +18,7 @@ export const ACCEPTED_IMG_MINE_TYPES = [
   "image/svg+xml",
 ];
 
+export const GAME_PAGE_SIZE = 30;
 
 export const ALL_NAVPATH = {
     home: {name:"浏览", href:(page?:number) => `/${page? "?page=" + page : ""}`}, // default to home page
@@ -31,5 +34,8 @@ export const ALL_NAVPATH = {
     login: {name:"/login", href:(callback:string)=> `/login?callback=${encodeURIComponent(callback)}`},
     not_found: {name: "404", href:"/not-found"},
     not_found_user: {name: "404", href:"/not-found/user"},
-    admin: {name:"管理员后台", href:"/admin_dashboard"},
+    admin_review: {name:"审核发布", href:"/admin-dashboard/review"},
+    admin_games: {name:"游戏列表", href:"/admin-dashboard/games"},
+    admin_users: {name:"用户列表", href:"/admin-dashboard/users"},
+    admin_tags: {name:"标签管理", href:"/admin-dashboard/tags"},
   }

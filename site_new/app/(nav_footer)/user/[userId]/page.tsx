@@ -15,11 +15,8 @@ import { Separator } from "@/components/ui/separator";
 import { UserThumbnail } from "@/components/UserListItem";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import Link from "next/link";
-import { getUserById } from "@/lib/actions/getUser";
-import { auth } from "@/lib/services/authSQL";
-import { notFound } from "next/navigation";
+import { getUserById } from "@/lib/querys&actions/getUser";
 import { GameCard } from "@/components/GameCards";
-import { getSelfUnauditGames } from "@/lib/actions/getPrivateGame";
 import CommentCards from "@/components/CommentCards";
 
 function UserGameCards({
@@ -55,20 +52,10 @@ export default async function UserPage({
 }: {
   params: Promise<{ userId: string }>;
 }) {
-  let { userId } = await params;
-  const session = await auth();
-
-  if (userId === "me") {
-    if (session?.user?.id)
-      userId = session.user.id; // if userId is 'me', use current user's id
-    else notFound(); // if no session, redirect to 404
-  }
-  const isMe = session?.user?.id === userId;
-  const unauditGames = isMe ? await getSelfUnauditGames() : []; // Fetch unaudited games only if it's the user's own page
-  
+  const { userId } = await params;
   const user = await getUserById(userId);
-
-  // const unauditGames = useUnauditGames(curUserId);
+  const unauditGames = user.games.filter(game=>game.isPrivate); // Fetch unaudited games only if it's the user's own page
+  const publicGames = user.games.filter(game => !game.isPrivate);
   // const comments = useCommentsByUserId(userId);
 
   return (
@@ -77,7 +64,7 @@ export default async function UserPage({
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <UserThumbnail user={user} size="large" />
-            {isMe && (
+            {user.isMe && (
               <>
                 <Button asChild className=" ml-4">
                   <Link href={ALL_NAVPATH.user_update.href}>
@@ -85,9 +72,9 @@ export default async function UserPage({
                     编辑个人信息
                   </Link>
                 </Button>
-                {session?.user?.isAdmin && (
+                {user.isAdmin && (
                   <Button asChild>
-                    <Link href={ALL_NAVPATH.admin.href}>
+                    <Link href={ALL_NAVPATH.admin_review.href}>
                       <ShieldCheck className="mr-1 h-4 w-4" />
                       进入管理员面板
                     </Link>
@@ -141,18 +128,18 @@ export default async function UserPage({
             {/* --- Developed Games --- */}
             <div>
               <h3 className="font-semibold mb-3">上传游戏</h3>
-              {user.games.length > 0 ? (
-                <UserGameCards games={user.games} isMe={isMe} />
+              {publicGames.length > 0 ? (
+                <UserGameCards games={publicGames} isMe={user.isMe} />
               ) : (
                 <p>该开发者尚未上传任何游戏。</p>
               )}
             </div>
 
             {/* --- Unaudited Games (Visible only to self) --- */}
-            {isMe && unauditGames.length > 0 && (
+            {user.isMe && unauditGames.length > 0 && (
               <div className="my-4">
                 <h3 className="font-semibold mb-3">待审核游戏</h3>
-                <UserGameCards games={unauditGames} isMe={isMe} />
+                <UserGameCards games={unauditGames} isMe={user.isMe} />
               </div>
             )}
 

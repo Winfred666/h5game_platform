@@ -1,7 +1,7 @@
 import { IUser } from "@/types/iuser";
 import { preprocessUser } from "./utils";
 
-export const getAllUsers = async (): Promise<IUser[]> => {
+export const getAllUserss = async (): Promise<IUser[]> => {
   // Construct the absolute path to the image
   try{
     let users:any = await fetch(process.env.SERVER_URL + "/user");

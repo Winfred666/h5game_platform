@@ -1,15 +1,14 @@
-import { IUser, IUserSelf } from "@/lib/types/iuser";
+import { IUserAdmin } from "@/lib/types/iuser";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Pencil, Trash2, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { AlertDialogTrigger } from "./ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
-interface UserListItemProps {
-  user: IUserSelf;
-  onEdit: (user: IUser) => void;
-  onDelete: (user: IUser) => void;
+interface AdminUserListItemProps {
+  user: IUserAdmin;
+  onEdit: (user: IUserAdmin) => void;
+  onDelete: (user: IUserAdmin) => void;
 }
 
 export function UserThumbnail({
@@ -50,7 +49,7 @@ export function UserThumbnail({
   );
 }
 
-export function UserListItem({ user, onEdit, onDelete }: UserListItemProps) {
+export function AdminUserListItem({ user, onEdit, onDelete }: AdminUserListItemProps) {
   return (
     <div className="flex items-center p-3 border-b last:border-b-0 hover:bg-muted/50 transition-colors text-sm">
       <div className="flex-1 min-w-0 font-medium truncate pr-4">
@@ -69,11 +68,9 @@ export function UserListItem({ user, onEdit, onDelete }: UserListItemProps) {
       <div className="w-24 flex justify-center gap-1">
         <Button variant="ghost" size="icon" onClick={() => onEdit(user)}>
           <Pencil className="h-4 w-4" />
-          <span className="sr-only">Edit User</span>
+          <span className="sr-only">编辑</span>
         </Button>
 
-        {/* The AlertDialogTrigger is now part of the item itself */}
-        <AlertDialogTrigger asChild>
           <Button
             variant="destructive"
             size="icon"
@@ -81,9 +78,8 @@ export function UserListItem({ user, onEdit, onDelete }: UserListItemProps) {
             onClick={() => onDelete(user)}
           >
             <Trash2 className="h-4 w-4" />
-            <span className="sr-only">Delete User</span>
+            <span className="sr-only">删除</span>
           </Button>
-        </AlertDialogTrigger>
       </div>
     </div>
   );

@@ -2,7 +2,6 @@
 
 import { IGameTag } from "@/lib/types/igame";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
 import { X } from "lucide-react";
 
 export function SelectableTags({
@@ -33,7 +32,11 @@ export function SelectableTags({
             onKeyDown={(e) => {
               if (e.key === " " || e.key === "Enter") {
                 e.preventDefault();
-                isSelected ? onCancel(tag.id) : onSelect(tag.id);
+                if (isSelected) {
+                  onCancel(tag.id);
+                } else {
+                  onSelect(tag.id);
+                }
               }
             }}
           >

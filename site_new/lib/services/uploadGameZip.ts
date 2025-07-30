@@ -17,7 +17,7 @@ export const checkZipHasIndexHtml = async (file: File): Promise<JSZip> => {
   // Check for index.html specifically at root level
   const zip = await loadZipFromFile(file);
   const valid = zip.files["index.html"] !== undefined;
-  if (!valid) throw new Error("ZIP does not contain index.html at root level");
+  if (!valid) throw new Error("在ZIP根目录未检测到index.html，无法在线游玩");
   return zip;
 };
 
@@ -49,14 +49,14 @@ const uploadZipContents = async (
     : MINIO_BUCKETS.GAME;
 
   // 2. Split the work into chunks (batches)
-  const chunks: JSZip.JSZipObject[][] = [];
+  const concurrentChunks: JSZip.JSZipObject[][] = [];
   for (let i = 0; i < filesToUpload.length; i += MINIO_CONCURRENT_WORKERS) {
-    chunks.push(filesToUpload.slice(i, i + MINIO_CONCURRENT_WORKERS));
+    concurrentChunks.push(filesToUpload.slice(i, i + MINIO_CONCURRENT_WORKERS));
   }
 
   // 3. Process each chunk sequentially, but files within a chunk run in parallel
   let uploadedCount = 0;
-  for (const chunk of chunks) {
+  for (const chunk of concurrentChunks) {
     const uploadPromises = chunk.map(async (file) => {
       try {
         if (!minio) throw new Error("MinIO client not available");
@@ -213,3 +213,48 @@ export const deleteGameFolder = async (game: {
     throw error;
   }
 };
+
+export const switchBucketGameFolder = async (game: {
+  id: number;
+  isPrivate: boolean;
+}) => {
+  if (!minio) throw new Error("MinIO client not available");
+  const oldBucket = game.isPrivate
+    ? MINIO_BUCKETS.UNAUDIT_GAME
+    : MINIO_BUCKETS.GAME;
+  const newBucket = game.isPrivate
+    ? MINIO_BUCKETS.GAME
+    : MINIO_BUCKETS.UNAUDIT_GAME;
+
+  const objectsList: string[] = [];
+  const objectsStream = minio.listObjects(oldBucket, `${game.id}/`, true);
+  // Collect all object names
+  await new Promise<void>((resolve, reject) => {
+    objectsStream.on("data", (obj) => {
+      if (obj.name) objectsList.push(obj.name);
+    });
+    objectsStream.on("end", resolve);
+    objectsStream.on("error", reject);
+  });
+  
+  // split to chunks of 10 workers each
+  const concurrentChunks: string[][] = [];
+  for (let i = 0; i < objectsList.length; i += MINIO_CONCURRENT_WORKERS) {
+    concurrentChunks.push(objectsList.slice(i, i + MINIO_CONCURRENT_WORKERS));
+  }
+
+  let uploadedCount = 0;
+  for (const chunk of concurrentChunks) {
+    // Inside a chunk, all copy + delete operations run in parallel.
+    const movePromises = chunk.map(async (objectName) => {
+      if (!minio) throw new Error("MinIO client not available");
+      await minio.copyObject(newBucket, objectName, `${oldBucket}/${objectName}`);
+      await minio.removeObject(oldBucket, objectName);
+    });
+    await Promise.all(movePromises);
+    uploadedCount += chunk.length;
+  }
+  console.log(
+    `DEBUG: Moved ${uploadedCount} objects from ${oldBucket} to ${newBucket} for game ${game.id}`
+  );
+}

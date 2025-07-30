@@ -27,4 +27,7 @@ export interface IUserSelf extends IUser {
     isAdmin: boolean; // 是否为管理员
 }
 
+// 用户管理界面显示的用户信息，只包括必要的字段
+export type IUserAdmin = Omit<IUserSelf, 'introduction' | 'contacts' | 'games'>;
+
 // also validate form using zod.

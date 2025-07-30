@@ -1,7 +1,7 @@
 import React from "react";
 
 import GameCards from '@/components/GameCards';
-import { getGamesByTitle, getGamesByTag, getGameByTagCount, getTagById } from "@/lib/actions/getGame";
+import { getGamesByTitle, getGamesByTag, getGameByTagCount, getTagById } from "@/lib/querys&actions/getGame";
 
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ name?: string, tag?: string, page?: string}> }) {
   const { name, tag, page } = await searchParams;

@@ -36,7 +36,7 @@ export default function NavBar() {
     ALL_NAVPATH.community,
   ];
   const current_path_idx = navLinks.findIndex((nav) =>
-    nav.href.startsWith(pathName)
+    pathName.includes(nav.href)
   );
 
   return (
@@ -95,7 +95,7 @@ export default function NavBar() {
               <span>个人主页</span>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-destructive"
-              onClick={() => signOut({redirect: false})}
+              onClick={() => signOut({redirect: false}).then(()=>router.refresh())}
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span>退出登录</span>

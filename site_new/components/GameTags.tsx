@@ -11,11 +11,13 @@ export default function GameTags({
   tags,
   color = "primary",
   size = "medium",
+  thing = "game",
 }: {
   id?: string;
   tags: IGameTag[];
   color?: "primary" | "default";
   size?: "small" | "medium";
+  thing?: "game" | "user";
 }) {
   const router = useRouter();
 
@@ -38,7 +40,7 @@ export default function GameTags({
             onClick={(e) => {
               // Stop propagation is important if tags are inside another clickable element.
               e.stopPropagation();
-              router.push(ALL_NAVPATH.game_tag.href(tag.id));
+              router.push(thing === "game" ? ALL_NAVPATH.game_tag.href(tag.id) : ALL_NAVPATH.user_id.href(tag.id));
             }}
           >
             {tag.name}

@@ -1,4 +1,4 @@
-import { getAllTags, getGameById } from "@/lib/actions/getGame";
+import { getAllTags, getGameById } from "@/lib/querys&actions/getGame";
 import GameForm from "../GameForm";
 import { notFound } from "next/navigation";
 

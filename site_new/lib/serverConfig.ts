@@ -1,5 +1,7 @@
 "server-only"
 
+// running only server side
+
 export enum MINIO_BUCKETS{
   GAME="games", 
   UNAUDIT_GAME="unaudit-games", // private, visit with temp token.

@@ -1,11 +1,11 @@
 import { Separator } from "@/components/ui/separator";
 import { UserThumbnail } from "@/components/UserListItem";
-import { getAllUser } from "@/lib/actions/getUser";
+import { getAllUsers } from "@/lib/querys&actions/getUser";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import Link from "next/link";
 
 export default async function CommunityPage() {
-  const allUsers = await getAllUser();
+  const allUsers = await getAllUsers();
   const userClassified: {
     [key: string]: {
       id: number;

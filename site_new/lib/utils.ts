@@ -1,3 +1,5 @@
+// runing both client and server side.
+
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 

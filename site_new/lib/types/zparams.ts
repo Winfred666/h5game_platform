@@ -5,7 +5,13 @@ import { z } from "zod";
 
 export const IntSchema = z.coerce.number().int().nonnegative();
 export const StringSchema = z.string().min(1, "输入词不能为空");
+export const TagSchema = StringSchema.max(20, "标签长度不能超过20个字符");
 export const BooleanSchema = z.coerce.boolean().default(false);
+
+export const IntOrMeSchema = z.union([
+  IntSchema,
+  z.literal('me')
+]);
 
 export const PasswordSchema = z
   .string({ required_error: "密码不能为空" })

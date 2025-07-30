@@ -1,11 +1,11 @@
 import { ALL_NAVPATH } from "@/services/router_info";
-import { getAllUsers } from "@/services/user";
+import { getAllUserss } from "@/services/user";
 import { IUser } from "@/types/iuser";
 import { Avatar, Card, CardContent, Divider, Typography } from "@mui/material";
 import Link from "next/link";
 
 export default async function CommunityPage() {
-  const all_users = await getAllUsers();
+  const all_users = await getAllUserss();
 
   const userClassified: { [key: string]: IUser[] } = {};
   // classify by the year of registration

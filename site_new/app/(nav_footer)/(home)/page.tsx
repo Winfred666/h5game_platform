@@ -1,5 +1,6 @@
 import GameCards from "@/components/GameCards";
-import { getAllGames, getGameCount } from "@/lib/actions/getGame";
+import { GAME_PAGE_SIZE } from "@/lib/clientConfig";
+import { getAllGames, getGameCount } from "@/lib/querys&actions/getGame";
 
 
 // deal with pagination.
@@ -10,14 +11,13 @@ export default async function Home({
 }) {
   const {page} = await searchParams;
   const curPage = parseInt(page || "1") - 1; // page start from 1 while index from 0.
-  const pageSize = 30; // assuming page size is 30
   // it is server component, just wait for all data.
   const [pagedGames, gameCount] = await Promise.all([
-    getAllGames(curPage, pageSize),
+    getAllGames(curPage, GAME_PAGE_SIZE),
     getGameCount(),
   ]);
 
   return (
-      <GameCards games={pagedGames} currentPage={curPage} pageSize={pageSize} totalCount={gameCount}/>
+      <GameCards games={pagedGames} currentPage={curPage} pageSize={GAME_PAGE_SIZE} totalCount={gameCount}/>
   );
 }
