@@ -6,6 +6,7 @@ import SWRConfigProvider from "@/components/SWRConfigProvider";
 import { SessionProvider } from "next-auth/react";
 
 import { Toaster } from "@/components/ui/sonner";
+import LoadingProvider from "@/components/LoadingProvider";
 
 // hot start prisma sqlite + minio.
 
@@ -34,7 +35,9 @@ export default function RootLayout({
         >
           <SWRConfigProvider>
             <SessionProvider basePath={process.env.NEXT_PUBLIC_BASEPATH + "/api/auth"}>
-              {children}
+              <LoadingProvider>
+                {children}
+              </LoadingProvider>
             </SessionProvider>
           </SWRConfigProvider>
           <Toaster

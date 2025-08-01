@@ -1,4 +1,6 @@
-"server-only";
+import "server-only";
+import { redirect } from "next/navigation";
+import { ALL_NAVPATH } from "../clientConfig";
 // getUser should wrap in cache for frequently auth
 import { db } from "../dbInit";
 import { authProtectedModule, buildServerQuery } from "../services/builder";
@@ -39,8 +41,21 @@ export const getAllUsers = buildServerQuery(
     }) // not include game, only show user info that enough for thumbnail.
 );
 
+export const getAllUsersWithQQ = buildServerQuery([], async () => {
+  await authProtectedModule(true); // ensure only admin can access this
+  return db.user.findMany({
+    select: {
+      ...SelectThumbnail.select,
+      createdAt: true,
+      isAdmin: true,
+      qq: true,
+    },
+  });
+});
+
 export const getUserById = buildServerQuery([IntOrMeSchema], async (userId) => {
-  // if using authProtectedModule, this is protected and any unauthorized access will throw error.
+  // 1. if using authProtectedModule, this is protected and any unauthorized access will throw error.
+  // so only try to get user session if userId is not 'me'.
   let isAdmin = false;
   let isMe = false;
   try {
@@ -53,7 +68,8 @@ export const getUserById = buildServerQuery([IntOrMeSchema], async (userId) => {
   } catch (err) {
     if (userId === "me") throw err;
   }
-  // If admin or viewing own profile, include private games
+
+  // 2. If admin or viewing own profile, include private games
   const hasPrivilege = isAdmin || isMe;
   return db.user
     .findUnique({
@@ -68,8 +84,13 @@ export const getUserById = buildServerQuery([IntOrMeSchema], async (userId) => {
         },
       },
     })
-    .then((user) => {
-      if (!user) throw new Error("未找到该用户");
+    .then(async (user) => {
+      if (!user) {
+        if (isMe) { // if userId is 'me' and not found, sign out
+          return redirect(ALL_NAVPATH.auto_signout.href);
+        }
+        throw new Error("未找到该用户");
+      }
       return {
         ...user,
         isAdmin,

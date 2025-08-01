@@ -1,9 +1,9 @@
-"server-only";
+import "server-only";
 
 import { PrismaClient } from "@prisma/client";
 import * as Minio from "minio";
 import { GameExtension, UserExtension } from "./dbExtensions";
-import { MINIO_BUCKETS } from "./serverConfig";
+import { MINIO_BUCKETS } from "./clientConfig";
 
 // This declaration extends the global scope with our prisma instance.
 // type ModelRelationMap = Map<string, string[]>;

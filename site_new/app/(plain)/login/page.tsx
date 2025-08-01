@@ -1,14 +1,15 @@
 "use client";
 import { InputWithLabel } from "@/components/inputs/InputWithLabel";
+import { useLoading } from "@/components/LoadingProvider";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { LoginFormInputSchema, LoginFormInputType } from "@/lib/types/zforms";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 export default function LoginPage({
   searchParams,
@@ -17,6 +18,7 @@ export default function LoginPage({
 }) {
   const { callback } = use(searchParams);
   const router = useRouter();
+  const { startLoading } = useLoading();
 
   const loginForm = useForm<LoginFormInputType>({
     resolver: zodResolver(LoginFormInputSchema),
@@ -24,27 +26,29 @@ export default function LoginPage({
     defaultValues: {
       qq: "",
       password: "",
-    }
+    },
   });
 
   // need a whole function to be server side.
 
   const onSubmit: SubmitHandler<LoginFormInputType> = async (data) => {
     // Handle login logic here
-    try {
-      // console.log("Login data submitted:", data);
+    // console.log("Login data submitted:", data);
+    await startLoading(async () => {
       const res = await signIn("credentials", {
         redirect: false, // if redirect, will manage router automatically
-        ...data
+        ...data,
       });
-      if (res.ok && !res.error) {
-        // Redirect after successful login
-        router.push(callback || "/");
-      } else throw new Error(res.error || "登录失败");
-    } catch (e) {
-      console.error("Login failed:", e);
-      toast.error("登录失败，请检查您的QQ号和密码");
-    }
+      if (!res.ok || res.error) {
+        throw new Error(res.error || "登录失败，请检查QQ号和密码");
+      }
+      return { success: true, data: res.status };
+    }, {
+      loadingMsg: "正在登录...",
+      successMsg: "登录成功！",
+    });
+    // Redirect after successful login
+    router.push(callback || ALL_NAVPATH.home.href());
   };
 
   return (

@@ -32,7 +32,7 @@ async function main(){
     // 1. just add a new partial index for game.
     
     sql += `
--- CreateIndex
+-- CreatePartialIndex
 CREATE INDEX "game_created_at_idx" ON "game"("created_at") WHERE is_private=false;
 `;
     // 2. DEPRECTED, because bypass all server logic. add trigger, when delete on user_game, and a game have no user_game, then delete the game.

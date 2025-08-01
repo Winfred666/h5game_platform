@@ -14,7 +14,8 @@ import { InputHTMLAttributes } from "react";
 
 type Props<S> = {
   fieldTitle?: string;
-  nameInSchema: keyof S & string;
+  // For nested schema, we cannot use keyof S directly
+  nameInSchema: (keyof S & string) | string;
   className?: string;
 } & InputHTMLAttributes<HTMLInputElement>;
 
@@ -31,7 +32,7 @@ export function InputWithLabel<S>({
       control={form.control}
       name={nameInSchema}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className={className}>
           {fieldTitle && (
             <FormLabel htmlFor={nameInSchema}>
               {fieldTitle}
@@ -40,7 +41,6 @@ export function InputWithLabel<S>({
           <FormControl>
             <Input
               id={nameInSchema}
-              className={className}
               {...props}
               {...field}
             />

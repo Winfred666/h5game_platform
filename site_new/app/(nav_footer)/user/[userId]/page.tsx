@@ -53,9 +53,10 @@ export default async function UserPage({
   params: Promise<{ userId: string }>;
 }) {
   const { userId } = await params;
-  const user = await getUserById(userId);
-  const unauditGames = user.games.filter(game=>game.isPrivate); // Fetch unaudited games only if it's the user's own page
-  const publicGames = user.games.filter(game => !game.isPrivate);
+  const user = await getUserById(userId); // auto handle 404
+  // console.log(user);
+  const unauditGames = user.games.filter((game) => game.isPrivate); // Fetch unaudited games only if it's the user's own page
+  const publicGames = user.games.filter((game) => !game.isPrivate);
   // const comments = useCommentsByUserId(userId);
 
   return (
@@ -106,18 +107,20 @@ export default async function UserPage({
             {/* --- Contact Information --- */}
             <div>
               <h3 className="font-semibold mb-3">联系方式</h3>
+
               {user.contacts.length > 0 ? (
-                user.contacts.map((contact, index) => (
-                  <p
-                    key={`contact_${index}`}
-                    className="flex items-center gap-4 text-sm mt-2"
-                  >
-                    <span className="w-20 text-right text-primary">
-                      {contact.way}
-                    </span>
-                    <span>{contact.content}</span>
-                  </p>
-                ))
+                <table className="text-left">
+                  <tbody>
+                    {user.contacts.map((contact, index) => (
+                      <tr key={`contact_${index}`}>
+                        <th className="text-primary mr-2">
+                          {contact.way}
+                        </th>
+                        <td>{contact.content}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               ) : (
                 <p>该开发者未提供联系方式。</p>
               )}

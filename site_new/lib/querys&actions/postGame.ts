@@ -2,7 +2,7 @@
 
 import JSZip from "jszip";
 import { db } from "../dbInit";
-import { MINIO_BUCKETS } from "../serverConfig";
+import { MINIO_BUCKETS } from "../clientConfig";
 import { authProtectedModule, buildServerAction } from "../services/builder";
 import {
   checkZipHasIndexHtml,
@@ -53,8 +53,8 @@ export const submitNewGameAction = buildServerAction(
     const userSession = await authProtectedModule(false); // false means this action do not need admin privilege
 
     // 2. add user id to data.developers if not in array
-    if (!data.developers.connect.some((dev) => dev.id === userSession.id)) {
-      data.developers.connect.push({ id: userSession.id });
+    if (!data.developers.some((dev) => dev.id === userSession.id)) {
+      data.developers.push({ id: userSession.id });
     }
 
     // 3. validate game info.
@@ -63,6 +63,12 @@ export const submitNewGameAction = buildServerAction(
     // 4. split files from data
     const dataWithoutFiles = {
       ...data,
+      developers: {
+        connect: data.developers,
+      },
+      tags: {
+        connect: data.tags,
+      },
       uploadfile: undefined,
       cover: undefined,
       screenshots: undefined,
@@ -204,6 +210,12 @@ export const updateGameAction = buildServerAction(
     // 5. split files from data, update data if needed.
     const dataWithoutFiles = {
       ...data,
+      developers: {
+        set: data.developers,
+      },
+      tags: {
+        set: data.tags,
+      },
       uploadfile: undefined,
       cover: undefined,
       screenshots: undefined,

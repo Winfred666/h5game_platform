@@ -11,38 +11,46 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Gamepad2, User, LogOut } from "lucide-react";
 import Link from "next/link";
-import { ALL_NAVPATH } from "@/lib/clientConfig";
+import { ALL_NAVPATH, genUserAvatarURL } from "@/lib/clientConfig";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
-import {GameListItem} from "@/components/GameListItem";
+import { GameThumbnail } from "@/components/GameListItem";
 import { IGame } from "@/lib/types/igame";
 import { UserThumbnail } from "@/components/UserListItem";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 
-
 export default function NavBar() {
   const pathName = usePathname();
   const router = useRouter();
-  const { data: session } = useSession()
-  const thumbnailUser = session?.user ? {
-    ...session.user,
-    id: parseInt(session.user.id),
-  } : undefined;
+  const { data: session } = useSession();
+  const thumbnailUser = session?.user
+    ? {
+        ...session.user,
+        id: parseInt(session.user.id),
+        avatar: genUserAvatarURL(parseInt(session.user.id)),
+      }
+    : undefined;
 
   const navLinks = [
-    {...ALL_NAVPATH.home, href: ALL_NAVPATH.home.href()},
+    { ...ALL_NAVPATH.home, href: ALL_NAVPATH.home.href() }, // shortest at last
     ALL_NAVPATH.upload,
     ALL_NAVPATH.community,
   ];
-  const current_path_idx = navLinks.findIndex((nav) =>
-    pathName.includes(nav.href)
-  );
+
+  // Find the nav link whose href has the longest overlap with the current path
+  const current_path_idx = navLinks
+    .map((nav, idx) => ({
+      idx,
+      overlap: pathName.startsWith(nav.href) ? nav.href.length : 0,
+    }))
+    .reduce((max, curr) => (curr.overlap > max.overlap ? curr : max), {
+      idx: -1,
+      overlap: 0,
+    }).idx;
 
   return (
-    <header
-      className="sticky top-0 z-50 w-full border-b bg-sidebar"
-    >
+    <header className="sticky top-0 z-50 w-full border-b bg-sidebar">
       <div className="w-full flex h-14 gap-2 lg:gap-4 px-2 lg:px-4 items-center">
         {/* 1. Logo 和标题 */}
         <div className="flex items-center">
@@ -71,12 +79,16 @@ export default function NavBar() {
         </nav>
 
         {/* 3. 搜索框，高频搜索是唯一需要 API 的客户端组件 */}
-        <SearchBar thing="game" className="lg:w-3/5"
-          renderListItem={(game)=>GameListItem({game} as {game:IGame})}
-          onEnter={(term)=>router.push(ALL_NAVPATH.game_name.href(term))}
-          onSelect={(game)=>router.push(ALL_NAVPATH.game_id.href((game as IGame).id))}
+        <SearchBar
+          thing="game"
+          className="lg:w-3/5"
+          renderListItem={(game) => GameThumbnail({ game } as { game: IGame })}
+          onEnter={(term) => router.push(ALL_NAVPATH.game_name.href(term))}
+          onSelect={(game) =>
+            router.push(ALL_NAVPATH.game_id.href((game as IGame).id))
+          }
           listClassName=" max-h-[40vh]"
-          />
+        />
         {/* 4. 用户头像和下拉菜单 */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -90,12 +102,16 @@ export default function NavBar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className=" lg:w-48" align="end" forceMount>
             <DropdownMenuItem
-              onClick={() => router.push(ALL_NAVPATH.profile.href)}>
+              onClick={() => router.push(ALL_NAVPATH.profile.href)}
+            >
               <User className="mr-2 h-4 w-4" />
               <span>个人主页</span>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive"
-              onClick={() => signOut({redirect: false}).then(()=>router.refresh())}
+            <DropdownMenuItem
+              className="text-destructive"
+              onClick={() =>
+                signOut({ redirect: false }).then(() => router.refresh())
+              }
             >
               <LogOut className="mr-2 h-4 w-4" />
               <span>退出登录</span>

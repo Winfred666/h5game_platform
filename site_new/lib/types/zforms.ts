@@ -1,6 +1,7 @@
 // FileList must used in client-side
 import { z } from "zod";
 import {
+  AvatarSchema,
   CoverSchema,
   OptionalCoverSchema,
   OptionalZipSchema,
@@ -16,8 +17,11 @@ import { PasswordSchema, QQSchema } from "./zparams";
 //   .pipe(z.number().int().positive().optional());
 
 // WARNING: any schema should be both client + server schema to make it consistant.
-// WARNING: should not use optional()/default(), all raw_input should be string() to avoid undefined value which turn component uncontrolled.
+// WARNING: should not use optional()/default(), all raw_input should be string()
+// to avoid undefined value which turn component uncontrolled.
+
 // WARNING: single File is not allowed, only File list or better File[]
+
 const GameFormPrimitiveSchema = z.object({
   // because controlled react component cannot receive undefined as value.
   title: z.string().min(1, "标题不允许为空").max(20, "标题不能超过20个字符"),
@@ -84,13 +88,6 @@ export const IncreGameFormInputSchema = GameFormPrimitiveSchema.extend({
   .strip()
   .refine(clientGameValidation, clientGameValidationError);
 
-export const LoginFormInputSchema = z.object({
-  qq: QQSchema,
-  password: PasswordSchema,
-});
-
-export type LoginFormInputType = z.input<typeof LoginFormInputSchema>;
-
 const serverGameTransform = (form: GameFormInputType) => {
   return {
     ...form,
@@ -99,14 +96,10 @@ const serverGameTransform = (form: GameFormInputType) => {
     isOnline: form.kind === "html",
     width: form.embed_op === "embed_in_page" ? parseInt(form.width) : null,
     height: form.embed_op === "embed_in_page" ? parseInt(form.height) : null,
-    developers: {
-      set: form.developers.map((dev: { id: number }) => ({
+    developers: form.developers.map((dev: { id: number }) => ({
         id: dev.id,
       })),
-    },
-    tags: {
-      set: form.tags.map((tagId: number) => ({ id: tagId })),
-    },
+    tags: form.tags.map((tagId: number) => ({ id: tagId })),
   };
 };
 
@@ -120,3 +113,42 @@ export const IncreGameFormServerSchema = z
   .instanceof(FormData)
   .transform(formDataToObject)
   .pipe(IncreGameFormInputSchema.transform(serverGameTransform));
+
+export const LoginFormInputSchema = z.object({
+  qq: QQSchema,
+  password: PasswordSchema,
+});
+
+export type LoginFormInputType = z.input<typeof LoginFormInputSchema>;
+
+const userContactWaySchema = z.string().min(1, "联系方式不能为空").refine(val=>!val.includes(",") && !val.includes(":"), "联系方式不能包含“，” 和 “：”");
+
+export const UserUpdateFormInputSchema = z.object({
+  name: z.string().min(1, "昵称不能为空").max(50, "昵称不能超过50个字符"),
+  // could leave as empty string, meaning no change.
+  password: z.union([z.literal(""), PasswordSchema]),
+  introduction: z.string().default(""),
+  avatar: AvatarSchema,
+  contacts: z.array(
+    z.object({
+      way: userContactWaySchema,
+      content: userContactWaySchema,
+    })
+  ),
+}).strip();
+
+export type UserUpdateFormInputType = z.input<typeof UserUpdateFormInputSchema>;
+
+export const UserUpdateFormServerSchema = z
+  .instanceof(FormData)
+  .transform(formDataToObject)
+  .pipe(
+    UserUpdateFormInputSchema.transform(form => ({
+      ...form, // do not set password if leaves empty string
+      password: form.password.length > 0 ? form.password : undefined,
+      hasAvatar: form.avatar.length > 0 ? true : undefined, // from 0 to 1 or no change
+      contacts: form.contacts
+        .map(contact => `${contact.way}:${contact.content}`)
+        .join(","),
+    }))
+  );

@@ -81,8 +81,8 @@ model Comment {
   userId  Int @map("user_id")
   gameId  Int @map("game_id")
   
-  user User @relation(fields: [userId], references: [id])
-  game Game @relation(fields: [gameId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
   
   @@index([userId])
   @@index([gameId])

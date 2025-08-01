@@ -1,4 +1,4 @@
-"server-only";
+import "server-only";
 
 import { Prisma } from "@prisma/client";
 import {
@@ -11,7 +11,7 @@ import {
   genGamePlayableURL,
   genGameScreenshotsURL,
   genUserAvatarURL
-} from "./serverConfig";
+} from "./clientConfig";
 
 export const GameExtension = Prisma.defineExtension({
   query: {

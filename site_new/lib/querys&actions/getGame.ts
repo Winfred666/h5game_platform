@@ -1,4 +1,4 @@
-"server-only";
+import "server-only";
 // WARNING: getGame is only get props in server component, not action
 import { db } from "@/lib/dbInit";
 import { IntSchema, StringSchema } from "../types/zparams";

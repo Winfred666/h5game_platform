@@ -63,10 +63,11 @@ export default function GameListedTab({
 
   const handleDeleteAction = async () => {
     if (!curDeleteId || isDeleting) return;
+    
     setIsDeleting(true);
     try {
       await deleteGameAction(curDeleteId);
-      toast.success("成功删除该游戏的一位开发者！");
+      toast.success("成功删除游戏！");
     } catch (err: any) {
       console.error("删除游戏失败:", err);
       toast.error("删除失败，请重试。");
@@ -139,9 +140,9 @@ export default function GameListedTab({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>删除关联</AlertDialogTitle>
+            <AlertDialogTitle>删除游戏</AlertDialogTitle>
             <AlertDialogDescription>
-              确定要从该游戏作者中删除该开发人员吗？
+              确定要删除该游戏吗？此操作不可撤销。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

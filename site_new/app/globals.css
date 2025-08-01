@@ -185,6 +185,10 @@
   }
 }
 
+th,td {
+  @apply pr-4;
+}
+
 .navbar-button {
   @apply relative flex items-center justify-center select-none cursor-pointer;
   @apply box-border px-4 self-stretch text-foreground;
@@ -218,7 +222,4 @@
 }
 .swiper-slide-next {
   left: -6%;
-}
-
-.swiper-slide {
 }

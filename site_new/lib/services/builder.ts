@@ -1,10 +1,12 @@
-"server-only";
+import "server-only";
 
 import { Schema, z } from "zod";
+// Import the specific error helpers from next/navigation
 import { notFound } from "next/navigation";
 import { isNullLike } from "../utils";
 import { auth } from "./authSQL";
 import { UserSessionSchema } from "../types/zparams";
+import { ActionResponse } from "../types/iaction";
 
 // change behavior on server side
 Date.prototype.toJSON = function () {
@@ -64,18 +66,6 @@ const processClientWorkload = <const TSchema extends Schema>(
   return validation.data;
 };
 
-export type ActionResponseSuccess<T> = {
-  success: true;
-  data: T;
-};
-
-export type ActionResponseError = {
-  success: false;
-  msg: string;
-};
-
-export type ActionResponse<T> = ActionResponseSuccess<T> | ActionResponseError;
-
 // all server action need to be authenticated, except query
 export function buildServerAction<
   TOutput,
@@ -105,8 +95,22 @@ export function buildServerAction<
       return { success: true as const, data: plain };
 
     } catch (err) {
+      // 1. Check if the error is a redirect error
+      if (err instanceof Error && (err as any).digest?.startsWith('NEXT_REDIRECT')) {
+        throw err; // Re-throw it to let Next.js handle the redirect
+      }
+
+      // 2. Check if the error is a notFound error
+      if (err instanceof Error && (err as any).digest?.startsWith('NEXT_NOT_FOUND')) {
+        throw err; // Re-throw it to let Next.js show the 404 page
+      }
+
+      // 3. If it's any other error, handle it as a failure
       if (process.env.NODE_ENV !== "production") console.error("DEBUG:", err);
-      if (isQuery) notFound();
+      
+      // 4. for query , not return ActionResponse, just return 404
+      if (isQuery) notFound(); 
+
       return {
         success: false,
         msg: err instanceof Error ? err.message : "服务调用失败！",

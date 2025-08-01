@@ -68,8 +68,7 @@ async function createMinioClient(): Promise<Minio.Client | undefined> {
     return client;
   } catch (error) {
     console.error("❌ MinIO connection failed", error);
-    if (process.env.NODE_ENV === "production")
-      throw new Error("Failed to connect to MinIO or bucket does not exist");
+    throw new Error("Failed to connect to MinIO or bucket does not exist");
   }
 }
 function generateBucketPolicy(

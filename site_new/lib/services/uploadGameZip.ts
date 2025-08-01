@@ -1,7 +1,8 @@
-"server-only";
+import "server-only";
 
 import JSZip from "jszip";
-import { MINIO_BUCKETS, MINIO_CONCURRENT_WORKERS } from "../serverConfig";
+import { MINIO_BUCKETS } from "../clientConfig";
+import { MINIO_CONCURRENT_WORKERS } from "../serverConfig";
 import { lookup } from "mime-types";
 import { minio } from "../dbInit";
 import { Readable } from "stream";

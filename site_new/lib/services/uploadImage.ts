@@ -1,5 +1,5 @@
 "server-only"
-import { MINIO_BUCKETS } from "../serverConfig";
+import { MINIO_BUCKETS } from "../clientConfig";
 import { minio } from "../dbInit";
 
 import sharp from "sharp";
@@ -16,7 +16,7 @@ export async function uploadImage(
 
   // 2. Convert the image buffer to WebP format using Sharp
   const webpBuffer =
-    bucketName === "avatars"
+    bucketName === MINIO_BUCKETS.AVATAR
       ? await sharp(arrayBuffer)
           .resize(200, 200, {
             fit: "cover",

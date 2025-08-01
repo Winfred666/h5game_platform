@@ -5,9 +5,8 @@ import { db } from "../dbInit";
 import { authProtectedModule, buildServerAction } from "../services/builder";
 import { deleteGameFolder, switchBucketGameFolder } from "../services/uploadGameZip";
 import { IntSchema, TagSchema } from "../types/zparams";
-import { ALL_NAVPATH } from "../clientConfig";
+import { ALL_NAVPATH, MINIO_BUCKETS } from "../clientConfig";
 import { deleteImageFolder } from "../services/uploadImage";
-import { MINIO_BUCKETS } from "../serverConfig";
 
 export const approveGameAction = buildServerAction([IntSchema],
   async (gameId: number) => {

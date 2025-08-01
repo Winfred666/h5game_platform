@@ -9,15 +9,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { GameFormInputType } from "@/lib/types/zforms";
-import Image from "next/image";
 import GamePosters from "@/components/GamePosters";
 import { Button } from "@/components/ui/button";
 import { useMultiObjectURLs } from "@/lib/hooks/useBrowser";
 import { Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { ChangeEvent, useRef } from "react";
 import { MAX_SCREENSHOT_NUMBER } from "@/lib/clientConfig";
-import { Input } from "@/components/ui/input";
+import SingleImageForm from "@/components/inputs/SingleImageInputWithLabel";
 
 interface GameFormImagesProps {
   form: UseFormReturn<GameFormInputType>;
@@ -25,59 +23,6 @@ interface GameFormImagesProps {
   oldScreenshotsSrc?: string[];
 }
 
-function CoverForm(
-  {
-    onChange,
-    onBlur,
-    value,
-  }: {
-    onChange: (...event: any[]) => void;
-    onBlur: () => void;
-    value: File[];
-  },
-  fallbackUrl?: string
-) {
-  const urls = useMultiObjectURLs(value);
-  const coverPreview = urls.length > 0 ? urls[0] : fallbackUrl;
-
-  return (
-    <FormItem className=" w-60">
-      <FormLabel>封面图片</FormLabel>
-      <FormControl>
-        <div className="relative w-full h-60 border aria-invalid:border-destructive rounded-md bg-input/30">
-          {coverPreview && (
-            <Image
-              fill
-              className=" object-cover"
-              src={coverPreview}
-              alt="Cover Preview"
-            />
-          )}
-          <div className="w-full h-full flex items-center justify-center">
-            <span
-              className={cn(
-                "text-center z-10 ",
-                coverPreview
-                  ? "bg-gray-500/30 text-white p-1 rounded-sm"
-                  : "text-muted-foreground"
-              )}
-            >
-              点击或拖拽以{coverPreview ? "替换" : "上传"}封面
-            </span>
-          </div>
-          <Input
-            className="absolute z-20 top-0 left-0 w-full h-full opacity-0"
-            type="file"
-            accept="image/*"
-            onChange={(e) => onChange(Array.from(e.target.files ?? []))}
-            onBlur={onBlur}
-          />
-        </div>
-      </FormControl>
-      <FormMessage className="break-all" />
-    </FormItem>
-  );
-}
 
 function ScreenshotForm(
   {
@@ -138,7 +83,11 @@ function ScreenshotForm(
       {/* 1. Render existing screenshots (with delete icon) */}
       {/* Filter out the existing screenshots that are marked for deletion
             also add newly added screenshots that are not yet uploaded*/}
-      <GamePosters imageList={coverPreview} onDelete={onDeleteScreenshot} onBlur={onBlur}/>
+      <GamePosters
+        imageList={coverPreview}
+        onDelete={onDeleteScreenshot}
+        onBlur={onBlur}
+      />
       <FormControl>
         {/* 2. Adder icon */}
         <Button
@@ -167,6 +116,7 @@ function ScreenshotForm(
   );
 }
 
+
 export function GameFormRight({
   form,
   oldCoverSrc,
@@ -178,7 +128,7 @@ export function GameFormRight({
       <FormField
         control={form.control}
         name="cover"
-        render={({ field }) => CoverForm(field, oldCoverSrc)}
+        render={({ field }) => SingleImageForm(field, oldCoverSrc)}
       />
       {/* --- Screenshots Section --- */}
       {/* 3. The upload placeholder always available to add more */}

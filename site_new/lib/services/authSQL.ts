@@ -1,9 +1,11 @@
-"server-only";
+import "server-only";
 import NextAuth, { User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "../dbInit";
 import { LoginFormInputSchema } from "../types/zforms";
 import bcrypt from "bcryptjs";
+import { ALL_NAVPATH } from "../clientConfig";
+import { ALL } from "dns";
 
 // provide authentication services of SQL to user.
 // WARNING: more mordern auth services like OAuth2, OpenID Connect, MAGIC LINK, etc. are recommended.
@@ -11,8 +13,9 @@ const isProduction = process.env.NODE_ENV === "production";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
-    signIn: process.env.NEXT_PUBLIC_BASEPATH + "/login", // custom login page
+    signIn: process.env.NEXT_PUBLIC_BASEPATH + ALL_NAVPATH.login.href(), // custom login page
     error: process.env.NEXT_PUBLIC_BASEPATH + "/error", // error page, redirect to login page
+    signOut: process.env.NEXT_PUBLIC_BASEPATH + ALL_NAVPATH.auto_signout.href, // custom logout page
   },
   
   cookies: {
@@ -68,13 +71,29 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     // called whenever a JSON Web Token is created
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // The 'user' object is available only on the first call after sign-in.
       // In subsequent calls (when a session is accessed), only 'token' is available.
       if (user) {
         token.id = user.id;
         token.isAdmin = user.isAdmin;
         token.name = user.name; // ensure name is always set
+      }
+      if (trigger === "update" && token.id) {
+        // receive from db
+        const curUser = await db.user.findUnique({
+          where: {id: parseInt(token.id)},
+          select: {
+            id: true,
+            isAdmin: true,
+            name: true, // only return these fields
+          },
+        });
+        if(curUser){
+          token.id = curUser.id.toString();
+          token.isAdmin = curUser.isAdmin;
+          token.name = curUser.name; // update name if changed
+        }
       }
       return token;
     },

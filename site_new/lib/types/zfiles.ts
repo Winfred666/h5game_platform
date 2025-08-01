@@ -9,25 +9,15 @@ import {
 } from "../clientConfig";
 
 // use for both client and server, so in clientConfig.
-// Extract ZIP validation logic as a reusable function
-const validateZipFile = (
-  value: any[],
-  ctx: z.RefinementCtx,
-  isRequired: boolean = true
-) => {
-  // Empty check - only fail if required
-  // console.log("value: ", value);
 
+// Required ZIP schema
+export const ZipSchema = z.array(z.any()).superRefine((value, ctx) => {
   if (!value || value.length !== 1) {
-    if (!isRequired && value.length === 0) {
-      return true; // Allow empty for optional schema
-    }else{
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "需要上传一个 .zip 游戏包体",
-      });
-      return false;
-    }
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "需要上传一个 .zip 游戏包体",
+    });
+    return false;
   }
 
   const file = value[0];
@@ -49,18 +39,14 @@ const validateZipFile = (
     });
     return false;
   }
-
   return true;
-};
-// Required ZIP schema
-export const ZipSchema = z
-  .array(z.any())
-  .superRefine((value, ctx) => validateZipFile(value, ctx, true));
+});
 
 // Optional ZIP schema
-export const OptionalZipSchema = z
-  .array(z.any())
-  .superRefine((value, ctx) => validateZipFile(value, ctx, false));
+export const OptionalZipSchema = z.union([
+  ZipSchema,
+  z.array(z.any()).length(0), // an empty array is also valid
+]);
 
 export const ScreenshotsSchema = z
   .array(z.any())
@@ -90,22 +76,18 @@ export const ScreenshotsSchema = z
     }
   });
 
-const validateCoverFiles = (
-  value: any[],
-  ctx: z.RefinementCtx,
-  isRequired: boolean
-) => {
+
+// must have, cannot be empty
+export const CoverSchema = z
+  .array(z.any())
+  .superRefine((value, ctx) => {
   // 空值检查 - 如果没提供文件，封面图是必需的
   if (!value || value.length !== 1) {
-    if (!isRequired && value.length === 0) {
-      return true; // 允许空值
-    } else {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "需要上传一张封面图",
       });
       return false;
-    }
   }
 
   const file = value[0];
@@ -125,20 +107,16 @@ const validateCoverFiles = (
     });
     return false;
   }
-};
+});
 
-// must have, cannot be empty
-export const CoverSchema = z
-  .array(z.any())
-  .superRefine((value, ctx) => validateCoverFiles(value, ctx, true));
-export const OptionalCoverSchema = z
-  .array(z.any())
-  .superRefine((value, ctx) => validateCoverFiles(value, ctx, false));
+export const OptionalCoverSchema = z.union([
+  CoverSchema,
+  z.array(z.any()).length(0), // an empty array is also valid
+]);
 
 // optional , can be empty
-export const avatarSchema = z
+export const AvatarSchema = z
   .array(z.any())
-  .optional()
   .superRefine((value, ctx) => {
     // 空值检查 - 如果没提供文件，头像是可选项
     if (!value || value.length === 0) {

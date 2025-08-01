@@ -41,7 +41,7 @@ export async function middleware(request: NextRequest) {
       createUrl(ALL_NAVPATH.not_found.href, baseUrlWithPath)
     );
     
-  } else if (pathname.startsWith(ALL_NAVPATH.login.name)) { // already login, do not enter login page
+  } else if (pathname.startsWith(ALL_NAVPATH.login.href())) { // already login, do not enter login page
     if (access_token && my_id) {
       const callback = request.nextUrl.searchParams.get("callback");
       return NextResponse.redirect(

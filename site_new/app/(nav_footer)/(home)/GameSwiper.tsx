@@ -60,7 +60,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                 />
               </div>
 
-              <div className="h-full flex flex-col justify-between lg:gap-4">
+              <div className="h-full flex flex-col justify-start lg:gap-4">
                 <div className="w-full flex flex-wrap justify-start lg:flex-nowrap items-center gap-4 lg:gap-8
                  font-medium">
                   <div className="text-2xl lg:max-w-3/5 overflow-hidden">

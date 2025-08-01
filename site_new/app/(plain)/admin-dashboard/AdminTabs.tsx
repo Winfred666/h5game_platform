@@ -1,11 +1,12 @@
 "use client";
 
 import { ALL_NAVPATH } from "@/lib/clientConfig";
-import { Link } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [ALL_NAVPATH.admin_review, ALL_NAVPATH.admin_games, ALL_NAVPATH.admin_users, ALL_NAVPATH.admin_tags];
 
+// Just like the NavBar.tsx, but for admin dashboard.
 export default function AdminTabs() {
   const pathName = usePathname();
   const current_path_idx = navLinks.findIndex((nav) =>
