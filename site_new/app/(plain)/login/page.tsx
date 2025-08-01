@@ -40,7 +40,8 @@ export default function LoginPage({
         ...data,
       });
       if (!res.ok || res.error) {
-        throw new Error(res.error || "登录失败，请检查QQ号和密码");
+        throw new Error("登录失败，请检查QQ号和密码");
+        console.error("Login error:", res.error);
       }
       return { success: true, data: res.status };
     }, {

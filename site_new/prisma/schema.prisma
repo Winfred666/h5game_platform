@@ -65,11 +65,14 @@ model User {
   @@map("user")
 }
 
-// only for select.
+// only for select, normal case not deletable. 
+// more of a time we just want to hide it from uploader instead of deleting it.
+
 model Tag {
   id        Int    @id @default(autoincrement())
   name      String @unique // e.g., "Action", "Puzzle", "RPG"
-  // --- RELATIONAL FIELDS ---
+  // -- RELATIONAL FIELDS ---
+  hide      Boolean @default(false)
   games     Game[]
   @@map("tag")
 }
@@ -90,3 +93,9 @@ model Comment {
   @@map("comment")
 }
 
+// for configuration
+
+model Configuration {
+  key   String @id @unique
+  value String
+}

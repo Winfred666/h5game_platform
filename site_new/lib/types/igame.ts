@@ -23,7 +23,8 @@ export interface IGame {
     coverImage: string;
     screenshots: string[];
     createdAt: string;
-    
+    updatedAt: string;
+
     developers: IDeveloper[];
     tags: IGameTag[];
     // most important: url for download

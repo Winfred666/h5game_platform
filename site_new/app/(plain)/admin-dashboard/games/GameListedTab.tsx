@@ -1,21 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 import { GameListAdmin } from "@/components/GameListItem";
 import { SearchHeader } from "../components/SearchHeader";
 
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FilePenLine, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -23,6 +12,7 @@ import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { IGame } from "@/lib/types/igame";
 import { deleteGameAction } from "@/lib/querys&actions/postAdminCmd";
 import { PaginationWithLinks } from "@/components/ui/pagination-with-link";
+import { DeleteObjDialog } from "../components/DeleteObjDialog";
 
 // Interface definitions
 
@@ -40,9 +30,11 @@ export default function GameListedTab({
 
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
-
-  const [curDeleteId, setcurDeleteId] = useState<number>();
-  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const [curDeleteGame, setCurDeleteGame] = useState<{
+    id: number;
+    name: string;
+  } | undefined>();
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -60,26 +52,6 @@ export default function GameListedTab({
           tag.name.includes(searchQuery) || searchQuery.includes(tag.name)
       )
   );
-
-  const handleDeleteAction = async () => {
-    if (!curDeleteId || isDeleting) return;
-    
-    setIsDeleting(true);
-    try {
-      await deleteGameAction(curDeleteId);
-      toast.success("成功删除游戏！");
-    } catch (err: any) {
-      console.error("删除游戏失败:", err);
-      toast.error("删除失败，请重试。");
-    } finally {
-      handleCloseDeleteDialog();
-    }
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setcurDeleteId(undefined);
-    setIsDeleting(false);
-  };
 
   const showPagination =
     currentPage !== undefined &&
@@ -99,33 +71,32 @@ export default function GameListedTab({
 
       <GameListAdmin
         games={filteredGames}
-        renderActions={(gameId) => (
+        renderActions={game => (
           <>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               onClick={(e) => {
                 e.stopPropagation();
-                router.push(ALL_NAVPATH.game_update.href(gameId));
+                router.push(ALL_NAVPATH.game_update.href(game.id));
               }}
             >
               <FilePenLine className="h-4 w-4" />
             </Button>
             <Button
-              variant="ghost"
+              variant="destructive"
               size="icon"
-              className="hover:bg-destructive/10 hover:text-destructive"
               onClick={(e) => {
                 e.stopPropagation();
-                setcurDeleteId(gameId);
+                setCurDeleteGame({ id: game.id, name: game.title });
               }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
           </>
         )}
+        actionsInfo="/编辑/删除"
       />
-
       {showPagination ? (
           <PaginationWithLinks
             page={currentPage}
@@ -134,33 +105,12 @@ export default function GameListedTab({
           />
       ) : null}
 
-      <AlertDialog
-        open={curDeleteId !== undefined}
-        onOpenChange={(open) => !open && handleCloseDeleteDialog()}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>删除游戏</AlertDialogTitle>
-            <AlertDialogDescription>
-              确定要删除该游戏吗？此操作不可撤销。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              onClick={handleCloseDeleteDialog}
-              disabled={isDeleting}
-            >
-              取消
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteAction}
-              disabled={isDeleting}
-            >
-              {isDeleting ? "删除中..." : "删除"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteObjDialog
+        onDeleteAction={async (game) => deleteGameAction(game.id)}
+        onClose={() => setCurDeleteGame(undefined)}
+        obj={curDeleteGame}
+        thing="游戏"
+      />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import { db } from "../dbInit";
 import { LoginFormInputSchema } from "../types/zforms";
 import bcrypt from "bcryptjs";
 import { ALL_NAVPATH } from "../clientConfig";
-import { ALL } from "dns";
 
 // provide authentication services of SQL to user.
 // WARNING: more mordern auth services like OAuth2, OpenID Connect, MAGIC LINK, etc. are recommended.

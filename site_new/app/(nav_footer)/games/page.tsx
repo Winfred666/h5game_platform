@@ -37,5 +37,3 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     </div>
   );
 }
-
-export const revalidate = 10; // revalidate every 10 seconds

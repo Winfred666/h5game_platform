@@ -70,7 +70,7 @@ export default function UserUpdateForm({
     // 6. update session data and redirect
     await update(); // no trust client-side session data.
     form.reset();
-    setTimeout(() => router.replace(ALL_NAVPATH.user_id.href(curUserId)));
+    setTimeout(() => router.replace(ALL_NAVPATH.user_id.href(curUserId)), 1000);
   };
 
   // WARNING: this <Form> is a provider, every field can use the form context.

@@ -5,26 +5,13 @@ import GameTags from "@/components/GameTags";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import React from "react";
-import { getGameById } from "@/lib/querys&actions/getGame";
+import { getPublicGameById } from "@/lib/querys&actions/getGame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
-import DevBanner from "./DevBanner";
-// import DevBanner from "./DevBanner";
+import { IGame } from "@/lib/types/igame";
 
-export default async function GameIdDetails({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params; // await the promise to get the id
-  // try
-  // now still in server component, just savely get game content
-  const game = await getGameById(parseInt(id));
-  // console.log("games: ", game);
-  if (!game) {
-    return notFound();
-  }
+export function GameIdPage({ game }: { game: IGame }) {
   return (
     <div className="w-full flex flex-col grow">
       {/* Background Cover Image */}
@@ -39,8 +26,6 @@ export default async function GameIdDetails({
         <div className="absolute inset-0 bg-black opacity-50"></div>
       </div>
 
-      <DevBanner gameId={game.id} isPrivate={game.isPrivate} />
-      
       {/* 主要内容，使用页面包裹 */}
       <div
         className="relative flex grow flex-col items-center
@@ -81,7 +66,11 @@ export default async function GameIdDetails({
                     key={"developer_" + dev.id}
                     className="flex items-center"
                   >
-                    <Button asChild variant="ghost" className="py-0 px-1 h-auto">
+                    <Button
+                      asChild
+                      variant="ghost"
+                      className="py-0 px-1 h-auto"
+                    >
                       <Link href={ALL_NAVPATH.user_id.href(dev.id)}>
                         {dev.name}
                       </Link>
@@ -120,3 +109,20 @@ export default async function GameIdDetails({
     </div>
   );
 }
+
+export default async function PublicGameIdPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params; // await the promise to get the id
+  // now still in server component, just savely get game content
+  const game = await getPublicGameById(parseInt(id));
+  // console.log("games: ", game);
+  if (!game) {
+    return notFound();
+  }
+  return <GameIdPage game={game} />;
+}
+
+export const dynamic = "force-static"; // use revalidatePath + static for any page

@@ -1,6 +1,7 @@
-import { getAllTags, getTopGames } from "@/lib/querys&actions/getGame";
+import { getTopGames } from "@/lib/querys&actions/getGame";
 import GameSwiper from "./GameSwiper";
 import GameTags from "@/components/GameTags";
+import { getAllTags } from "@/lib/querys&actions/getTag";
 
 export default async function HomeLayout({
   children,
@@ -26,3 +27,8 @@ export default async function HomeLayout({
     </div>
   );
 }
+
+// use revalidatePath + static for any page 
+// that you want to be fast and cached, 
+// but whose data might change due to user actions (be careful no dynamic auth is used ) 
+export const dynamic = "force-static";

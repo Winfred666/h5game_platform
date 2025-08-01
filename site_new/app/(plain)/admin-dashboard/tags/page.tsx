@@ -1,4 +1,4 @@
-import { getAllTags } from "@/lib/querys&actions/getGame";
+import { getAllTags } from "@/lib/querys&actions/getTag";
 import TagsManagerTab from "./TagsManagerTab";
 
 export default async function AdminReviewPage() {

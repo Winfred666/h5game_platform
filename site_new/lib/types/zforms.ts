@@ -9,7 +9,7 @@ import {
   ZipSchema,
 } from "./zfiles";
 import { formDataToObject } from "../utils";
-import { PasswordSchema, QQSchema } from "./zparams";
+import { IntSchema, PasswordSchema, QQSchema } from "./zparams";
 
 // const StringToNumberOptSchema = z
 //   .string()
@@ -97,8 +97,8 @@ const serverGameTransform = (form: GameFormInputType) => {
     width: form.embed_op === "embed_in_page" ? parseInt(form.width) : null,
     height: form.embed_op === "embed_in_page" ? parseInt(form.height) : null,
     developers: form.developers.map((dev: { id: number }) => ({
-        id: dev.id,
-      })),
+      id: dev.id,
+    })),
     tags: form.tags.map((tagId: number) => ({ id: tagId })),
   };
 };
@@ -121,21 +121,34 @@ export const LoginFormInputSchema = z.object({
 
 export type LoginFormInputType = z.input<typeof LoginFormInputSchema>;
 
-const userContactWaySchema = z.string().min(1, "联系方式不能为空").refine(val=>!val.includes(",") && !val.includes(":"), "联系方式不能包含“，” 和 “：”");
+const userContactWaySchema = z
+  .string()
+  .min(1, "联系方式不能为空")
+  .refine(
+    (val) => !val.includes(",") && !val.includes(":"),
+    "联系方式不能包含“，” 和 “：”"
+  );
 
-export const UserUpdateFormInputSchema = z.object({
-  name: z.string().min(1, "昵称不能为空").max(50, "昵称不能超过50个字符"),
-  // could leave as empty string, meaning no change.
-  password: z.union([z.literal(""), PasswordSchema]),
-  introduction: z.string().default(""),
-  avatar: AvatarSchema,
-  contacts: z.array(
-    z.object({
-      way: userContactWaySchema,
-      content: userContactWaySchema,
-    })
-  ),
-}).strip();
+const NameSchema = z
+  .string()
+  .min(1, "昵称不能为空")
+  .max(50, "昵称不能超过50个字符");
+
+export const UserUpdateFormInputSchema = z
+  .object({
+    name: NameSchema,
+    // could leave as empty string, meaning no change.
+    password: z.union([z.literal(""), PasswordSchema]),
+    introduction: z.string().default(""),
+    avatar: AvatarSchema,
+    contacts: z.array(
+      z.object({
+        way: userContactWaySchema,
+        content: userContactWaySchema,
+      })
+    ),
+  })
+  .strip();
 
 export type UserUpdateFormInputType = z.input<typeof UserUpdateFormInputSchema>;
 
@@ -143,12 +156,26 @@ export const UserUpdateFormServerSchema = z
   .instanceof(FormData)
   .transform(formDataToObject)
   .pipe(
-    UserUpdateFormInputSchema.transform(form => ({
+    UserUpdateFormInputSchema.transform((form) => ({
       ...form, // do not set password if leaves empty string
       password: form.password.length > 0 ? form.password : undefined,
       hasAvatar: form.avatar.length > 0 ? true : undefined, // from 0 to 1 or no change
       contacts: form.contacts
-        .map(contact => `${contact.way}:${contact.content}`)
+        .map((contact) => `${contact.way}:${contact.content}`)
         .join(","),
     }))
   );
+
+export const AddUserServerSchema = z.array(
+  z.object({
+    name: NameSchema,
+    qq: QQSchema,
+  })
+);
+
+export const UserAdminEditServerSchema = z.object({
+  id: IntSchema,
+  qq: QQSchema,
+  isAdmin: z.boolean().default(false),
+  resetPassword: z.boolean().default(false),
+});

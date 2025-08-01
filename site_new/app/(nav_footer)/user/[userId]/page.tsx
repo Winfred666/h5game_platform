@@ -21,10 +21,10 @@ import CommentCards from "@/components/CommentCards";
 
 function UserGameCards({
   games,
-  isMe,
+  isMeOrAdmin,
 }: {
   games: { id: number; title: string; coverImage: string }[];
-  isMe: boolean;
+  isMeOrAdmin: boolean;
 }) {
   return (
     <div className="flex gap-4 overflow-x-auto py-2">
@@ -33,8 +33,8 @@ function UserGameCards({
           key={`game_${game.id}`}
           className="w-48 lg:w-56 flex flex-col items-center"
         >
-          <GameCard game={game} small />
-          {isMe && (
+          <GameCard game={{ ...game, isMeOrAdmin }} small />
+          {isMeOrAdmin && (
             <Link href={ALL_NAVPATH.game_id.href(game.id) + "/update"}>
               <Button variant="secondary" className="mt-2 w-full">
                 修改
@@ -58,6 +58,9 @@ export default async function UserPage({
   const unauditGames = user.games.filter((game) => game.isPrivate); // Fetch unaudited games only if it's the user's own page
   const publicGames = user.games.filter((game) => !game.isPrivate);
   // const comments = useCommentsByUserId(userId);
+
+  // when visit me page, check whether session outdated by the way
+  
 
   return (
     <main className="max-w-full lg:w-4xl mx-auto py-8 px-4">
@@ -132,17 +135,17 @@ export default async function UserPage({
             <div>
               <h3 className="font-semibold mb-3">上传游戏</h3>
               {publicGames.length > 0 ? (
-                <UserGameCards games={publicGames} isMe={user.isMe} />
+                <UserGameCards games={publicGames} isMeOrAdmin={user.isMe || user.isAdmin} />
               ) : (
                 <p>该开发者尚未上传任何游戏。</p>
               )}
             </div>
 
-            {/* --- Unaudited Games (Visible only to self) --- */}
-            {user.isMe && unauditGames.length > 0 && (
+            {/* --- Unaudited Games (Visible to self + admin) --- */}
+            {(user.isMe || user.isAdmin) && unauditGames.length > 0 && (
               <div className="my-4">
                 <h3 className="font-semibold mb-3">待审核游戏</h3>
-                <UserGameCards games={unauditGames} isMe={user.isMe} />
+                <UserGameCards games={unauditGames} isMeOrAdmin={user.isMe || user.isMe || user.isAdmin} />
               </div>
             )}
 

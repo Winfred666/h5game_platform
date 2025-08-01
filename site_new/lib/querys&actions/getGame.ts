@@ -4,6 +4,8 @@ import { db } from "@/lib/dbInit";
 import { IntSchema, StringSchema } from "../types/zparams";
 import { cache } from "react"; // for single term of build.
 import { authProtectedModule, buildServerQuery } from "../services/builder";
+import { redirect } from "next/navigation";
+import { ALL_NAVPATH } from "../clientConfig";
 
 const IncludeDeveloperTag = {
   // for include developers in game
@@ -41,9 +43,20 @@ export const getAllGames = buildServerQuery(
     })
 ); // true means it is a query, not mutation, so it can return 404
 
-export const getGameById = buildServerQuery([IntSchema], async (id) => {
+// WARNING: for fast and static rendering, do not use authProtectedModule, need to decouple auth from public query.
+export const getPublicGameById = buildServerQuery(
+  [IntSchema],
+  async id => db.game.findUnique({
+    where: {id},
+    ...IncludeDeveloperTag,
+  })
+);
+
+
+// TODO: for private game, give token to visit private minio bucket here.
+export const getSelfGameById = buildServerQuery([IntSchema], async (id) => {
   const game = await db.game.findUnique({
-    where: { id: id, isPrivate: undefined },
+    where: { id, isPrivate: undefined },
     ...IncludeDeveloperTag,
   }); // could search private game if has privilege
 
@@ -60,34 +73,11 @@ export const getGameById = buildServerQuery([IntSchema], async (id) => {
       // 2. if not admin or developer, check if game is private
       return null;
     } else {
-      // 3. remove isPrivate field to avoid exposing it to public
-      return {
-        ...game,
-        isPrivate: undefined, // remove isPrivate field
-      };
+      // 3. tourist, redirect to public page instead of here private page.
+      redirect(ALL_NAVPATH.game_id.href(game.id));
     }
   }
 });
-
-export const getAllTags = cache(buildServerQuery([], () => db.tag.findMany()));
-
-// WARNING: using undefined (not found, not error) if cannot find tag.
-export const getTagById = buildServerQuery([IntSchema], (id) =>
-  db.tag.findUnique({
-    where: { id: id },
-  })
-);
-
-export const getTagsByTitle = buildServerQuery([StringSchema], (title) =>
-  db.tag.findMany({
-    where: {
-      name: {
-        contains: title,
-      },
-    },
-    take: 10, // limit to 10 results for performance
-  })
-); // true means it is a query, not mutation, so it can return 404
 
 export const getGamesByTitle_thumbnail = buildServerQuery(
   [StringSchema],

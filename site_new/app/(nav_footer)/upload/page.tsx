@@ -1,4 +1,4 @@
-import { getAllTags } from "@/lib/querys&actions/getGame";
+import { getAllTags } from "@/lib/querys&actions/getTag";
 import GameForm from "./GameForm";
 
 export default async function UploadPage() {

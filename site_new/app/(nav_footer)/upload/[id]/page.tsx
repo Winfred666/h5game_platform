@@ -1,4 +1,5 @@
-import { getAllTags, getGameById } from "@/lib/querys&actions/getGame";
+import { getSelfGameById } from "@/lib/querys&actions/getGame";
+import { getAllTags } from "@/lib/querys&actions/getTag";
 import GameForm from "../GameForm";
 import { notFound } from "next/navigation";
 
@@ -9,7 +10,7 @@ export default async function UploadPage({
 }) {
   const { id } = await params; // await the promise to get id
   const allTags = await getAllTags();
-  const game = await getGameById(id);
+  const game = await getSelfGameById(id);
   if (!game) notFound();
   if (game.isPrivate === undefined) return (
     <div className=" my-4">

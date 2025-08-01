@@ -2,15 +2,23 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
-import { toast } from "sonner";
+import { Check, Trash2 } from "lucide-react";
+
 import { SearchHeader } from "../components/SearchHeader";
 import { GameListAdmin } from "@/components/GameListItem";
 import { IGame } from "@/lib/types/igame";
-import { approveGameAction } from "@/lib/querys&actions/postAdminCmd";
+import { approveGameAction, deleteGameAction } from "@/lib/querys&actions/postAdminCmd";
+import { useLoading } from "@/components/LoadingProvider";
+import { DeleteObjDialog } from "../components/DeleteObjDialog";
 
 export default function GameReviewTab({ games }: { games: IGame[] }) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { startLoading } = useLoading();
+  
+  const [curDeleteGame, setCurDeleteGame] = useState<{
+    id: number;
+    name: string;
+  } | undefined>();
 
   const handleSearch = (searchTerm: string) => {
     setSearchQuery(searchTerm);
@@ -18,21 +26,24 @@ export default function GameReviewTab({ games }: { games: IGame[] }) {
 
   const filteredGames = games?.filter(
     (game: IGame) =>
-      searchQuery === "" || 
+      searchQuery === "" ||
       game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       game.developers.some((dev) =>
         dev.name.toLowerCase().includes(searchQuery.toLowerCase())
       ) ||
-      game.tags?.some((tag) => tag.name.includes(searchQuery) || searchQuery.includes(tag.name))
+      game.tags?.some(
+        (tag) =>
+          tag.name.includes(searchQuery) || searchQuery.includes(tag.name)
+      )
   );
 
+
+
   const handleApprove = async (id: number) => {
-    try {
-      await approveGameAction(id);
-      toast.success("游戏审核成功");
-    } catch {
-      toast.error("游戏审核失败");
-    }
+    startLoading(async () => approveGameAction(id), {
+      loadingMsg: "正在公开游戏...",
+      successMsg: "游戏审核通过！",
+    });
   };
 
   return (
@@ -45,15 +56,31 @@ export default function GameReviewTab({ games }: { games: IGame[] }) {
       />
       <GameListAdmin
         games={filteredGames}
-        renderActions={(gameId) => (
+        renderActions={({id, title}) => (
+          <>
           <Button
-            variant="outline"
+            variant="success"
             size="icon"
-            onClick={() => handleApprove(gameId)}
+            onClick={() => handleApprove(id)}
           >
             <Check className="h-4 w-4" />
           </Button>
+          <Button
+            variant="destructive"
+            size="icon"
+            onClick={() => setCurDeleteGame({ id, name: title })}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+          </>
         )}
+        actionsInfo="/通过/删除"
+      />
+      <DeleteObjDialog
+        onDeleteAction={async (game) => deleteGameAction(game.id)}
+        onClose={() => setCurDeleteGame(undefined)}
+        obj={curDeleteGame}
+        thing="游戏"
       />
     </div>
   );

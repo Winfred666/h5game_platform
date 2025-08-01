@@ -11,9 +11,9 @@ import { Loader2 } from "lucide-react";
 import { ActionResponse } from "@/lib/types/iaction";
 import { toast } from "sonner";
 
-type StartLoadingOptions = {
+type StartLoadingOptions<T> = {
   loadingMsg?: string;
-  successMsg?: string;
+  successMsg?: string | ((data: T) => string);
   // Error message is not controllable, toasting is shown
   // if directly thrown error or return ActionFailedResponse
 };
@@ -22,7 +22,7 @@ type LoadingContextType = {
   isPending: boolean;
   startLoading: <T>(
     action: () => Promise<ActionResponse<T>>,
-    options?: StartLoadingOptions
+    options?: StartLoadingOptions<T>
   ) => Promise<T>;
 };
 
@@ -42,12 +42,9 @@ export default function LoadingProvider({ children }: { children: ReactNode }) {
 
   const startLoading = <T,>(
     action: () => Promise<ActionResponse<T>>,
-    options: StartLoadingOptions = {}
+    options: StartLoadingOptions<T> = {}
   ): Promise<T> => {
-    const {
-      loadingMsg = "操作中...",
-      successMsg = "操作成功！",
-    } = options;
+    const { loadingMsg = "操作中...", successMsg = "操作成功！" } = options;
 
     setSpinningMsg(loadingMsg);
 
@@ -60,9 +57,12 @@ export default function LoadingProvider({ children }: { children: ReactNode }) {
             throw new Error(result.msg);
           }
 
-          toast.success(successMsg);
+          toast.success(
+            typeof successMsg === "string"
+              ? successMsg
+              : successMsg(result.data)
+          );
           resolve(result.data);
-        
         } catch (error) {
           toast.dismiss();
           if (error instanceof Error) {
@@ -85,7 +85,7 @@ export default function LoadingProvider({ children }: { children: ReactNode }) {
           {spinningMsg && (
             <>
               <Loader2 className="h-16 w-16 animate-spin text-primary" />
-              <p>{spinningMsg}</p>
+              <p className="bg-background">{spinningMsg}</p>
             </>
           )}
         </div>

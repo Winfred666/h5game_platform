@@ -59,6 +59,7 @@ export const ALL_NAVPATH = {
     game_tag: {name:"按tag搜游戏", href:(tagId: number) => `/games?tag=${tagId}`},
     game_name: {name:"按名称搜游戏", href:(name: string) => `/games?name=${name}`},
     game_id: {name:"指定id游戏", href:(id: number) => `/games/${id}`},
+    game_id_unaudit: {name:"指定id未审核游戏", href:(id: number) => `/games/unaudit/${id}`},
     upload: {name:"上传", href:"/upload"},
     game_update: {name:"更新游戏", href:(id: number) => `/upload/${id}`},
     community: {name:"社区", href:"/community"},

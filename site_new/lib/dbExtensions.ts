@@ -142,3 +142,20 @@ export const UserExtension = Prisma.defineExtension({
     },
   },
 });
+
+
+export const TagExtension = Prisma.defineExtension({
+  query: {
+    tag: {
+      async findMany({ args, query }) {
+        return query({
+          ...args,
+          where: {
+            hide: false, // only return visible tags
+            ...args.where,
+          }
+        })
+      }
+    }
+  }
+})

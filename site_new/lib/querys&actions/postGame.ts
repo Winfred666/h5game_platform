@@ -138,9 +138,6 @@ export const updateGameAction = buildServerAction(
           },
         },
       },
-      omit: {
-        isPrivate: false,
-      },
     });
 
     // 2. validate game ownership

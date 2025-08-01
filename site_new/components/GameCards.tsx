@@ -14,13 +14,20 @@ import { useRouter } from "next/navigation";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { PaginationWithLinks } from "./ui/pagination-with-link";
 
-type GameCardProps ={
-  game: IGame;
-  small: false;
-} | {
-  game: {id: number, title: string, coverImage:string},
-  small: true;
-}
+type GameCardProps =
+  | {
+      game: IGame;
+      small: false;
+    }
+  | {
+      game: {
+        id: number;
+        title: string;
+        coverImage: string;
+        isMeOrAdmin: boolean;
+      };
+      small: true;
+    };
 
 interface GameCardsProps {
   games: IGame[]; // Assuming a post-processed game type
@@ -29,15 +36,21 @@ interface GameCardsProps {
   totalCount?: number;
 }
 
-export function GameCard({ game, small}: GameCardProps) {
+export function GameCard({ game, small }: GameCardProps) {
   const router = useRouter();
   return (
     <Card
       key={`game_${game.id}`}
-      className={`py-0 gap-0 ${small ? 'w-48 lg:w-56' : 'w-72 lg:w-80'} 
+      className={`py-0 gap-0 ${small ? "w-48 lg:w-56" : "w-72 lg:w-80"} 
                   group overflow-hidden transition-shadow hover:shadow-md
                   cursor-pointer`}
-      onClick={() => router.push(ALL_NAVPATH.game_id.href(game.id))}
+      onClick={() =>
+        router.push(
+          small && game.isMeOrAdmin
+            ? ALL_NAVPATH.game_id_unaudit.href(game.id)
+            : ALL_NAVPATH.game_id.href(game.id)
+        )
+      }
     >
       {/* Image Section */}
       <div className="w-full relative aspect-video">
@@ -96,34 +109,30 @@ export default function GameCards({
   games,
   currentPage,
   pageSize,
-  totalCount
+  totalCount,
 }: GameCardsProps) {
   const showPagination =
     currentPage !== undefined &&
     totalCount &&
     pageSize &&
     totalCount > pageSize;
-    
+
   // console.log(`Current Page: ${currentPage}, Page Size: ${pageSize}, Total Games: ${totalCount}, ${showPagination}`);
   return (
     // The main container, using Tailwind classes directly
     <>
       <div className="flex flex-wrap gap-6 justify-center lg:justify-start">
         {games.map((game) => (
-          <GameCard 
-            key={`game_${game.id}`}
-            game={game}
-            small={false}
-          />
+          <GameCard key={`game_${game.id}`} game={game} small={false} />
         ))}
       </div>
 
       {showPagination ? (
-          <PaginationWithLinks
-            page={currentPage}
-            pageSize={pageSize}
-            totalCount={totalCount}
-          />
+        <PaginationWithLinks
+          page={currentPage}
+          pageSize={pageSize}
+          totalCount={totalCount}
+        />
       ) : null}
     </>
   );

@@ -2,7 +2,7 @@ import "server-only";
 
 import { PrismaClient } from "@prisma/client";
 import * as Minio from "minio";
-import { GameExtension, UserExtension } from "./dbExtensions";
+import { GameExtension, TagExtension, UserExtension } from "./dbExtensions";
 import { MINIO_BUCKETS } from "./clientConfig";
 
 // This declaration extends the global scope with our prisma instance.
@@ -38,7 +38,8 @@ function createExtendedPrismaClient() {
     },
   })
     .$extends(GameExtension)
-    .$extends(UserExtension);
+    .$extends(UserExtension)
+    .$extends(TagExtension);
   // TODO: add an admin user account when deploying to production(seed db)
 }
 

@@ -107,7 +107,7 @@ export default function GameForm({
     gameForm.reset();
     // jump to game preview page (private, need token)
     setTimeout(() => {
-      router.replace(ALL_NAVPATH.game_id.href(gameId));
+      router.replace(ALL_NAVPATH.game_id_unaudit.href(gameId));
     }, 1000);
   };
 

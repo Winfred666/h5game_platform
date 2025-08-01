@@ -53,13 +53,26 @@ export const getAllUsersWithQQ = buildServerQuery([], async () => {
   });
 });
 
+// could be admin or me.
+export const getSelfUserById = buildServerQuery([IntOrMeSchema], async (userId) => {});
+
+
+// also two version for self and other user avatar.
 export const getUserById = buildServerQuery([IntOrMeSchema], async (userId) => {
   // 1. if using authProtectedModule, this is protected and any unauthorized access will throw error.
   // so only try to get user session if userId is not 'me'.
   let isAdmin = false;
   let isMe = false;
+  let userSession:
+    | {
+        id: number;
+        name: string;
+        isAdmin: boolean;
+      }
+    | undefined;
+
   try {
-    const userSession = await authProtectedModule(false);
+    userSession = await authProtectedModule(false);
     if (userId === "me") {
       userId = userSession.id; // if userId is 'me', use current user's id
     }
@@ -71,32 +84,33 @@ export const getUserById = buildServerQuery([IntOrMeSchema], async (userId) => {
 
   // 2. If admin or viewing own profile, include private games
   const hasPrivilege = isAdmin || isMe;
-  return db.user
-    .findUnique({
-      where: { id: userId },
-      include: {
-        games: {
-          select: {
-            ...IncludeGames.include.games.select,
-            isPrivate: hasPrivilege,
-          },
-          where: hasPrivilege ? {} : IncludeGames.include.games.where, // if not admin or self, only return public games
+  const curUser = await db.user.findUnique({
+    where: { id: userId },
+    include: {
+      games: {
+        select: {
+          ...IncludeGames.include.games.select,
+          isPrivate: hasPrivilege,
         },
+        where: hasPrivilege ? {} : IncludeGames.include.games.where, // if not admin or self, only return public games
       },
-    })
-    .then(async (user) => {
-      if (!user) {
-        if (isMe) { // if userId is 'me' and not found, sign out
-          return redirect(ALL_NAVPATH.auto_signout.href);
-        }
-        throw new Error("未找到该用户");
-      }
-      return {
-        ...user,
-        isAdmin,
-        isMe,
-      };
-    });
+    },
+    omit:{
+      isAdmin: false, // return isAdmin only if admin or self
+    }
+  });
+  if (userSession && (!curUser || curUser.name !== userSession.name || curUser)) {
+    if (isMe) {
+      // if userId is 'me' and not found, sign out
+      return redirect(ALL_NAVPATH.auto_signout.href);
+    }
+    throw new Error("未找到该用户");
+  }
+  return {
+    ...curUser,
+    isAdmin,
+    isMe,
+  };
 });
 
 // only used for search, not include user_game.

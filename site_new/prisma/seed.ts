@@ -138,7 +138,7 @@ async function uploadFakeImageAndConvertToWebP(
     {
       method: "GET",
       headers: {
-        Accept: "image/avif", // Specify the image type you want
+        Accept: "image/webp", // Specify the image type you want
       },
     }
   ).then((res) => {
