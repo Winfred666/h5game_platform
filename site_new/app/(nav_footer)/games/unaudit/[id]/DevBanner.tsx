@@ -23,7 +23,7 @@ export default function DevBanner({
         <>
           <AlertTriangle className="h-4 w-4" />
           <span>
-            正在浏览您未审核游戏的页面，仅开发者可见，可提醒 QQ
+            正在浏览您未审核游戏的页面，仅开发者或管理员可见，可提醒 QQ
             群管理员审核。
           </span>
         </>

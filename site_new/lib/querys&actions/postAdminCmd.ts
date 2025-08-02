@@ -93,6 +93,31 @@ export const deleteTagAction = buildServerAction(
   }
 );
 
+export const changeTagNameAction = buildServerAction(
+  [IntSchema, TagSchema],
+  async (tagId: number, tagName: string) => {
+    // 1. check user is admin
+    await authProtectedModule(true);
+
+    // 2. check tag exists
+    const tag = await db.tag.findUnique({
+      where: { id: tagId },
+    });
+    if (!tag) throw Error("所改标签不存在");
+
+    // 3. update tag name
+    await db.tag.update({
+      where: { id: tagId },
+      data: { name: tagName },
+    });
+
+    // 4. revalidate admin tag list page
+    revalidatePath(ALL_NAVPATH.admin_tags.href);
+    revalidatePath(ALL_NAVPATH.upload.href);
+    revalidatePath(ALL_NAVPATH.home.href());
+  }
+);
+
 export const addTagAction = buildServerAction(
   [TagSchema],
   async (tagName: string) => {
@@ -113,6 +138,7 @@ export const addTagAction = buildServerAction(
     // 4. revalidate admin tag list page
     revalidatePath(ALL_NAVPATH.admin_tags.href);
     revalidatePath(ALL_NAVPATH.upload.href);
+    revalidatePath(ALL_NAVPATH.home.href());
 
     return newTag;
   }

@@ -10,14 +10,13 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
-// import CommentCards from "@/components/CommentCards";
 import { UserThumbnail } from "@/components/UserListItem";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import Link from "next/link";
-import { getUserById } from "@/lib/querys&actions/getUser";
+import { getPublicUserById } from "@/lib/querys&actions/getUser";
 import { GameCard } from "@/components/GameCards";
 import CommentCards from "@/components/CommentCards";
+import { IUser } from "@/lib/types/iuser";
 
 function UserGameCards({
   games,
@@ -35,7 +34,7 @@ function UserGameCards({
         >
           <GameCard game={{ ...game, isMeOrAdmin }} small />
           {isMeOrAdmin && (
-            <Link href={ALL_NAVPATH.game_id.href(game.id) + "/update"}>
+            <Link href={ALL_NAVPATH.game_update.href(game.id)}>
               <Button variant="secondary" className="mt-2 w-full">
                 修改
               </Button>
@@ -47,28 +46,24 @@ function UserGameCards({
   );
 }
 
-export default async function UserPage({
-  params,
+export async function UserPage({
+  user,
+  isMe,
+  isAdmin,
+  unauditGames,
 }: {
-  params: Promise<{ userId: string }>;
+  user: IUser;
+  isMe: boolean;
+  isAdmin: boolean;
+  unauditGames?: { id: number; title: string; coverImage: string }[];
 }) {
-  const { userId } = await params;
-  const user = await getUserById(userId); // auto handle 404
-  // console.log(user);
-  const unauditGames = user.games.filter((game) => game.isPrivate); // Fetch unaudited games only if it's the user's own page
-  const publicGames = user.games.filter((game) => !game.isPrivate);
-  // const comments = useCommentsByUserId(userId);
-
-  // when visit me page, check whether session outdated by the way
-  
-
   return (
     <main className="max-w-full lg:w-4xl mx-auto py-8 px-4">
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <UserThumbnail user={user} size="large" />
-            {user.isMe && (
+            {isMe && (
               <>
                 <Button asChild className=" ml-4">
                   <Link href={ALL_NAVPATH.user_update.href}>
@@ -76,7 +71,7 @@ export default async function UserPage({
                     编辑个人信息
                   </Link>
                 </Button>
-                {user.isAdmin && (
+                {isAdmin && (
                   <Button asChild>
                     <Link href={ALL_NAVPATH.admin_review.href}>
                       <ShieldCheck className="mr-1 h-4 w-4" />
@@ -116,9 +111,7 @@ export default async function UserPage({
                   <tbody>
                     {user.contacts.map((contact, index) => (
                       <tr key={`contact_${index}`}>
-                        <th className="text-primary mr-2">
-                          {contact.way}
-                        </th>
+                        <th className="text-primary mr-2">{contact.way}</th>
                         <td>{contact.content}</td>
                       </tr>
                     ))}
@@ -134,18 +127,24 @@ export default async function UserPage({
             {/* --- Developed Games --- */}
             <div>
               <h3 className="font-semibold mb-3">上传游戏</h3>
-              {publicGames.length > 0 ? (
-                <UserGameCards games={publicGames} isMeOrAdmin={user.isMe || user.isAdmin} />
+              {user.games.length > 0 ? (
+                <UserGameCards
+                  games={user.games}
+                  isMeOrAdmin={isMe || isAdmin}
+                />
               ) : (
                 <p>该开发者尚未上传任何游戏。</p>
               )}
             </div>
 
             {/* --- Unaudited Games (Visible to self + admin) --- */}
-            {(user.isMe || user.isAdmin) && unauditGames.length > 0 && (
+            {(isMe || isAdmin) && unauditGames && unauditGames.length > 0 && (
               <div className="my-4">
                 <h3 className="font-semibold mb-3">待审核游戏</h3>
-                <UserGameCards games={unauditGames} isMeOrAdmin={user.isMe || user.isMe || user.isAdmin} />
+                <UserGameCards
+                  games={unauditGames}
+                  isMeOrAdmin={isMe || isAdmin}
+                />
               </div>
             )}
 
@@ -160,3 +159,19 @@ export default async function UserPage({
     </main>
   );
 }
+
+// WARNING: this is the tourist page.
+export default async function PublicUserPage({
+  params,
+}: {
+  params: Promise<{ userId: string }>;
+}) {
+  const { userId } = await params;
+  const user = await getPublicUserById(userId); // auto handle 404
+  // console.log(user);
+  // const comments = useCommentsByUserId(userId);
+  // when visit user id page, only show public games.
+  return <UserPage user={user} isMe={false} isAdmin={false} />;
+}
+
+export const dynamic= "force-static"; // force static generation for user page, no need to revalidate

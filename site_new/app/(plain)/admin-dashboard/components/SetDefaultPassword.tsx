@@ -23,8 +23,10 @@ export default function SetDefaultPasswordButton() {
       <Label>修改新成员默认密码：</Label>
       <Input
         onChange={(e) => setPassword(e.target.value)}
+        value={password}
         type="password"
         placeholder="新的默认密码，需告知新成员"
+        autoComplete="new-password"
       />
       <Button variant="outline" onClick={handleSetDefaultPassword}>
         设置

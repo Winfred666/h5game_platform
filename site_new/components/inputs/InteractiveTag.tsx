@@ -54,7 +54,7 @@ export function DeletableTags({
   emptyText = "没有选择开发者",
 }: {
   selectedTags: IGameTag[];
-  onDelete: (tagId: number) => void;
+  onDelete: (tag: IGameTag) => void;
   emptyText?: string;
 }) {
   if (selectedTags.length === 0) {
@@ -74,7 +74,7 @@ export function DeletableTags({
           <X
             onClick={(e) => {
               e.stopPropagation(); // Prevent badge click event
-              onDelete(tag.id);
+              onDelete(tag);
             }}
             className=" icon-sm h-5 w-5"
           />

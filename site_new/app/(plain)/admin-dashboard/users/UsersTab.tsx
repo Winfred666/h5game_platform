@@ -21,9 +21,13 @@ import {
   editUserAction,
 } from "@/lib/querys&actions/postAdminCmd";
 import SetDefaultPasswordButton from "../components/SetDefaultPassword";
+import { useRouter } from "next/navigation";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 
 export default function UsersTab({ users }: { users: IUserAdmin[] }) {
   // State management
+  const router = useRouter();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [userToEdit, setUserToEdit] = useState<IUserAdmin | undefined>();
@@ -67,6 +71,7 @@ export default function UsersTab({ users }: { users: IUserAdmin[] }) {
           users={filteredUsers}
           onEdit={setUserToEdit}
           onDelete={setUserToDelete}
+          onView={(user)=> router.push(ALL_NAVPATH.profile.href(user.id))}
         />
       </div>
       {/* Dialogs are now clean, single-line components */}

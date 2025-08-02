@@ -56,22 +56,30 @@ export const GAME_PAGE_SIZE = 30;
 
 export const ALL_NAVPATH = {
     home: {name:"浏览", href:(page?:number) => `/${page? "?page=" + page : ""}`}, // default to home page
+    
     game_tag: {name:"按tag搜游戏", href:(tagId: number) => `/games?tag=${tagId}`},
     game_name: {name:"按名称搜游戏", href:(name: string) => `/games?name=${name}`},
     game_id: {name:"指定id游戏", href:(id: number) => `/games/${id}`},
+    
     game_id_unaudit: {name:"指定id未审核游戏", href:(id: number) => `/games/unaudit/${id}`},
     upload: {name:"上传", href:"/upload"},
     game_update: {name:"更新游戏", href:(id: number) => `/upload/${id}`},
+    
     community: {name:"社区", href:"/community"},
-    profile: {name:"个人中心", href:"/user/me"}, // there is actually no "me" router, middleware will handle it to my user_id
+    // there is actually no "me" router, middleware will handle it to my user_id
     user_id: {name:"指定id用户", href:(id: number) => `/user/${id}`},
+    
+    // user_id is public, but profile and user_update are protected
+    profile: {name:"个人中心", href:(idOrMe:number|"me") => `/user/self/${idOrMe}`},
     user_update: {name:"更新个人信息", href:"/user/update"},
+    
     login: {name:"登录", href:(callback?:string)=> callback ? `/login?callback=${encodeURIComponent(callback)}` : "/login"},
     not_found: {name: "404", href:"/not-found"},
-    not_found_user: {name: "404", href:"/not-found/user"},
+
     admin_review: {name:"审核发布", href:"/admin-dashboard/review"},
     admin_games: {name:"游戏列表", href:"/admin-dashboard/games"},
     admin_users: {name:"用户列表", href:"/admin-dashboard/users"},
     admin_tags: {name:"标签管理", href:"/admin-dashboard/tags"},
+    
     auto_signout: {name:"手动登出", href:"/logout"}, // this is a route handler, not a page
   }

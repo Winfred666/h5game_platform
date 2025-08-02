@@ -59,7 +59,7 @@ export default function UserUpdateForm({
   });
 
   const onSubmit = async (values: UserUpdateFormInputType) => {
-    console.log(values);
+    // console.log(values);
     const curUserId = await startLoading(
       () => selfUpdateUserAction(objectToFormData(values)),
       {

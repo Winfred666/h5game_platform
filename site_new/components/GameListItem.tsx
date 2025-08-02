@@ -39,7 +39,8 @@ export function GameListAdmin({ games, renderActions, actionsInfo }: GameListAdm
   const router = useRouter();
   return (
     <div className=" bg-card round-lg shadow-sm p-4 text-card-foreground">
-      <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 items-center px-4 py-1">
+      <div className="grid grid-cols-[2fr_1fr_1fr_1fr_1fr] gap-4 items-center px-4 py-1 
+      border-b font-semibold text-muted-foreground text-sm">
         <h4>游戏概要</h4>
         <h4>标签</h4>
         <h4>包体大小</h4>

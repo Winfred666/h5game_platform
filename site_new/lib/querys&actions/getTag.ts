@@ -4,8 +4,6 @@ import { buildServerQuery } from "../services/builder";
 import { IntSchema, StringSchema } from "../types/zparams";
 import { db } from "../dbInit";
 
-
-
 export const getAllTags = cache(buildServerQuery([], () => db.tag.findMany()));
 
 // WARNING: using undefined (not found, not error) if cannot find tag.

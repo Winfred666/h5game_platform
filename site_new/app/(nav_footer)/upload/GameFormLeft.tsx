@@ -145,9 +145,9 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
                 }
               >
                 <DeletableTags
-                  onDelete={(tagId) =>
+                  onDelete={(tag) =>
                     onChange(
-                      value.filter((dev: { id: number }) => dev.id !== tagId)
+                      value.filter((dev: { id: number }) => dev.id !== tag.id)
                     )
                   }
                   selectedTags={value}

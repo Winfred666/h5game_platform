@@ -55,13 +55,16 @@ export const getPublicGameById = buildServerQuery(
 
 // TODO: for private game, give token to visit private minio bucket here.
 export const getSelfGameById = buildServerQuery([IntSchema], async (id) => {
+  const userSession = await authProtectedModule(false);
+  
   const game = await db.game.findUnique({
     where: { id, isPrivate: undefined },
     ...IncludeDeveloperTag,
   }); // could search private game if has privilege
 
   if (!game) return game; // return null instead of call notFound(equal to throw error)
-  const userSession = await authProtectedModule(false);
+  // console.log(userSession ,game);
+  
   if (
     userSession.isAdmin ||
     game.developers.some((dev) => dev.id === userSession.id)

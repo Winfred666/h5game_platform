@@ -34,6 +34,7 @@ export function SearchHeader({
             className="pl-8"
             value={searchValue}
             onChange={(e) => onSearchChange(e.target.value)}
+            autoComplete="off"
           />
         </div>
         {children}

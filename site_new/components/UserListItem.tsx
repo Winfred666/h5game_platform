@@ -1,7 +1,7 @@
 import { IUserAdmin } from "@/lib/types/iuser";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Pencil, Trash2, UserRound } from "lucide-react";
+import { Eye, Pencil, Trash2, UserRound } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ interface AdminUserListItemProps {
   user: IUserAdmin;
   onEdit: (user: IUserAdmin) => void;
   onDelete: (user: IUserAdmin) => void;
+  onView: (user: IUserAdmin) => void;
 }
 
 export function UserThumbnail({
@@ -53,10 +54,12 @@ export function UserListAdmin({
   users,
   onEdit,
   onDelete,
+  onView,
 }: {
   users: IUserAdmin[];
   onEdit: (user: IUserAdmin) => void;
   onDelete: (user: IUserAdmin) => void;
+  onView: (user: IUserAdmin) => void;
 }) {
   return (
     <div className="bg-card rounded-lg shadow-sm p-4 text-card-foreground">
@@ -77,6 +80,7 @@ export function UserListAdmin({
             user={user}
             onEdit={onEdit}
             onDelete={onDelete}
+            onView={onView}
           />
         ))
       ) : (
@@ -90,6 +94,7 @@ export function UserListAdmin({
 
 function AdminUserListItem({
   user,
+  onView,
   onEdit,
   onDelete,
 }: AdminUserListItemProps) {
@@ -107,7 +112,11 @@ function AdminUserListItem({
           {user.isAdmin ? "Admin" : "User"}
         </Badge>
       </div>
-      <div className="flex justify-center gap-1">
+      <div className="flex justify-center gap-4">
+        <Button variant="ghost" size="icon" onClick={()=>onView(user)}>
+          <Eye className="h-4 w-4" />
+          <span className="sr-only">查看</span>
+        </Button>
         <Button variant="ghost" size="icon" onClick={() => onEdit(user)}>
           <Pencil className="h-4 w-4" />
           <span className="sr-only">编辑</span>

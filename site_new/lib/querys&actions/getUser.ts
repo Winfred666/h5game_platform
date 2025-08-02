@@ -4,7 +4,7 @@ import { ALL_NAVPATH } from "../clientConfig";
 // getUser should wrap in cache for frequently auth
 import { db } from "../dbInit";
 import { authProtectedModule, buildServerQuery } from "../services/builder";
-import { IntOrMeSchema, StringSchema } from "../types/zparams";
+import { IntOrMeSchema, IntSchema, StringSchema } from "../types/zparams";
 
 const IncludeGames = {
   include: {
@@ -54,64 +54,63 @@ export const getAllUsersWithQQ = buildServerQuery([], async () => {
 });
 
 // could be admin or me.
-export const getSelfUserById = buildServerQuery([IntOrMeSchema], async (userId) => {});
+export const getSelfUserById = buildServerQuery(
+  [IntOrMeSchema],
+  async (userId) => {
+    // 1. check user session
+    const userSession = await authProtectedModule(false);
 
-
-// also two version for self and other user avatar.
-export const getUserById = buildServerQuery([IntOrMeSchema], async (userId) => {
-  // 1. if using authProtectedModule, this is protected and any unauthorized access will throw error.
-  // so only try to get user session if userId is not 'me'.
-  let isAdmin = false;
-  let isMe = false;
-  let userSession:
-    | {
-        id: number;
-        name: string;
-        isAdmin: boolean;
-      }
-    | undefined;
-
-  try {
-    userSession = await authProtectedModule(false);
+    // 2. set isMe and isAdmin flags
+    const isAdmin = userSession.isAdmin;
+    let isMe = false;
     if (userId === "me") {
       userId = userSession.id; // if userId is 'me', use current user's id
+      isMe = userId === userSession.id;
     }
-    isAdmin = userSession.isAdmin;
-    isMe = userSession.id === userId;
-  } catch (err) {
-    if (userId === "me") throw err;
-  }
 
-  // 2. If admin or viewing own profile, include private games
-  const hasPrivilege = isAdmin || isMe;
-  const curUser = await db.user.findUnique({
-    where: { id: userId },
-    include: {
-      games: {
-        select: {
-          ...IncludeGames.include.games.select,
-          isPrivate: hasPrivilege,
-        },
-        where: hasPrivilege ? {} : IncludeGames.include.games.where, // if not admin or self, only return public games
-      },
-    },
-    omit:{
-      isAdmin: false, // return isAdmin only if admin or self
+    if (!isMe && !isAdmin) {
+      // if not admin or self, redirect to home page
+      throw Error("没有权限查看该用户信息");
     }
-  });
-  if (userSession && (!curUser || curUser.name !== userSession.name || curUser)) {
-    if (isMe) {
-      // if userId is 'me' and not found, sign out
+
+    // 3. get user from db
+    const curUser = await db.user.findUnique({
+      where: { id: userId },
+      include: {
+        games: {
+          select: {
+            ...IncludeGames.include.games.select,
+            isPrivate: true,
+          },
+          // select private games if admin or self
+        },
+      },
+      omit: {
+        isAdmin: false,
+      },
+    });
+
+    // 4. redirect to logout if session mismatch with db. (invalid session)
+    if (!curUser || (isMe && userSession.name !== curUser.name)
+      || (isMe && userSession.isAdmin !== curUser.isAdmin)) {
       return redirect(ALL_NAVPATH.auto_signout.href);
     }
-    throw new Error("未找到该用户");
+
+    // 5. return user with flags
+    return {
+      ...curUser,
+      isAdmin,
+      isMe,
+    };
   }
-  return {
-    ...curUser,
-    isAdmin,
-    isMe,
-  };
-});
+);
+
+export const getPublicUserById = buildServerQuery([IntSchema], (userId) =>
+  db.user.findUnique({
+    where: { id: userId },
+    ...IncludeGames, // default include public games only
+  })
+);
 
 // only used for search, not include user_game.
 export const getUsersByNameOrQQ = buildServerQuery([StringSchema], (name_qq) =>

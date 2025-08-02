@@ -102,7 +102,7 @@ export default function NavBar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className=" lg:w-48" align="end" forceMount>
             <DropdownMenuItem
-              onClick={() => router.push(ALL_NAVPATH.profile.href)}
+              onClick={() => router.push(ALL_NAVPATH.profile.href("me"))}
             >
               <User className="mr-2 h-4 w-4" />
               <span>个人主页</span>

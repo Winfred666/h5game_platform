@@ -35,15 +35,17 @@ const middlewareAuth = async (
 export const config = {
   matcher: [
     // only check the protected route
-    "/user/me:path*",
+    "/user/update",
+    "/user/self/:path*",
     "/upload/:path*",
     "/admin-dashboard/:path*",
     "/login/:path*",
+    "/game/unaudit/:path*",
   ],
 };
 
-const userProtectedRoutes = ["/upload", "/user/me"];
-const adminProtectedRoutes = ["/admin"];
+const userProtectedRoutes = ["/game/unaudit", "/upload", "/user/self", "/user/update"];
+const adminProtectedRoutes = ["/admin-dashboard"];
 
 export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
