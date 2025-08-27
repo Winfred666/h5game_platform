@@ -36,7 +36,7 @@ const uploadZipContents = async (
   // 1. Get a clean list of all file objects to be uploaded (excluding directories)
   // console.log("Try upload zip content!");
   const filesToUpload = Object.values(zip.files).filter((file) => !file.dir);
-  console.log(zip.name, `has ${filesToUpload.length} files to upload.`);
+  // console.log(zip.name, `has ${filesToUpload.length} files to upload.`);
 
   if (filesToUpload.length === 0) {
     console.log("No files to upload in the ZIP archive.");
@@ -84,7 +84,8 @@ const uploadZipContents = async (
 
     await Promise.all(uploadPromises);
     uploadedCount += chunk.length;
-    console.log(`Uploaded ${uploadedCount} / ${filesToUpload.length} files...`);
+    if (process.env.NODE_ENV !== "production")
+      console.log(`Uploaded ${uploadedCount} / ${filesToUpload.length} files...`);
   }
 
   console.log(

@@ -1,11 +1,11 @@
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Cloud, Eye, Laptop } from "lucide-react"; // Added Trash2 icon
 import { IGame, IGameAdmin } from "@/lib/types/igame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import React from "react";
 import GameTags from "./GameTags";
 import { Button } from "./ui/button";
+import Link from "next/link";
 
 type GameListAdminProps = {
   games: IGameAdmin[];
@@ -35,12 +35,17 @@ export const GameThumbnail = ({ game }: { game: IGame }): React.ReactNode => {
   );
 };
 
-export function GameListAdmin({ games, renderActions, actionsInfo }: GameListAdminProps) {
-  const router = useRouter();
+export function GameListAdmin({
+  games,
+  renderActions,
+  actionsInfo,
+}: GameListAdminProps) {
   return (
     <div className=" bg-card round-lg shadow-sm p-4 text-card-foreground">
-      <div className="grid grid-cols-[3fr_2fr_1fr_1fr_1fr_2fr] gap-4 items-center px-4 py-1 
-      border-b font-semibold text-muted-foreground text-sm">
+      <div
+        className="grid grid-cols-[3fr_2fr_1fr_1fr_1fr_2fr] gap-4 items-center px-4 py-1 
+      border-b font-semibold text-muted-foreground text-sm"
+      >
         <h4>游戏概要</h4>
         <h4>标签</h4>
         <h4>包体大小</h4>
@@ -73,12 +78,10 @@ export function GameListAdmin({ games, renderActions, actionsInfo }: GameListAdm
 
             {/* Right side: Dynamic Actions */}
             <div className="justify-self-end flex items-center gap-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => router.push(ALL_NAVPATH.game_id_unaudit.href(game.id))}
-              >
-                <Eye className="h-4 w-4"/>
+              <Button variant="outline" size="icon" asChild>
+                <Link href={ALL_NAVPATH.game_id_unaudit.href(game.id)}>
+                  <Eye className="h-4 w-4" />
+                </Link>
               </Button>
               {renderActions(game)}
             </div>

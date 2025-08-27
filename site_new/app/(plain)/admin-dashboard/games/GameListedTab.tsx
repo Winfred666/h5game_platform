@@ -7,7 +7,6 @@ import { SearchHeader } from "../components/SearchHeader";
 
 import { Button } from "@/components/ui/button";
 import { FilePenLine, Trash2, Undo } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { IGameAdmin } from "@/lib/types/igame";
 import {
@@ -17,6 +16,7 @@ import {
 import { PaginationWithLinks } from "@/components/ui/pagination-with-link";
 import { DeleteObjDialog } from "../components/DeleteObjDialog";
 import { useLoading } from "@/components/LoadingProvider";
+import Link from "next/link";
 
 // Interface definitions
 
@@ -31,7 +31,6 @@ export default function GameListedTab({
   pageSize?: number;
   totalCount?: number;
 }) {
-  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const { startLoading } = useLoading();
 
@@ -86,15 +85,10 @@ export default function GameListedTab({
         games={filteredGames}
         renderActions={(game) => (
           <>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={(e) => {
-                e.stopPropagation();
-                router.push(ALL_NAVPATH.game_update.href(game.id));
-              }}
-            >
-              <FilePenLine className="h-4 w-4" />
+            <Button variant="outline" size="icon" asChild>
+              <Link href={ALL_NAVPATH.game_update.href(game.id)}>
+                <FilePenLine className="h-4 w-4" />
+              </Link>
             </Button>
             <Button
               variant="outline"

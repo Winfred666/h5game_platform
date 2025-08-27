@@ -88,28 +88,33 @@ export function buildServerAction<
       const parsedArgs = schemas.map((schema, index) =>
         processClientWorkload(unkown_args[index], schema)
       );
-      
+
       const result = await dbcore(...(parsedArgs as InferArgs<TSchemas>));
       const plain = convertToPlainObj(result); // ensure result is serializable
-      
-      return { success: true as const, data: plain };
 
+      return { success: true as const, data: plain };
     } catch (err) {
       // 1. Check if the error is a redirect error
-      if (err instanceof Error && (err as any).digest?.startsWith('NEXT_REDIRECT')) {
+      if (
+        err instanceof Error &&
+        (err as any).digest?.startsWith("NEXT_REDIRECT")
+      ) {
         throw err; // Re-throw it to let Next.js handle the redirect
       }
 
       // 2. Check if the error is a notFound error
-      if (err instanceof Error && (err as any).digest?.startsWith('NEXT_NOT_FOUND')) {
+      if (
+        err instanceof Error &&
+        (err as any).digest?.startsWith("NEXT_NOT_FOUND")
+      ) {
         throw err; // Re-throw it to let Next.js show the 404 page
       }
 
       // 3. If it's any other error, handle it as a failure
       if (process.env.NODE_ENV !== "production") console.error("DEBUG:", err);
-      
+
       // 4. for query , not return ActionResponse, just return 404
-      if (isQuery) notFound(); 
+      if (isQuery) notFound();
 
       return {
         success: false,
@@ -137,7 +142,11 @@ export function buildServerQuery<
       true
     )(...unkown_args).then((actionRes) => {
       // for success query, there should not be undefined values
-      if (actionRes.success && actionRes.data) {
+      if (
+        actionRes.success &&
+        actionRes.data !== undefined &&
+        actionRes.data !== null
+      ) {
         return actionRes.data;
       } else {
         return notFound(); // if failed, return 404
@@ -150,7 +159,8 @@ export async function authProtectedModule(isAdmin: boolean) {
   // if isQuery, do not need auth
   const session = await auth();
   // console.log("SESSION: ", session);
-  if (!session || !session.user) { // do not need to check expire, auth() auto handle this
+  if (!session || !session.user) {
+    // do not need to check expire, auth() auto handle this
     throw new Error("请先登录！");
   }
   if (isAdmin && !session.user.isAdmin) {

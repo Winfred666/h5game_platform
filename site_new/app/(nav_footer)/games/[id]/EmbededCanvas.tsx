@@ -4,13 +4,16 @@ import { IOnlineEmbed } from "@/lib/types/igame";
 import { Button } from "@/components/ui/button";
 import { Fullscreen, Play} from "lucide-react";
 import { useWindowSize } from "@/lib/hooks/useBrowser";
+import { increViewsAction } from "@/lib/querys&actions/postViews";
 
 export default function EmbededCanvas({
+  gameId,
   online,
-  cover_img,
+  coverImg,
 }: {
+  gameId: string
   online: IOnlineEmbed;
-  cover_img: string;
+  coverImg: string;
 }) {
   const [is_playing, set_playing] = useState<boolean>(false);
   const [is_fullscreen, set_fullscreen] = useState<boolean>(false);
@@ -67,7 +70,7 @@ export default function EmbededCanvas({
           zIndex: is_fullscreen ? 9999 : 1, // Higher z-index
           width: is_fullscreen ? "100vw" : online.width ? finalWidth : "100%",
           height: is_fullscreen ? "100vh" : online.height ? finalHeight : "30vh",
-          backgroundImage: `url(${cover_img})`,
+          backgroundImage: `url(${coverImg})`,
           backgroundColor: is_fullscreen ? "black" : "transparent", // Black background in fullscreen
         }}
       >
@@ -84,6 +87,7 @@ export default function EmbededCanvas({
             onClick={() => {
               set_fullscreen(!online.height);
               set_playing(true);
+              increViewsAction(gameId)
             }}
           >
             <Play />

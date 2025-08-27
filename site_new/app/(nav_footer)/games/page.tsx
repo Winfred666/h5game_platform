@@ -15,7 +15,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
     tagId ? getGamesByTag(tagId, curPage, GAME_PAGE_SIZE) : [],
     tagId ? getGameByTagCount(tagId) : 0
   ]);
-  
+  // console.log(tagId, tag_name, games_tag);
   // merge the two results
   const games = [...games_name, ...games_tag];
 

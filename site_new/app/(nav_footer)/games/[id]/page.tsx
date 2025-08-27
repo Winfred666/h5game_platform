@@ -8,8 +8,8 @@ import React from "react";
 import { getPublicGameById } from "@/lib/querys&actions/getGame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
 import { IGame } from "@/lib/types/igame";
+import DownloadButton from "./downloadButton";
 
 export function GameIdPage({ game }: { game: IGame }) {
   return (
@@ -35,8 +35,9 @@ export function GameIdPage({ game }: { game: IGame }) {
         {/* Online Game full screen/embed Modal */}
         {game.online ? (
           <EmbededCanvas
+            gameId={game.id}
             online={game.online}
-            cover_img={game.coverImage}
+            coverImg={game.coverImage}
           ></EmbededCanvas>
         ) : (
           <Image
@@ -81,12 +82,7 @@ export function GameIdPage({ game }: { game: IGame }) {
               </div>
               <div>发布日期： {game.createdAt}</div>
             </div>
-            <Button asChild className="w-fit">
-              <Link href={game.downloadUrl}>
-                <Download />
-                下载游戏（{game.size}）
-              </Link>
-            </Button>
+            <DownloadButton game={game}/>
           </div>
 
           {/* Right column - Screenshots */}
