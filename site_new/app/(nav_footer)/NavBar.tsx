@@ -27,8 +27,8 @@ export default function NavBar() {
   const thumbnailUser = session?.user
     ? {
         ...session.user,
-        id: parseInt(session.user.id),
-        avatar: genUserAvatarURL(parseInt(session.user.id)),
+        id: session.user.id,
+        avatar: genUserAvatarURL(session.user.id),
       }
     : undefined;
 
@@ -79,10 +79,10 @@ export default function NavBar() {
         </nav>
 
         {/* 3. 搜索框，高频搜索是唯一需要 API 的客户端组件 */}
-        <SearchBar
+        <SearchBar<IGame>
           thing="game"
           className="lg:w-3/5"
-          renderListItem={(game) => GameThumbnail({ game } as { game: IGame })}
+          renderListItem={(game) => GameThumbnail({ game })}
           onEnter={(term) => router.push(ALL_NAVPATH.game_name.href(term))}
           onSelect={(game) =>
             router.push(ALL_NAVPATH.game_id.href((game as IGame).id))

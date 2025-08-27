@@ -48,3 +48,6 @@ export default async function CommunityPage() {
     </div>
   );
 }
+
+// use revalidatePath + static for any tourist page to speed up
+export const dynamic = "force-static";

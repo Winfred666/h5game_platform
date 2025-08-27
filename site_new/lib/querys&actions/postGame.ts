@@ -10,13 +10,20 @@ import {
   uploadGameFolder,
 } from "../services/uploadGameZip";
 
-import { deleteImageFolder, renameImage, uploadImage } from "../services/uploadImage";
+import {
+  deleteImageFolder,
+  renameImage,
+  uploadImage,
+} from "../services/uploadImage";
 // with this mark every function exported will be server action (for mutate)
 // define server actions here, directly use prisma-client to fetch data from sqlite
-import { GameFormServerSchema, IncreGameFormServerSchema } from "../types/zforms";
-import { IntSchema } from "../types/zparams";
-import { revalidatePath } from "next/cache";
-import { ALL_NAVPATH } from "../clientConfig";
+import {
+  GameFormServerSchema,
+  IncreGameFormServerSchema,
+} from "../types/zforms";
+import { IDSchema } from "../types/zparams";
+import { revalidateAsGameChange } from "../services/revalidate";
+import { authDeveloperofGameOrAdmin } from "../services/authDeveloper";
 
 const validateGameContent = async (
   data: {
@@ -24,7 +31,7 @@ const validateGameContent = async (
     isOnline: boolean;
     uploadfile: File[];
   },
-  curGameId?: number
+  curGameId?: string
 ) => {
   // 3.1 check game title unique, include isPrivate games.
   const existingGame = await db.game.findFirst({
@@ -44,7 +51,6 @@ const validateGameContent = async (
   return zip;
 };
 
-
 // WARNING: Files-first, db last allow us to upload files before inserting game metadata; MinIO naturally replaces objects with same name
 export const submitNewGameAction = buildServerAction(
   [GameFormServerSchema],
@@ -57,7 +63,7 @@ export const submitNewGameAction = buildServerAction(
       data.developers.push({ id: userSession.id });
     }
 
-    // 3. validate game info.
+    // 3. validate game info, zip is optional, only get when online
     const zip = await validateGameContent(data);
 
     // 4. split files from data
@@ -110,7 +116,6 @@ export const submitNewGameAction = buildServerAction(
         uploadImage(MINIO_BUCKETS.IMAGE, `${game.id}/cover.webp`, data.cover[0])
       );
       await Promise.all(promiseList);
-      
     } catch (error) {
       // clean up game metadata if file upload failed
       await db.game.delete({ where: { id: game.id } });
@@ -125,34 +130,10 @@ export const submitNewGameAction = buildServerAction(
 );
 
 export const updateGameAction = buildServerAction(
-  [IntSchema, IncreGameFormServerSchema],
+  [IDSchema, IncreGameFormServerSchema],
   async (gameId, data) => {
-    // 1. Auth users as admin or this game developer
-    const userSession = await authProtectedModule(false); // false means this action do not need admin privilege
-    const oldGame = await db.game.findUnique({
-      where: { id: gameId },
-      include: {
-        developers: {
-          select: {
-            id: true,
-          },
-        },
-      },
-    });
-
-    // 2. validate game ownership
-    if (!oldGame) {
-      throw new Error("游戏不存在或已被删除。");
-    }
-    if (
-      !(
-        userSession.isAdmin ||
-        oldGame.developers.some((dev) => dev.id === userSession.id)
-      )
-    ) {
-      throw new Error("非管理员或作者，无权更新游戏。");
-    }
-
+    // 1,2 get old game, auth user as admin or this game developer
+    const { oldGame } = await authDeveloperofGameOrAdmin(gameId);
     // 3. validate game info.
     const zip = await validateGameContent(data, gameId);
 
@@ -232,9 +213,21 @@ export const updateGameAction = buildServerAction(
       },
     });
 
-    // update old game, need revalidate game page
-    revalidatePath(ALL_NAVPATH.game_id.href(gameId));
+    // need revalidate game page, and the affected developer(newly added or removed)
+    const developers = [
+      ...oldGame.developers.filter(
+        (dev) => !data.developers.some((d) => d.id === dev.id)
+      ),
+      ...data.developers.filter(
+        (dev) => !oldGame.developers.some((d) => d.id === dev.id)
+      ),
+    ];
     
+    revalidateAsGameChange({
+      id: gameId,
+      isPrivate: oldGame.isPrivate,
+      developers,
+    });
     return gameId;
   }
 );

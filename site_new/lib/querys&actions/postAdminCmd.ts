@@ -1,56 +1,116 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { db } from "../dbInit";
 import { authProtectedModule, buildServerAction } from "../services/builder";
 import {
   deleteGameFolder,
   switchBucketGameFolder,
 } from "../services/uploadGameZip";
-import { IntSchema, PasswordSchema, TagSchema } from "../types/zparams";
+import {
+  BooleanSchema,
+  IDArrayStringSchema,
+  IDSchema,
+  PasswordSchema,
+  StringSchema,
+  SwitcherStringSchema,
+  TagSchema,
+} from "../types/zparams";
 import { ALL_NAVPATH, MINIO_BUCKETS } from "../clientConfig";
 import { deleteImageFolder } from "../services/uploadImage";
-import { AddUserServerSchema, UserAdminEditServerSchema } from "../types/zforms";
-import { DEFAULT_HASH_KEY, getConfigurationValue, SALT_ROUNDS, setConfigurationValue } from "../serverConfig";
+import {
+  AddUserServerSchema,
+  UserAdminEditServerSchema,
+} from "../types/zforms";
+import {
+  DEFAULT_HASH_KEY,
+  ENABLE_DAILY_RECOMMENDATION_KEY,
+  getConfigurationValue,
+  SALT_ROUNDS,
+  setConfigurationValue,
+  SWIPER_ID_KEY,
+} from "../serverConfig";
 import bcrypt from "bcryptjs";
+import {
+  revalidateAsGameChange,
+  revalidateAsTagChange,
+  revalidateAsUserChange,
+} from "../services/revalidate";
+import { startAutoTopGamesCalc, stopAutoTopGamesCalc } from "../services/dailyTopGame";
+import { revalidatePath } from "next/cache";
+
+const adminSelectOption = {
+  id: true,
+  isPrivate: true,
+  title: true,
+  developers: { select: { id: true } },
+};
 
 export const approveGameAction = buildServerAction(
-  [IntSchema],
-  async (gameId: number) => {
+  [IDSchema, BooleanSchema],
+  async (gameId, goingToApprove) => {
     // 1. check user is admin, game is private
     await authProtectedModule(true);
     const game = await db.game.findUnique({
-      where: { id: gameId, isPrivate: true },
-      select: { id: true, isPrivate: true },
+      where: { id: gameId, isPrivate: undefined },
+      select: adminSelectOption,
     });
 
-    if (!game || !game.isPrivate) throw Error("所选游戏不存在或已经审核");
+    if (
+      !game ||
+      (!game.isPrivate && goingToApprove) ||
+      (game.isPrivate && !goingToApprove)
+    )
+      throw Error(`所选游戏不存在或${goingToApprove ? "已审核" : "尚未审核"}`);
 
-    // 2. move game from UNAUDIT bucket to GAME bucket
+    // 2. switch game from UNAUDIT bucket to GAME bucket or from GAME to UNAUDIT
     await switchBucketGameFolder(game);
 
     // 3. update game isPrivate to false
     await db.game.update({
       where: { id: gameId },
-      data: { isPrivate: false },
+      data: { isPrivate: !game.isPrivate },
     });
 
     // 4. revalidate admin game list page
-    revalidatePath(ALL_NAVPATH.admin_review.href);
+    revalidateAsGameChange({ id: gameId, isPrivate: true, developers: [] });
+    revalidateAsGameChange({
+      id: gameId,
+      isPrivate: false,
+      developers: game.developers,
+    });
+  }
+);
+
+export const setAutoTopGameAction = buildServerAction(
+  [SwitcherStringSchema],
+  async (enabler) => {
+    await setConfigurationValue(ENABLE_DAILY_RECOMMENDATION_KEY, enabler);
+    if(enabler === "0"){
+      stopAutoTopGamesCalc();
+    } else {
+      await startAutoTopGamesCalc();
+    }
     revalidatePath(ALL_NAVPATH.admin_games.href);
   }
 );
 
+export const updateTopGameAction = buildServerAction([IDArrayStringSchema],
+  async (gameIds)=>{
+   await setConfigurationValue(SWIPER_ID_KEY, gameIds);
+   revalidatePath(ALL_NAVPATH.admin_games.href);
+   revalidatePath(ALL_NAVPATH.home.href());
+})
+
 export const deleteGameAction = buildServerAction(
-  [IntSchema],
-  async (gameId: number) => {
+  [IDSchema],
+  async (gameId) => {
     // 1. check user is admin
     await authProtectedModule(true);
 
     // 2. find game
     const game = await db.game.findUnique({
       where: { id: gameId, isPrivate: undefined },
-      select: { id: true, title: true, isPrivate: true },
+      select: adminSelectOption,
     });
     if (!game) throw Error("所删游戏不存在");
 
@@ -65,61 +125,82 @@ export const deleteGameAction = buildServerAction(
     await deleteImageFolder(MINIO_BUCKETS.IMAGE, `${gameId}/`);
 
     // 6. revalidate admin game list page
-    revalidatePath(
-      game.isPrivate
-        ? ALL_NAVPATH.admin_review.href
-        : ALL_NAVPATH.admin_games.href
-    );
-    console.log(`Game deleted: ${game.title} (ID: ${game.id})`);
+    revalidateAsGameChange(game);
+    // console.log(`Game deleted: ${game.title} (ID: ${game.id})`);
   }
 );
 
 // WARNING: should not delete tag, only decide whether to let it becomes options when uploading game.
-export const deleteTagAction = buildServerAction(
-  [IntSchema],
-  async (tagId: number) => {
-    // 1. check user is admin
-    await authProtectedModule(true);
+export const deleteTagAction = buildServerAction([IDSchema], async (tagId) => {
+  // 1. check user is admin
+  await authProtectedModule(true);
+  // 1.5 get games using this tag (for revalidation)
+  const tagWithGames = await db.tag.findUnique({
+    where: { id: tagId },
+    include: { games: { select: { id: true, isPrivate: true } } },
+  });
+  // 2. delete tag
+  const tag = await db.tag.deleteMany({
+    where: { id: tagId },
+  });
+  if (tag.count === 0) throw Error("所删标签不存在");
+  // 3. revalidate admin tag list page
+  revalidateAsTagChange(tagWithGames?.games || []);
+});
 
-    // 2. delete tag
-    const tag = await db.tag.deleteMany({
-      where: { id: tagId },
-    });
-    if (tag.count === 0) throw Error("所删标签不存在");
-
-    // 3. revalidate admin tag list page
-    revalidatePath(ALL_NAVPATH.admin_tags.href);
-    revalidatePath(ALL_NAVPATH.upload.href);
-  }
-);
-
-export const changeTagNameAction = buildServerAction(
-  [IntSchema, TagSchema],
-  async (tagId: number, tagName: string) => {
+export const changeTagAction = buildServerAction(
+  [IDSchema, TagSchema],
+  async (tagId, { name: newName, hide: newHide }) => {
     // 1. check user is admin
     await authProtectedModule(true);
 
     // 2. check tag exists
-    const tag = await db.tag.findUnique({
+    const oldTag = await db.tag.findUnique({
       where: { id: tagId },
-    });
-    if (!tag) throw Error("所改标签不存在");
-
-    // 3. update tag name
-    await db.tag.update({
-      where: { id: tagId },
-      data: { name: tagName },
+      include: { games: { select: { id: true, isPrivate: true } } }, // need games for merging tags
     });
 
-    // 4. revalidate admin tag list page
-    revalidatePath(ALL_NAVPATH.admin_tags.href);
-    revalidatePath(ALL_NAVPATH.upload.href);
-    revalidatePath(ALL_NAVPATH.home.href());
+    if (!oldTag) throw Error("所改标签不存在");
+
+    // 3. if the name is repeated, then merge the two tags.
+    const existingTag = await db.tag.findUnique({
+      where: { name: newName },
+    });
+    const shouldMerge = existingTag && existingTag.id !== tagId;
+    if (shouldMerge) {
+      // 3.1 merge tags to the existing one
+      if (oldTag.games.length > 0)
+        await db.tag.update({
+          where: { id: existingTag.id },
+          data: {
+            games: {
+              connect: oldTag.games.map((game) => ({ id: game.id })),
+            },
+          },
+        });
+      // 3.2 delete the old tag
+      await db.tag.delete({
+        where: { id: tagId },
+      });
+    } else {
+      // 4. just update tag's name and hide state if not merged
+      await db.tag.update({
+        where: { id: tagId },
+        data: {
+          name: newName,
+          hide: newHide,
+        },
+      });
+    }
+
+    // 5. revalidate admin tag list page
+    revalidateAsTagChange(oldTag.name !== newName ? oldTag.games : []);
+    return `${shouldMerge ? "合并" : "修改"}标签成功！`;
   }
 );
 
 export const addTagAction = buildServerAction(
-  [TagSchema],
+  [StringSchema],
   async (tagName: string) => {
     // 1. check user is admin
     await authProtectedModule(true);
@@ -136,10 +217,7 @@ export const addTagAction = buildServerAction(
     });
 
     // 4. revalidate admin tag list page
-    revalidatePath(ALL_NAVPATH.admin_tags.href);
-    revalidatePath(ALL_NAVPATH.upload.href);
-    revalidatePath(ALL_NAVPATH.home.href());
-
+    revalidateAsTagChange();
     return newTag;
   }
 );
@@ -147,7 +225,6 @@ export const addTagAction = buildServerAction(
 export const addUsersAction = buildServerAction(
   [AddUserServerSchema],
   async (data) => {
-    
     // 1. check user is admin
     await authProtectedModule(true);
 
@@ -166,7 +243,7 @@ export const addUsersAction = buildServerAction(
 
     // 4. prepared default hash for new users
     const hash = await getConfigurationValue(DEFAULT_HASH_KEY);
-    
+
     // 5. create new users in a batch, if any
     if (usersToCreate.length > 0) {
       await db.user.createMany({
@@ -178,24 +255,24 @@ export const addUsersAction = buildServerAction(
     }
 
     // 6. revalidate admin user list page
-    revalidatePath(ALL_NAVPATH.admin_users.href);
-    revalidatePath(ALL_NAVPATH.community.href);
-
+    revalidateAsUserChange();
     return usersToCreate.length;
   }
 );
 
-export const editUserAction = buildServerAction([UserAdminEditServerSchema],
-  async (data)=> {
+export const editUserAction = buildServerAction(
+  [UserAdminEditServerSchema],
+  async (data) => {
     // 1. check user is admin
     await authProtectedModule(true);
     // 2. validate: prevent qq duplication
     const existingUser = await db.user.findUnique({
       where: { qq: data.qq },
-      select: { id:true, name: true },
+      select: { id: true, name: true },
     });
-    if (existingUser && existingUser.id !== data.id) throw Error(`QQ 号 ${data.qq} 已被用户 ${existingUser.name} 使用。`);
-    
+    if (existingUser && existingUser.id !== data.id)
+      throw Error(`QQ 号 ${data.qq} 已被用户 ${existingUser.name} 使用。`);
+
     // 3. deal with passwordReset
     let hash: string | undefined;
     if (data.resetPassword) {
@@ -213,21 +290,25 @@ export const editUserAction = buildServerAction([UserAdminEditServerSchema],
     });
 
     // 5. revalidate admin user list page
-    revalidatePath(ALL_NAVPATH.admin_users.href);
-    revalidatePath(ALL_NAVPATH.user_id.href(data.id));
+    revalidateAsUserChange(data.id);
   }
 );
 
 export const deleteUserAction = buildServerAction(
-  [IntSchema],
-  async (userId: number) => {
+  [IDSchema],
+  async (userId) => {
     // 1. check user is admin
     await authProtectedModule(true);
 
     // 2. find user
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { id: true, qq: true, name: true },
+      select: {
+        id: true,
+        qq: true,
+        name: true,
+        games: { select: { id: true, isPrivate: true } },
+      },
     });
     if (!user) throw Error("所删用户不存在");
 
@@ -237,8 +318,7 @@ export const deleteUserAction = buildServerAction(
     });
 
     // 4. revalidate admin user list page
-    revalidatePath(ALL_NAVPATH.admin_users.href);
-    revalidatePath(ALL_NAVPATH.community.href);
+    revalidateAsUserChange(userId, user.games);
     // if we use optimize static generatin, need to revalidate even game page too.
   }
 );

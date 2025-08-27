@@ -12,38 +12,67 @@ declare global {
   // The global object is not affected by Hot Module Replacement (HMR).
   var prisma: ReturnType<typeof createExtendedPrismaClient> | undefined;
   var minio: Minio.Client | undefined;
-  // var relationFields: Map<string, string[]> | undefined;
+  var topGamesInitialized: boolean | undefined;
 }
 
 // If globalThis.prisma exists, use it. Otherwise, create a new PrismaClient.
 // This prevents creating new connections on every hot-reload in development.
 export const db = globalThis.prisma || createExtendedPrismaClient();
-export const minio = globalThis.minio || (await createMinioClient());
 
-// In non-production environments, we assign the client to the global object.
-if (process.env.NODE_ENV !== "production") {
-  globalThis.prisma = db;
-  globalThis.minio = minio;
+// Only initialize once using global flag
+if (!globalThis.topGamesInitialized) {
+  globalThis.topGamesInitialized = true;
+  setTimeout(async () => {
+    try {
+      const { startAutoTopGamesCalc } = await import("./services/dailyTopGame");
+      await startAutoTopGamesCalc();
+    } catch (error) {
+      console.error('❌ Failed to start top games calculation:', error);
+      globalThis.topGamesInitialized = false; // Reset on failure
+    }
+  }, 3000);
 }
 
+// Add lazy minio getter
+let _minioClient: Minio.Client | undefined;
+export async function getMinio(): Promise<Minio.Client | undefined> {
+  if (_minioClient) return _minioClient;
+  if (globalThis.minio) {
+    _minioClient = globalThis.minio;
+    return _minioClient;
+  }
+  _minioClient = await createMinioClient();
+  return _minioClient;
+}
+
+  
+
 function createExtendedPrismaClient() {
-  return new PrismaClient({
+  const prisma = new PrismaClient({
     omit: {
       user: {
         hash: true, // ALWAYS omit password hash
-        qq: true,   // omit qq number for security, only admin can see it
+        qq: true, // omit qq number for security, only admin can see it
         isAdmin: true,
       },
       // need to expose game.isPrivate for smart URL gen.
+      tag: {
+        hide: true, // hide is only for admin
+      }
     },
   })
     .$extends(GameExtension)
     .$extends(UserExtension)
     .$extends(TagExtension);
-  // TODO: add an admin user account when deploying to production(seed db)
+    
+  // Fix: assign to global BEFORE returning
+  if (process.env.NODE_ENV !== "production") {
+    globalThis.prisma = prisma;
+  }
+  
+  return prisma;
 }
 
-// 创建 MinIO 客户端实例的函数
 async function createMinioClient(): Promise<Minio.Client | undefined> {
   if (!process.env.MINIO_ENDPOINT) {
     throw new Error("MINIO_ENDPOINT is not defined in environment variables");
@@ -61,18 +90,28 @@ async function createMinioClient(): Promise<Minio.Client | undefined> {
     for (const bucketName of Object.values(MINIO_BUCKETS)) {
       // 1. 检查存储桶是否存在
       const exists = await client.bucketExists(bucketName);
-      if(!exists) {
+      if (!exists) {
         console.log(`Creating bucket: ${bucketName}`);
         await client.makeBucket(bucketName); // self-host, no need to specify region
         // 2. 设置访问策略
-        const policy = generateBucketPolicy(bucketName, accessKey,  bucketName === MINIO_BUCKETS.UNAUDIT_GAME);
+        const policy = generateBucketPolicy(
+          bucketName,
+          accessKey,
+          bucketName === MINIO_BUCKETS.UNAUDIT_GAME
+        );
         await client.setBucketPolicy(bucketName, JSON.stringify(policy));
       }
     }
     console.log("✅ MinIO connection + bucket check successful");
+    
+    // Fix: assign the client, not undefined minio variable
+    if (process.env.NODE_ENV !== "production") {
+      globalThis.minio = client;
+    }
+    
     return client;
   } catch (error) {
-    console.error("❌ MinIO connection failed",error);
+    console.error("❌ MinIO connection failed", error);
     if (process.env.NODE_ENV === "production")
       throw new Error("Failed to connect to MinIO or bucket does not exist");
   }
@@ -101,25 +140,24 @@ function generateBucketPolicy(
 
   // 2. 私有桶的特殊配置
   if (isPrivate) {
-    // 禁止公开访问（核心安全措施）
-    policy.Statement.push(
-      // 2. 禁止匿名访问
-      {
-        Effect: "Deny",
-        Principal: "*",
-        Action: "s3:*",
-        Condition: {
-          StringNotLike: {
-            // MinIO兼容的认证标记
-            "s3:authType": ["RSA-COMMON"],
-          },
-        },
-        Resource: [
-          `arn:aws:s3:::${bucketName}`,
-          `arn:aws:s3:::${bucketName}/*`,
-        ],
-      }
-    );
+    policy.Statement.push({
+      Effect: "Allow",
+      Principal: { AWS: ["*"] },
+      Action: ["s3:GetObject"],
+      Resource: [objectArn],
+    });
+    // // TODO: 禁止公开访问（核心安全措施），实现困难，just using semi-public
+    // policy.Statement.push({
+    //   Effect: "Deny",
+    //   Principal: "*",
+    //   Action: ["s3:*"],
+    //   Resource: [bucketArn, objectArn],
+    //   Condition: {
+    //     Bool: {
+    //       "aws:SecureTransport": "false",
+    //     },
+    //   },
+    // });
   } else {
     // 3. 公共读取权限（如果不是私有桶）
     policy.Statement.push({

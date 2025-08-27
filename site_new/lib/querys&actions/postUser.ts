@@ -1,6 +1,4 @@
 "use server";
-
-import { revalidatePath } from "next/cache";
 import { db } from "../dbInit";
 import { authProtectedModule, buildServerAction } from "../services/builder";
 import { UserUpdateFormServerSchema } from "../types/zforms";
@@ -8,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { MINIO_BUCKETS } from "../clientConfig";
 import { SALT_ROUNDS } from "../serverConfig";
 import { uploadImage } from "../services/uploadImage";
-import { ALL_NAVPATH } from "../clientConfig";
+import { revalidateAsUserChange } from "../services/revalidate";
 
 export const selfUpdateUserAction = buildServerAction(
   [UserUpdateFormServerSchema],
@@ -43,9 +41,21 @@ export const selfUpdateUserAction = buildServerAction(
       data: dataWithoutFile,
     });
 
+    let changedUserGames;
+
+    if ( sessionUser.name !== data.name ){
+      changedUserGames = (await db.user.findUnique({
+        where: { id: sessionUser.id },
+        select: {
+          games: {
+            select: { id: true, isPrivate: true },
+          },
+        }
+      }))?.games ?? undefined;
+    }
+
     // 5. revalidate the path to refresh the user data
-    revalidatePath(ALL_NAVPATH.user_id.href(sessionUser.id));
-    
+    revalidateAsUserChange(sessionUser.id, changedUserGames);
     // 6. need client to update the session (authSQL jwt() callback with 'update' trigger).
     return sessionUser.id;
   }

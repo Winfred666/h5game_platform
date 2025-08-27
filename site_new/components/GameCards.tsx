@@ -20,10 +20,7 @@ type GameCardProps =
       small: false;
     }
   | {
-      game: {
-        id: number;
-        title: string;
-        coverImage: string;
+      game: Pick<IGame, "id" | "title" | "coverImage"> & {
         isMeOrAdmin: boolean;
       };
       small: true;

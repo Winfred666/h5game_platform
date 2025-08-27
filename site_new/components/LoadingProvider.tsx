@@ -6,6 +6,8 @@ import {
   useTransition,
   ReactNode,
   useState,
+  useCallback,
+  useMemo,
 } from "react";
 import { Loader2 } from "lucide-react";
 import { ActionResponse } from "@/lib/types/iaction";
@@ -40,43 +42,52 @@ export default function LoadingProvider({ children }: { children: ReactNode }) {
   const [isPending, startTransition] = useTransition();
   const [spinningMsg, setSpinningMsg] = useState<string | undefined>();
 
-  const startLoading = <T,>(
-    action: () => Promise<ActionResponse<T>>,
-    options: StartLoadingOptions<T> = {}
-  ): Promise<T> => {
-    const { loadingMsg = "操作中...", successMsg = "操作成功！" } = options;
+  const startLoading = useCallback(
+    <T,>(
+      action: () => Promise<ActionResponse<T>>,
+      options: StartLoadingOptions<T> = {}
+    ): Promise<T> => {
+      const { loadingMsg = "操作中...", successMsg = "操作成功！" } = options;
 
-    setSpinningMsg(loadingMsg);
+      setSpinningMsg(loadingMsg);
 
-    // we wrap the action in a promise to handle loading state
-    return new Promise<T>((resolve, reject) => {
-      startTransition(async () => {
-        try {
-          const result = await action();
-          if (!result.success) {
-            throw new Error(result.msg);
+      // we wrap the action in a promise to handle loading state
+      return new Promise<T>((resolve, reject) => {
+        startTransition(async () => {
+          try {
+            const result = await action();
+            if (!result.success) {
+              throw new Error(result.msg);
+            }
+
+            toast.success(
+              typeof successMsg === "string"
+                ? successMsg
+                : successMsg(result.data)
+            );
+            resolve(result.data);
+          } catch (error) {
+            toast.dismiss();
+            if (error instanceof Error) {
+              toast.error("提交失败", { description: error.message });
+            } else {
+              toast.error("网络错误，请稍后再试。");
+            }
+            reject(error);
           }
-
-          toast.success(
-            typeof successMsg === "string"
-              ? successMsg
-              : successMsg(result.data)
-          );
-          resolve(result.data);
-        } catch (error) {
-          toast.dismiss();
-          if (error instanceof Error) {
-            toast.error("提交失败", { description: error.message });
-          } else {
-            toast.error("网络错误，请稍后再试。");
-          }
-          reject(error);
-        }
+        });
       });
-    });
-  };
+    },
+    [startTransition]
+  );
+
+  const value = useMemo(
+    () => ({ isPending, startLoading }),
+    [isPending, startLoading]
+  );
+
   return (
-    <LoadingContext.Provider value={{ isPending, startLoading }}>
+    <LoadingContext.Provider value={value}>
       {isPending && (
         <div
           className="fixed inset-0 bg-background/60 z-60 flex 

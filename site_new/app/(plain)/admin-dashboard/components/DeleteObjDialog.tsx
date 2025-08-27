@@ -47,7 +47,7 @@ export function DeleteObjDialog<Obj extends { name: string }>({
         <AlertDialogHeader>
           <AlertDialogTitle>删除{thing}</AlertDialogTitle>
           <AlertDialogDescription>
-            确定要删除 {obj.name}？此操作无法撤销，请谨慎操作。
+            确定要删除 {obj.name}？此操作无法撤销，请谨慎操作！
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

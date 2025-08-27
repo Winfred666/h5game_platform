@@ -8,7 +8,6 @@ import * as Minio from "minio";
 // awesome that next.js 15 has sharp built-in, webp is a great format for images
 import sharp from "sharp";
 
-
 // WARNING: all use default environment variables, do not set in .env (.env is for production)
 const DEFAULT_PASSWORD = "password123"; // WARNING: Only for development, do not use in production
 const ADMIN_QQ = "10000000"; // Default admin QQ, used for the first user
@@ -71,6 +70,7 @@ async function createMinioClient(): Promise<Minio.Client | undefined> {
     throw new Error("Failed to connect to MinIO or bucket does not exist");
   }
 }
+
 function generateBucketPolicy(
   bucketName: string,
   adminAccessKey: string,
@@ -81,7 +81,7 @@ function generateBucketPolicy(
 
   const policy = {
     Version: "2012-10-17",
-    Statement: [] as unknown[],
+    Statement: [] as any[],
   };
 
   // 1. 管理员权限（保持不变）
@@ -94,25 +94,12 @@ function generateBucketPolicy(
 
   // 2. 私有桶的特殊配置
   if (isPrivate) {
-    // 禁止公开访问（核心安全措施）
-    policy.Statement.push(
-      // 2. 禁止匿名访问
-      {
-        Effect: "Deny",
-        Principal: "*",
-        Action: "s3:*",
-        Condition: {
-          StringNotLike: {
-            // MinIO兼容的认证标记
-            "s3:authType": ["RSA-COMMON"],
-          },
-        },
-        Resource: [
-          `arn:aws:s3:::${bucketName}`,
-          `arn:aws:s3:::${bucketName}/*`,
-        ],
-      }
-    );
+    policy.Statement.push({
+      Effect: "Allow",
+      Principal: { AWS: ["*"] },
+      Action: ["s3:GetObject"],
+      Resource: [objectArn],
+    });
   } else {
     // 3. 公共读取权限（如果不是私有桶）
     policy.Statement.push({
@@ -177,7 +164,7 @@ async function main() {
   console.log("🧹 Deleting existing data...");
   // To avoid foreign key constraint errors, we must delete models
   // that have relations to other models first. Comment depends on User and Game.
-  await prisma.comment.deleteMany();
+  // await prisma.comment.deleteMany();
   await prisma.game.deleteMany(); // Deleting a game will also clear implicit relations
   await prisma.user.deleteMany(); // Deleting a user will also clear implicit relations
   await prisma.tag.deleteMany();
@@ -221,11 +208,31 @@ async function main() {
   const hashedPassword = await bcrypt.hash(DEFAULT_PASSWORD, saltRounds);
   console.log(`🔑 Default password for all users is "${DEFAULT_PASSWORD}"`);
 
+  // SET DEFAULT HASH / SWIPER / DAILY_RECOMMAND ...
+  await prisma.configuration.create({
+    data: {
+      key: "DEFAULT_HASH",
+      value: hashedPassword,
+    },
+  });
+  await prisma.configuration.create({
+    data: {
+      key: 'SWIPER_ID',
+      value: ""
+    }
+  });
+  await prisma.configuration.create({
+    data:{
+      key: 'ENABLE_DAILY_RECOMMENDATION',
+      value: "1"
+    }
+  });
+
   for (let i = 0; i < 15; i++) {
     const hasAvatar = faker.datatype.boolean(0.5); // 50% chance of having an avatar
     const user = await prisma.user.create({
       data: {
-        qq: i==0 ? ADMIN_QQ : faker.string.uuid(), // Using UUID for guaranteed uniqueness
+        qq: i == 0 ? ADMIN_QQ : faker.string.uuid(), // Using UUID for guaranteed uniqueness
         name: faker.person.fullName(),
         introduction: faker.lorem.sentence(),
         hash: hashedPassword,
@@ -287,7 +294,6 @@ async function main() {
         isPrivate: faker.datatype.boolean(0.2), // 20% chance of being private
         size: faker.number.int({ min: 50, max: 5 * 1024 }), // 50MB to 5GB
         views: faker.number.int({ min: 0, max: 100000 }),
-        downloads: faker.number.int({ min: 0, max: 25000 }),
         screenshotCount: screenshotCount,
 
         // --- RELATIONAL FIELDS ---
@@ -335,27 +341,27 @@ async function main() {
   // ----------------------------------------
   // SEED COMMENTS (NEW)
   // ----------------------------------------
-  console.log("💬 Seeding comments...");
-  let commentsCreated = 0;
-  if (createdGames.length > 0 && createdUsers.length > 0) {
-    for (let i = 0; i < 100; i++) {
-      const randomUser = faker.helpers.arrayElement(createdUsers);
-      const randomGame = faker.helpers.arrayElement(createdGames);
+  // console.log("💬 Seeding comments...");
+  // let commentsCreated = 0;
+  // if (createdGames.length > 0 && createdUsers.length > 0) {
+  //   for (let i = 0; i < 100; i++) {
+  //     const randomUser = faker.helpers.arrayElement(createdUsers);
+  //     const randomGame = faker.helpers.arrayElement(createdGames);
 
-      await prisma.comment.create({
-        data: {
-          content: faker.lorem.paragraph(),
-          userId: randomUser.id,
-          gameId: randomGame.id,
-          // Or connect via relation
-          // user: { connect: { id: randomUser.id } },
-          // game: { connect: { id: randomGame.id } },
-        },
-      });
-      commentsCreated++;
-    }
-  }
-  console.log(`✅ ${commentsCreated} comments created.`);
+  //     await prisma.comment.create({
+  //       data: {
+  //         content: faker.lorem.paragraph(),
+  //         userId: randomUser.id,
+  //         gameId: randomGame.id,
+  //         // Or connect via relation
+  //         // user: { connect: { id: randomUser.id } },
+  //         // game: { connect: { id: randomGame.id } },
+  //       },
+  //     });
+  //     commentsCreated++;
+  //   }
+  // }
+  // console.log(`✅ ${commentsCreated} comments created.`);
 
   console.log("✨ Seeding finished.");
 }

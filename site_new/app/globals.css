@@ -196,6 +196,10 @@ th,td {
   @apply active:bg-primary/30;
 }
 
+.badge-button {
+  @apply cursor-pointer rounded-full bg-primary-active hover:bg-primary-accent active:bg-primary-active;
+}
+
 .navbar-active-button {
   @apply border-b-4 border-primary pt-[4px];
   bottom: -1px;

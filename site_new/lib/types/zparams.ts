@@ -1,17 +1,33 @@
 import { z } from "zod";
 
 // zod schema protect on server side.
-//zparams means schema for search params.
+// zparams means schema for search params.
 
-export const IntSchema = z.coerce.number().int().nonnegative();
-export const StringSchema = z.string().min(1, "输入词不能为空");
-export const TagSchema = StringSchema.max(20, "标签长度不能超过20个字符");
+// IntSchema is deprecated because id is string now.
+// export const IntSchema = z.coerce.number().int().nonnegative();
+export const PositiveIntSchema = z.coerce.number().int().positive();
+export const StringSchema = z
+  .string()
+  .min(1, "输入词不能为空")
+  .max(100, "输入词长度不能超过100个字符")
+  .trim();
+export const IDSchema = z.string().cuid(); // or z.string().uuid()
+
+export const SwitcherStringSchema = z.union([z.literal("0"), z.literal("1")]);
+export const IDArrayStringSchema = z
+  .string()
+  .refine((str) =>
+    str.split(",").every((id) => IDSchema.safeParse(id).success)
+  );
+
 export const BooleanSchema = z.coerce.boolean().default(false);
 
-export const IntOrMeSchema = z.union([
-  IntSchema,
-  z.literal('me')
-]);
+export const TagSchema = z.object({
+  name: StringSchema.max(20, "标签长度不能超过20个字符"),
+  hide: BooleanSchema,
+});
+
+export const IDOrMeSchema = z.union([z.literal("me"), IDSchema]);
 
 export const PasswordSchema = z
   .string({ required_error: "密码不能为空" })
@@ -34,7 +50,7 @@ export const QQSchema = z
 
 export const UserSessionSchema = z.object(
   {
-    id: IntSchema,
+    id: IDSchema,
     name: z.string(),
     isAdmin: z.coerce.boolean(),
   },

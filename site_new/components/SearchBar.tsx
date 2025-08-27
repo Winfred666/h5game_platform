@@ -3,14 +3,11 @@ import useSearchOptions_debounce from "@/lib/hooks/useSearchOptions";
 import { Command, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { CommandEmpty, CommandLoading } from "cmdk";
 import { useEffect, useRef, useState } from "react";
-import { IGame } from "@/lib/types/igame";
-import { IUser } from "@/lib/types/iuser";
 import { useOutsideClick } from "@/lib/hooks/useBrowser";
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 
-type OptionType = IGame | IUser;
-export default function SearchBar({
+export default function SearchBar<OptionType extends {id:string}>({
   thing,
   renderListItem,
   onSelect,
@@ -18,6 +15,7 @@ export default function SearchBar({
   onBlur,
   className = "",
   listClassName = "",
+  disabled,
 }: {
   thing: "game" | "user";
   renderListItem: (item: OptionType) => React.ReactNode;
@@ -26,6 +24,7 @@ export default function SearchBar({
   onBlur?: () => void;
   className?: string; // for custom styling
   listClassName?: string; // for custom styling of the list
+  disabled?: boolean
 }) {
   const { searchOptions, searchTerm, setSearchTerm, isLoading } =
     useSearchOptions_debounce(thing);
@@ -66,6 +65,7 @@ export default function SearchBar({
             onValueChange={(content) => {
               setSearchTerm(content);
             }}
+            disabled={disabled}
             onFocus={() => setShowList(true)}
             onBlur={onBlur ?? undefined}
             ref={inputRef}

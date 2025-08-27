@@ -16,7 +16,7 @@ datasource db {
 
 // schema.prisma
 model Game {
-  id          Int      @id @default(autoincrement())
+  id          String   @id @default(cuid()) // or @default(uuid())
   title       String   @unique
   isOnline    Boolean  @map("is_online") // true if the game can be played online.
   width       Int?
@@ -26,11 +26,13 @@ model Game {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   
-  isPrivate   Boolean  @default(true) @map("is_private")
-  
+  // WARNING: a minimun protect: use private postfix to avoid URL guessing download by bots.
+  isPrivate   Boolean  @default(true) @map("is_private") // true if the game is private.
+
   size        Int                  // Store in byte, disply in MB, max 1 GB.
-  views       Int      @default(0) // incremented when the game is viewed.
-  downloads   Int      @default(0) // incremented when the game is downloaded.
+  views       Int      @default(0) // incremented when the game is started(online) or downloaded(both online and offline).
+  // downloads rate, pretty small.
+  // downloads   Int      @default(0) // incremented when the game is downloaded.
   
   // store webp, only need to record number of screenshots.
   screenshotCount Int @map("screenshot_count")
@@ -40,14 +42,14 @@ model Game {
   // tags        String  
   tags        Tag[]
   developers  User[]
-  comments    Comment[]
+  // comments    Comment[]
   @@map("game")
   // Indexes, for performance. WARNING: add `WHERE is_private = false;` when migrate
   // @@index([createdAt])
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
+  id            String  @id @default(cuid()) // or @default(uuid())
   qq            String  @unique
   name          String
   
@@ -55,13 +57,13 @@ model User {
   // only postfix of the avatar image, store webp. avatar URL
   hasAvatar     Boolean @default(false) @map("has_avatar") // true if the user has an avatar.
   // avatarPostfix String  @map("avatar_postfix")
-  contacts       String  @default("")  // like "QQ:xxx,phone:xxx,"
+  contacts      String  @default("")  // like "QQ:xxx,phone:xxx,"
   hash          String  // salted hashed password, not stored in plain text.
   isAdmin       Boolean @default(false) @map("is_admin") // true if the user is an admin.
-  createdAt    DateTime @default(now()) @map("created_at")
+  createdAt     DateTime @default(now()) @map("created_at")
   // --- RELATIONAL FIELDS ---
   games         Game[]
-  comments      Comment[]
+  // comments      Comment[]
   @@map("user")
 }
 
@@ -69,33 +71,34 @@ model User {
 // more of a time we just want to hide it from uploader instead of deleting it.
 
 model Tag {
-  id        Int    @id @default(autoincrement())
-  name      String @unique // e.g., "Action", "Puzzle", "RPG"
+  id        String  @id @default(cuid()) // or @default(uuid())
+  name      String  @unique // e.g., "Action", "Puzzle", "RPG"
   // -- RELATIONAL FIELDS ---
   hide      Boolean @default(false)
   games     Game[]
   @@map("tag")
 }
 
-model Comment {
-  id      Int    @id @default(autoincrement())
-  content String
-  createdAt DateTime @default(now()) @map("created_at")
-  userId  Int @map("user_id")
-  gameId  Int @map("game_id")
+// model Comment {
+//   id      String   @id @default(cuid())
+//   content String
+//   createdAt DateTime @default(now()) @map("created_at")
+//   userId  String   @map("user_id")
+//   gameId  String   @map("game_id")
   
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+//   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+//   game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
   
-  @@index([userId])
-  @@index([gameId])
-
-  @@map("comment")
-}
+//   @@index([userId])
+//   @@index([gameId])
+//   @@map("comment")
+// }
 
 // for configuration
 
 model Configuration {
   key   String @id @unique
   value String
+
+  @@map("configuration")
 }

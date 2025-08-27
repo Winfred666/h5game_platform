@@ -61,7 +61,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           throw new Error("密码错误");
         }
         return {
-          id: user.id.toString(),
+          id: user.id,
           isAdmin: user.isAdmin,
           name: user.name,
         };
@@ -81,7 +81,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (trigger === "update" && token.id) {
         // receive from db
         const curUser = await db.user.findUnique({
-          where: {id: parseInt(token.id)},
+          where: {id: token.id},
           select: {
             id: true,
             isAdmin: true,
@@ -89,7 +89,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           },
         });
         if(curUser){
-          token.id = curUser.id.toString();
+          token.id = curUser.id;
           token.isAdmin = curUser.isAdmin;
           token.name = curUser.name; // update name if changed
         }

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { IOnlineEmbed } from "@/lib/types/igame";
 import { Button } from "@/components/ui/button";
-import { Fullscreen, Play, X } from "lucide-react";
+import { Fullscreen, Play} from "lucide-react";
 import { useWindowSize } from "@/lib/hooks/useBrowser";
 
 export default function EmbededCanvas({

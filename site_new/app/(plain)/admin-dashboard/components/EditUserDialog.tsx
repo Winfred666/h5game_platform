@@ -18,7 +18,7 @@ import { ActionResponse } from "@/lib/types/iaction";
 
 // Let's define a type for the data we send back
 interface UserUpdatePayload {
-  id: number;
+  id: string;
   qq: string;
   isAdmin: boolean;
   // Let parent handle password encryption

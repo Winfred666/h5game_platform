@@ -18,7 +18,7 @@ export function UserThumbnail({
   shrinkName = false,
   size = "default",
 }: {
-  user?: { id: number; name: string; avatar?: string };
+  user?: Pick<IUserAdmin, "id" | "name" | "avatar">;
   className?: string;
   shrinkName?: boolean;
   size?: "default" | "large";

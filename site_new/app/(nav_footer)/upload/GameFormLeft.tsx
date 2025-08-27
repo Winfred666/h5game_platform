@@ -147,17 +147,17 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
                 <DeletableTags
                   onDelete={(tag) =>
                     onChange(
-                      value.filter((dev: { id: number }) => dev.id !== tag.id)
+                      value.filter((dev) => dev.id !== tag.id)
                     )
                   }
                   selectedTags={value}
                   emptyText="没有选择协作者"
                 />
-                <SearchBar
+                <SearchBar<IUser>
                   thing="user"
                   onSelect={(user) => {
                     if (
-                      value.some((dev: { id: number }) => dev.id === user.id)
+                      value.some((dev) => dev.id === user.id)
                     ) {
                       toast.warning("开发者已存在于列表中");
                     } else {
@@ -195,7 +195,7 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
                 selectedTagIds={value}
                 onSelect={(tagId) => onChange([...value, tagId])}
                 onCancel={(tagId) =>
-                  onChange(value.filter((id: number) => id !== tagId))
+                  onChange(value.filter((id) => id !== tagId))
                 }
               />
             </FormControl>

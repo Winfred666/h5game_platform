@@ -12,7 +12,6 @@
     "db:reset": "prisma migrate reset --force"
   },
   "dependencies": {
-    "@aws-sdk/client-sts": "^3.848.0",
     "@hookform/resolvers": "^5.1.1",
     "@prisma/client": "^6.10.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",

@@ -4,8 +4,7 @@ import JSZip from "jszip";
 import { MINIO_BUCKETS } from "../clientConfig";
 import { MINIO_CONCURRENT_WORKERS } from "../serverConfig";
 import { lookup } from "mime-types";
-import { minio } from "../dbInit";
-import { Readable } from "stream";
+import { getMinio } from "../dbInit";
 
 // Shared function to load ZIP once
 const loadZipFromFile = async (file: File): Promise<JSZip> => {
@@ -30,20 +29,19 @@ const getMimeType = (filename: string): string => {
 
 // Upload ZIP contents to MinIO
 const uploadZipContents = async (
-  game: { id: number; isPrivate: boolean },
+  game: { id: string; isPrivate: boolean },
   zip: JSZip
 ) => {
+  const minio = await getMinio();
   // 1. Get a clean list of all file objects to be uploaded (excluding directories)
+  // console.log("Try upload zip content!");
   const filesToUpload = Object.values(zip.files).filter((file) => !file.dir);
+  console.log(zip.name, `has ${filesToUpload.length} files to upload.`);
 
   if (filesToUpload.length === 0) {
     console.log("No files to upload in the ZIP archive.");
     return;
   }
-
-  console.log(
-    `Preparing to upload ${filesToUpload.length} files with ${MINIO_CONCURRENT_WORKERS} concurrent workers.`
-  );
 
   const bucketName = game.isPrivate
     ? MINIO_BUCKETS.UNAUDIT_GAME
@@ -63,7 +61,7 @@ const uploadZipContents = async (
         if (!minio) throw new Error("MinIO client not available");
         // --- STREAMING CHANGE ---
         // Get a readable stream instead of a buffer
-        const nodeStream = Readable.fromWeb(file.nodeStream() as any);
+        const nodeStream = file.nodeStream() as any;
         const contentType = getMimeType(file.name);
         const objectName = `${game.id}/${file.name}`;
 
@@ -96,19 +94,20 @@ const uploadZipContents = async (
 
 // Main function to upload game ZIP package
 export const uploadGameFolder = async (
-  game: { id: number; isPrivate: boolean },
+  game: { id: string; isPrivate: boolean },
   file: File,
   zip?: JSZip // if zip is already loaded, means it is an online game with HTML
 ): Promise<void> => {
+  const minio = await getMinio();
   if (!minio) throw new Error("MinIO client not available");
 
   try {
     // 0. Validate HTML in ZIP for online games (not here)
     // 1. Load ZIP once from file
-    const isOnline = zip === undefined;
-    if (!zip) {
-      zip = await loadZipFromFile(file);
-    }
+    const isOnline = zip !== undefined;
+    // if (!zip) {
+    //   zip = await loadZipFromFile(file);
+    // }
 
     // 2. Upload original ZIP file
     const arrayBuffer = await file.arrayBuffer();
@@ -128,7 +127,7 @@ export const uploadGameFolder = async (
       }
     );
 
-    console.log(`DEBUG: Uploaded original ZIP: ${originalZipName}`);
+    console.log(`DEBUG: Uploaded original ZIP: ${originalZipName}, isOnline: ${isOnline}`);
 
     // 3. Extract and upload ZIP contents (reuse loaded ZIP)
     if (isOnline) {
@@ -149,10 +148,11 @@ export const uploadGameFolder = async (
 
 // Helper function to delete game folder (for updates)
 export const deleteGameFolder = async (game: {
-  id: number;
+  id: string;
   isPrivate: boolean;
 }): Promise<void> => {
   try {
+    const minio = await getMinio();
     if (!minio) throw new Error("MinIO client not available");
     const bucket = game.isPrivate
       ? MINIO_BUCKETS.UNAUDIT_GAME
@@ -216,9 +216,10 @@ export const deleteGameFolder = async (game: {
 };
 
 export const switchBucketGameFolder = async (game: {
-  id: number;
+  id: string;
   isPrivate: boolean;
 }) => {
+  const minio = await getMinio();
   if (!minio) throw new Error("MinIO client not available");
   const oldBucket = game.isPrivate
     ? MINIO_BUCKETS.UNAUDIT_GAME

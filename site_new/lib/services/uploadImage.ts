@@ -1,6 +1,6 @@
 "server-only"
 import { MINIO_BUCKETS } from "../clientConfig";
-import { minio } from "../dbInit";
+import { getMinio } from "../dbInit";
 
 import sharp from "sharp";
 
@@ -9,6 +9,7 @@ export async function uploadImage(
   objectName: string,
   file: File,
 ) {
+  const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
   
   // 1. Convert File to ArrayBuffer
@@ -36,11 +37,13 @@ export async function uploadImage(
 
 // delete image from minio
 export async function deleteImage(bucketName: MINIO_BUCKETS, objectName: string) {
+  const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
   await minio.removeObject(bucketName, objectName);
 }
 
 export async function deleteImageFolder(bucketName: MINIO_BUCKETS, folderName: string) {
+  const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
   // List all objects in the specified folder
   const objectsStream = minio.listObjects(bucketName, folderName, true);
@@ -57,6 +60,7 @@ export async function deleteImageFolder(bucketName: MINIO_BUCKETS, folderName: s
 
 // rename image in minio
 export async function renameImage(bucketName: MINIO_BUCKETS, oldObjectName: string, newObjectName: string) {
+  const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
   // Copy the object to the new name
   await minio.copyObject(bucketName, newObjectName, `${bucketName}/${oldObjectName}`);

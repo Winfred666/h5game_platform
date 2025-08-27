@@ -31,4 +31,5 @@ export default async function HomeLayout({
 // use revalidatePath + static for any page 
 // that you want to be fast and cached, 
 // but whose data might change due to user actions (be careful no dynamic auth is used ) 
-export const dynamic = "force-static";
+// export const dynamic = "force-static";
+export const revalidate = 43200;

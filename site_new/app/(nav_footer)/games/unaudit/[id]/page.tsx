@@ -8,6 +8,7 @@ export default async function UnauditGameIdPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  // WARNING: if isPrivate, try to get minio's credentials later in client side.
   const game = await getSelfGameById(id);
   return (
     <>

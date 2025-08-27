@@ -8,14 +8,14 @@ export enum MINIO_BUCKETS{
 };
 
 // savely add private
-export const genGamePlayableURL = (gameId: number, isPrivate: boolean) =>
+export const genGamePlayableURL = (gameId: string, isPrivate: boolean) =>
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/index.html`;
 
-export const genGameCoverURL = (gameId: number) =>
+export const genGameCoverURL = (gameId: string) =>
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.IMAGE}/${gameId}/cover.webp`;
 
 export const genGameScreenshotsURL = (
-  gameId: number,
+  gameId: string,
   screenshotNum: number
 ) => {
   const screenshotsURL = [];
@@ -27,10 +27,10 @@ export const genGameScreenshotsURL = (
   return screenshotsURL;
 };
 
-export const genGameDownloadURL = (gameId: number, isPrivate: boolean) =>
+export const genGameDownloadURL = (gameId: string, isPrivate: boolean) =>
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/game.zip`;
 
-export const genUserAvatarURL = (userId: number) =>
+export const genUserAvatarURL = (userId: string) =>
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.AVATAR}/${userId}.webp`;
 
 
@@ -52,25 +52,25 @@ export const ACCEPTED_IMG_MINE_TYPES = [
   "image/svg+xml",
 ];
 
-export const GAME_PAGE_SIZE = 30;
+export const GAME_PAGE_SIZE = 20;
 
 export const ALL_NAVPATH = {
     home: {name:"浏览", href:(page?:number) => `/${page? "?page=" + page : ""}`}, // default to home page
     
-    game_tag: {name:"按tag搜游戏", href:(tagId: number) => `/games?tag=${tagId}`},
+    game_tag: {name:"按tag搜游戏", href:(tagId: string) => `/games?tag=${tagId}`},
     game_name: {name:"按名称搜游戏", href:(name: string) => `/games?name=${name}`},
-    game_id: {name:"指定id游戏", href:(id: number) => `/games/${id}`},
-    
-    game_id_unaudit: {name:"指定id未审核游戏", href:(id: number) => `/games/unaudit/${id}`},
+    game_id: {name:"指定id游戏", href:(id: string) => `/games/${id}`},
+
+    game_id_unaudit: {name:"指定id未审核游戏", href:(id: string) => `/games/unaudit/${id}`},
     upload: {name:"上传", href:"/upload"},
-    game_update: {name:"更新游戏", href:(id: number) => `/upload/${id}`},
-    
+    game_update: {name:"更新游戏", href:(id: string) => `/upload/${id}`},
+
     community: {name:"社区", href:"/community"},
     // there is actually no "me" router, middleware will handle it to my user_id
-    user_id: {name:"指定id用户", href:(id: number) => `/user/${id}`},
+    user_id: {name:"指定id用户", href:(id: string) => `/user/${id}`},
     
     // user_id is public, but profile and user_update are protected
-    profile: {name:"个人中心", href:(idOrMe:number|"me") => `/user/self/${idOrMe}`},
+    profile: {name:"个人中心", href:(idOrMe:string|"me") => `/user/self/${idOrMe}`},
     user_update: {name:"更新个人信息", href:"/user/update"},
     
     login: {name:"登录", href:(callback?:string)=> callback ? `/login?callback=${encodeURIComponent(callback)}` : "/login"},

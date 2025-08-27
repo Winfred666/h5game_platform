@@ -4,7 +4,7 @@ import { ALL_NAVPATH } from "../clientConfig";
 // getUser should wrap in cache for frequently auth
 import { db } from "../dbInit";
 import { authProtectedModule, buildServerQuery } from "../services/builder";
-import { IntOrMeSchema, IntSchema, StringSchema } from "../types/zparams";
+import { IDOrMeSchema, IDSchema, StringSchema } from "../types/zparams";
 
 const IncludeGames = {
   include: {
@@ -55,7 +55,7 @@ export const getAllUsersWithQQ = buildServerQuery([], async () => {
 
 // could be admin or me.
 export const getSelfUserById = buildServerQuery(
-  [IntOrMeSchema],
+  [IDOrMeSchema],
   async (userId) => {
     // 1. check user session
     const userSession = await authProtectedModule(false);
@@ -105,7 +105,7 @@ export const getSelfUserById = buildServerQuery(
   }
 );
 
-export const getPublicUserById = buildServerQuery([IntSchema], (userId) =>
+export const getPublicUserById = buildServerQuery([IDSchema], (userId) =>
   db.user.findUnique({
     where: { id: userId },
     ...IncludeGames, // default include public games only

@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Edit, ShieldCheck } from "lucide-react";
+import { Calendar, EditIcon, ShieldCheck } from "lucide-react";
 
 // Shadcn/ui Components
 import { Button } from "@/components/ui/button";
@@ -15,14 +15,15 @@ import { ALL_NAVPATH } from "@/lib/clientConfig";
 import Link from "next/link";
 import { getPublicUserById } from "@/lib/querys&actions/getUser";
 import { GameCard } from "@/components/GameCards";
-import CommentCards from "@/components/CommentCards";
+// import CommentCards from "@/components/CommentCards";
 import { IUser } from "@/lib/types/iuser";
+import { IGame } from "@/lib/types/igame";
 
 function UserGameCards({
   games,
   isMeOrAdmin,
 }: {
-  games: { id: number; title: string; coverImage: string }[];
+  games: Pick<IGame, "id" | "title" | "coverImage">[];
   isMeOrAdmin: boolean;
 }) {
   return (
@@ -34,11 +35,9 @@ function UserGameCards({
         >
           <GameCard game={{ ...game, isMeOrAdmin }} small />
           {isMeOrAdmin && (
-            <Link href={ALL_NAVPATH.game_update.href(game.id)}>
-              <Button variant="secondary" className="mt-2 w-full">
-                修改
-              </Button>
-            </Link>
+            <Button asChild variant="secondary" className="mt-2 w-full">
+              <Link href={ALL_NAVPATH.game_update.href(game.id)}>修改</Link>
+            </Button>
           )}
         </div>
       ))}
@@ -55,7 +54,7 @@ export async function UserPage({
   user: IUser;
   isMe: boolean;
   isAdmin: boolean;
-  unauditGames?: { id: number; title: string; coverImage: string }[];
+  unauditGames?: Pick<IGame, "id" | "title" | "coverImage">[];
 }) {
   return (
     <main className="max-w-full lg:w-4xl mx-auto py-8 px-4">
@@ -67,7 +66,7 @@ export async function UserPage({
               <>
                 <Button asChild className=" ml-4">
                   <Link href={ALL_NAVPATH.user_update.href}>
-                    <Edit className="mr-1 h-4 w-4" />
+                    <EditIcon className="mr-1 h-4 w-4" />
                     编辑个人信息
                   </Link>
                 </Button>
@@ -174,4 +173,4 @@ export default async function PublicUserPage({
   return <UserPage user={user} isMe={false} isAdmin={false} />;
 }
 
-export const dynamic= "force-static"; // force static generation for user page, no need to revalidate
+export const dynamic = "force-static"; // force static generation for user page, no need to revalidate

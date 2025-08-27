@@ -9,7 +9,7 @@ import {
   ZipSchema,
 } from "./zfiles";
 import { formDataToObject } from "../utils";
-import { IntSchema, PasswordSchema, QQSchema } from "./zparams";
+import { IDSchema, PasswordSchema, QQSchema } from "./zparams";
 
 // const StringToNumberOptSchema = z
 //   .string()
@@ -24,7 +24,7 @@ import { IntSchema, PasswordSchema, QQSchema } from "./zparams";
 
 const GameFormPrimitiveSchema = z.object({
   // because controlled react component cannot receive undefined as value.
-  title: z.string().min(1, "标题不允许为空").max(20, "标题不能超过20个字符"),
+  title: z.string().min(1, "标题不允许为空").max(50, "标题不能超过50个字符"),
   kind: z
     .enum(["downloadable", "html", ""])
     .refine((k) => k !== "", "请选择游戏类型"),
@@ -46,10 +46,10 @@ const GameFormPrimitiveSchema = z.object({
       "高度必须为正整数"
     ),
   description: z.string(),
-  tags: z.array(z.number()),
+  tags: z.array(IDSchema),
   // need name to show.
   developers: z.array(
-    z.object({ id: z.number().int().nonnegative(), name: z.string() })
+    z.object({ id: IDSchema, name: z.string() })
   ),
   cover: CoverSchema,
   screenshots: z.object({
@@ -96,10 +96,10 @@ const serverGameTransform = (form: GameFormInputType) => {
     isOnline: form.kind === "html",
     width: form.embed_op === "embed_in_page" ? parseInt(form.width) : null,
     height: form.embed_op === "embed_in_page" ? parseInt(form.height) : null,
-    developers: form.developers.map((dev: { id: number }) => ({
+    developers: form.developers.map((dev: { id: string }) => ({
       id: dev.id,
     })),
-    tags: form.tags.map((tagId: number) => ({ id: tagId })),
+    tags: form.tags.map((tagId: string) => ({ id: tagId })),
   };
 };
 
@@ -174,7 +174,7 @@ export const AddUserServerSchema = z.array(
 );
 
 export const UserAdminEditServerSchema = z.object({
-  id: IntSchema,
+  id: IDSchema,
   qq: QQSchema,
   isAdmin: z.boolean().default(false),
   resetPassword: z.boolean().default(false),

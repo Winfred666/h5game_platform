@@ -10,7 +10,7 @@ export interface IContact {
 
 // WARNING: IUser 是
 export interface IUser {
-    id: number;
+    id: string;
     name: string;
     
     introduction?:string;//用户自我介绍

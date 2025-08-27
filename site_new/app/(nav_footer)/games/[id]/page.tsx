@@ -117,7 +117,7 @@ export default async function PublicGameIdPage({
 }) {
   const { id } = await params; // await the promise to get the id
   // now still in server component, just savely get game content
-  const game = await getPublicGameById(parseInt(id));
+  const game = await getPublicGameById(id);
   // console.log("games: ", game);
   if (!game) {
     return notFound();
@@ -125,4 +125,5 @@ export default async function PublicGameIdPage({
   return <GameIdPage game={game} />;
 }
 
-export const dynamic = "force-static"; // use revalidatePath + static for any page
+// use revalidatePath + static for any tourist page to speed up
+export const dynamic = "force-static";

@@ -14,12 +14,13 @@ export const GAMEIMG_WEBP_QUALITY = 80;
 
 export const COOKIES_PREFIX = "h5game_";
 
-export const MINIO_SESSION_DURATION = 60 * 60 * 1000; // 1 hour
+export const MINIO_SESSION_DURATION = 60 * 60; // 1 hour, in seconds.
 
 export const SALT_ROUNDS = 10; // bcrypt salt rounds
 
 export const DEFAULT_HASH_KEY = "DEFAULT_HASH";
-
+export const SWIPER_ID_KEY = "SWIPER_ID";
+export const ENABLE_DAILY_RECOMMENDATION_KEY = "ENABLE_DAILY_RECOMMENDATION";
 
 export async function getConfigurationValue(key: string): Promise<string> {
   const config = await db.configuration.findUnique({

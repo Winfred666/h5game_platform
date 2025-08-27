@@ -11,9 +11,9 @@ export function SelectableTags({
   onCancel,
 }: {
   allTags: IGameTag[];
-  selectedTagIds: number[];
-  onSelect: (id: number) => void;
-  onCancel: (id: number) => void;
+  selectedTagIds: string[];
+  onSelect: (id: string) => void;
+  onCancel: (id: string) => void;
 }) {
   return (
     <div className="flex flex-wrap gap-2 select-none">
@@ -23,7 +23,6 @@ export function SelectableTags({
           <Badge
             key={`selectable_tag_${tag.id}`}
             variant={isSelected ? "default" : "outline"} // Visually distinguish selected tags
-            className="cursor-pointer"
             onClick={() => (isSelected ? onCancel(tag.id) : onSelect(tag.id))}
             // For accessibility: make it behave like a checkbox
             role="checkbox"
@@ -70,7 +69,7 @@ export function DeletableTags({
           // For accessibility: make it behave like a button
         >
           <span> {tag.name} </span>
-          <span className="cursor-pointer rounded-full bg-primary-active hover:bg-primary-accent active:bg-primary-active">
+          <span className="badge-button">
           <X
             onClick={(e) => {
               e.stopPropagation(); // Prevent badge click event

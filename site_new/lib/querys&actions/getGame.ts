@@ -1,11 +1,12 @@
 import "server-only";
 // WARNING: getGame is only get props in server component, not action
 import { db } from "@/lib/dbInit";
-import { IntSchema, StringSchema } from "../types/zparams";
+import { IDSchema, PositiveIntSchema, StringSchema } from "../types/zparams";
 import { cache } from "react"; // for single term of build.
 import { authProtectedModule, buildServerQuery } from "../services/builder";
 import { redirect } from "next/navigation";
 import { ALL_NAVPATH } from "../clientConfig";
+import { getConfigurationValue, SWIPER_ID_KEY } from "../serverConfig";
 
 const IncludeDeveloperTag = {
   // for include developers in game
@@ -23,57 +24,60 @@ const IncludeDeveloperTag = {
 export const getTopGames = cache(
   buildServerQuery(
     [], // no params
-    () =>
-      db.game.findMany({
-        ...IncludeDeveloperTag,
-        take: 3, // limit to top 3 games
-      })
+    async () =>{
+      const gameIds = (await getConfigurationValue(SWIPER_ID_KEY)).split(",").filter(id=>id.trim());
+      const games = await Promise.all(gameIds.map(async (id) =>
+          db.game.findUnique({
+            where: { id: id.trim() },
+            ...IncludeDeveloperTag,
+          })
+        )
+      );
+      return games.filter(game => game !== null);
+    }
   )
 );
 
 export const getGameCount = cache(buildServerQuery([], () => db.game.count()));
 
 export const getAllGames = buildServerQuery(
-  [IntSchema, IntSchema],
+  [PositiveIntSchema, PositiveIntSchema],
   (page, pageSize) =>
     db.game.findMany({
       ...IncludeDeveloperTag,
-      skip: page * pageSize,
+      skip: (page - 1) * pageSize, // page start from 1 while index from 0.
       take: pageSize,
     })
 ); // true means it is a query, not mutation, so it can return 404
 
 // WARNING: for fast and static rendering, do not use authProtectedModule, need to decouple auth from public query.
-export const getPublicGameById = buildServerQuery(
-  [IntSchema],
-  async id => db.game.findUnique({
-    where: {id},
+export const getPublicGameById = buildServerQuery([IDSchema], async (id) =>
+  db.game.findUnique({
+    where: { id },
     ...IncludeDeveloperTag,
   })
 );
 
-
-// TODO: for private game, give token to visit private minio bucket here.
-export const getSelfGameById = buildServerQuery([IntSchema], async (id) => {
-  const userSession = await authProtectedModule(false);
-  
+export const getSelfGameById = buildServerQuery([IDSchema], async (id) => {
   const game = await db.game.findUnique({
     where: { id, isPrivate: undefined },
     ...IncludeDeveloperTag,
   }); // could search private game if has privilege
 
   if (!game) return game; // return null instead of call notFound(equal to throw error)
+
   // console.log(userSession ,game);
-  
+  const userSession = await authProtectedModule(false);
   if (
     userSession.isAdmin ||
     game.developers.some((dev) => dev.id === userSession.id)
   ) {
-    // 1. authorization check: if game is private, only developer can see it.
+    // 1. authorization check: if game is private,
+    // here we would add minimun protection by setting url+UUID
     return game;
   } else {
     if (game.isPrivate) {
-      // 2. if not admin or developer, check if game is private
+      // 2. if the user is not admin or developer, not found this private game.
       return null;
     } else {
       // 3. tourist, redirect to public page instead of here private page.
@@ -119,8 +123,8 @@ export const getGamesByTitle = buildServerQuery([StringSchema], (title) =>
 );
 
 export const getGamesByTag = buildServerQuery(
-  [IntSchema, IntSchema],
-  (tagId, page) =>
+  [IDSchema, PositiveIntSchema, PositiveIntSchema],
+  (tagId, page, pageSize) =>
     db.game.findMany({
       ...IncludeDeveloperTag,
       where: {
@@ -130,12 +134,12 @@ export const getGamesByTag = buildServerQuery(
           },
         },
       },
-      skip: page * 20,
-      take: 20,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
     })
 );
 
-export const getGameByTagCount = buildServerQuery([IntSchema], (tagId) =>
+export const getGameByTagCount = buildServerQuery([IDSchema], (tagId) =>
   db.game.count({
     where: {
       tags: {
