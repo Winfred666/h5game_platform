@@ -1,9 +1,0 @@
-# 递归忽略所有层级的 Python 缓存目录
-**/__pycache__/
-**/venv/
-README.md
-.dockerignore
-**/.vscode/
-.git/
-.gitignore
-

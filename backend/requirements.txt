@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-minio
-python-multipart
-psycopg2-binary
-pyjwt
-cryptography
-filetype
