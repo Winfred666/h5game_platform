@@ -127,7 +127,7 @@ export const AvatarSchema = z
     if (file.size > MAX_IMG_SIZE) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `头像大小不能超过 ${byteToMB(MAX_IMG_SIZE)}MB`,
+        message: `头像大小不能超过 ${byteToMB(MAX_IMG_SIZE)}`,
       });
       return false;
     }

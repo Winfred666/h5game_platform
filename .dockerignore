@@ -1,13 +1,18 @@
 public/mocks/
+
 .dockerignore
 .gitignore
-node_modules/
 npm-debug.log
 README.md
+.env.development
+deploy.ps1
+docker-compose-dev.yml
+reorganize_backup.py
+
+node_modules/
 .next/
 .git/
 **/.vscode/
-.env.development
 
 # for deploy, use migrations in the dev mode
 !prisma/migrations/

@@ -41,7 +41,7 @@ export const ACCEPTED_ZIP_MIME_TYPES = [
   "application/x-zip-compressed",
 ];
 
-export const MAX_IMG_SIZE = 1024 * 1024 * 5; // 5MB
+export const MAX_IMG_SIZE = 1024 * 1024 * 20; // 20MB
 export const MAX_SCREENSHOT_NUMBER = 4; // Maximum number of screenshots allowed
 
 export const ACCEPTED_IMG_MINE_TYPES = [
@@ -55,7 +55,7 @@ export const ACCEPTED_IMG_MINE_TYPES = [
 export const GAME_PAGE_SIZE = 20;
 
 export const ALL_NAVPATH = {
-    home: {name:"浏览", href:(page?:number) => `/${page? "?page=" + page : ""}`}, // default to home page
+    home: {name:"浏览", href:(page:number|string = 1) => `/home/${page}`}, // default to home page
     
     game_tag: {name:"按tag搜游戏", href:(tagId: string) => `/games?tag=${tagId}`},
     game_name: {name:"按名称搜游戏", href:(name: string) => `/games?name=${name}`},

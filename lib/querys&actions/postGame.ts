@@ -92,6 +92,14 @@ export const submitNewGameAction = buildServerAction(
 
     try {
       // 6. upload game zip and image files to MinIO
+
+      // upload game file to minio (minio may be uninit, wait for it first)
+      await uploadGameFolder(
+        { id: game.id, isPrivate: true },
+        data.uploadfile[0],
+        zip
+      );
+
       // upload screenshots to minio
       const promiseList = data.screenshots.add.map(
         (screenshot: File, i: number) =>
@@ -102,20 +110,12 @@ export const submitNewGameAction = buildServerAction(
           )
       );
 
-      // upload game file to minio
-      promiseList.push(
-        uploadGameFolder(
-          { id: game.id, isPrivate: true },
-          data.uploadfile[0],
-          zip
-        )
-      );
-
       // upload cover to minio
       promiseList.push(
         uploadImage(MINIO_BUCKETS.IMAGE, `${game.id}/cover.webp`, data.cover[0])
       );
       await Promise.all(promiseList);
+      
     } catch (error) {
       // clean up game metadata if file upload failed
       await db.game.delete({ where: { id: game.id } });
@@ -222,7 +222,7 @@ export const updateGameAction = buildServerAction(
         (dev) => !oldGame.developers.some((d) => d.id === dev.id)
       ),
     ];
-    
+
     revalidateAsGameChange({
       id: gameId,
       isPrivate: oldGame.isPrivate,

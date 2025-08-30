@@ -22,7 +22,7 @@ export interface PaginationWithLinksProps {
   totalCount: number;
   pageSize: number;
   page: number;
-  pageSearchParam?: string;
+  buildPageLink: (page:number) => string; // function to build link for a given page number
 }
 
 /**
@@ -42,7 +42,7 @@ export function PaginationWithLinks({
   pageSize,
   totalCount,
   page,
-  pageSearchParam,
+  buildPageLink
 }: PaginationWithLinksProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -50,26 +50,16 @@ export function PaginationWithLinks({
 
   const totalPageCount = Math.ceil(totalCount / pageSize);
 
-  const buildLink = useCallback(
-    (newPage: number) => {
-      const key = pageSearchParam || "page";
-      if (!searchParams) return `${pathname}?${key}=${newPage}`;
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set(key, String(newPage));
-      return `${pathname}?${newSearchParams.toString()}`;
-    },
-    [searchParams, pathname],
-  );
 
   const navToPageSize = useCallback(
     (newPageSize: number) => {
       const key = pageSizeSelectOptions?.pageSizeSearchParam || "pageSize";
       const newSearchParams = new URLSearchParams(searchParams || undefined);
       newSearchParams.set(key, String(newPageSize));
-      newSearchParams.delete(pageSearchParam || "page"); // Clear the page number when changing page size
+      // newSearchParams.delete(pageSearchParam || "page"); // Clear the page number when changing page size
       router.push(`${pathname}?${newSearchParams.toString()}`);
     },
-    [searchParams, pathname],
+    [searchParams, pathname, pageSizeSelectOptions, router],
   );
 
   const renderPageNumbers = () => {
@@ -80,7 +70,7 @@ export function PaginationWithLinks({
       for (let i = 1; i <= totalPageCount; i++) {
         items.push(
           <PaginationItem key={i}>
-            <PaginationLink href={buildLink(i)} isActive={page === i}>
+            <PaginationLink href={buildPageLink(i)} isActive={page === i}>
               {i}
             </PaginationLink>
           </PaginationItem>,
@@ -89,7 +79,7 @@ export function PaginationWithLinks({
     } else {
       items.push(
         <PaginationItem key={1}>
-          <PaginationLink href={buildLink(1)} isActive={page === 1}>
+          <PaginationLink href={buildPageLink(1)} isActive={page === 1}>
             1
           </PaginationLink>
         </PaginationItem>,
@@ -109,7 +99,7 @@ export function PaginationWithLinks({
       for (let i = start; i <= end; i++) {
         items.push(
           <PaginationItem key={i}>
-            <PaginationLink href={buildLink(i)} isActive={page === i}>
+            <PaginationLink href={buildPageLink(i)} isActive={page === i}>
               {i}
             </PaginationLink>
           </PaginationItem>,
@@ -126,7 +116,7 @@ export function PaginationWithLinks({
 
       items.push(
         <PaginationItem key={totalPageCount}>
-          <PaginationLink href={buildLink(totalPageCount)} isActive={page === totalPageCount}>
+          <PaginationLink href={buildPageLink(totalPageCount)} isActive={page === totalPageCount}>
             {totalPageCount}
           </PaginationLink>
         </PaginationItem>,
@@ -151,7 +141,7 @@ export function PaginationWithLinks({
         <PaginationContent className="gap-2 md:gap-4">
           <PaginationItem>
             <PaginationPrevious
-              href={buildLink(Math.max(page - 1, 1))}
+              href={buildPageLink(Math.max(page - 1, 1))}
               aria-disabled={page === 1}
               tabIndex={page === 1 ? -1 : undefined}
               className={page === 1 ? "pointer-events-none opacity-50" : undefined}
@@ -160,7 +150,7 @@ export function PaginationWithLinks({
           {renderPageNumbers()}
           <PaginationItem>
             <PaginationNext
-              href={buildLink(Math.min(page + 1, totalPageCount))}
+              href={buildPageLink(Math.min(page + 1, totalPageCount))}
               aria-disabled={page === totalPageCount}
               tabIndex={page === totalPageCount ? -1 : undefined}
               className={page === totalPageCount ? "pointer-events-none opacity-50" : undefined}

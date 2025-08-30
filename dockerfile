@@ -27,6 +27,10 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # first init db in the build stage
+# because we has ISR and SSG in the app, in build time we need to access the database. So set the env here.
+ENV DATABASE_URL="file:/app/temp_db/prod.db"
+RUN mkdir -p /app/temp_db
+
 RUN \
   if [ -f yarn.lock ]; then yarn run db:build; \
   elif [ -f package-lock.json ]; then npm run db:build; \
@@ -51,9 +55,6 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Create data directory with proper ownership for nextjs user
-RUN mkdir -p /data/db && chown -R nextjs:nodejs /data
-
 COPY --from=builder /app/public ./public
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
@@ -63,6 +64,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/.env.production ./
 COPY --from=builder /app/temp_db/prod.db ./temp_db/prod.db
 
+# Ensure /data exists and is owned by nextjs
+RUN mkdir -p /data && chown -R nextjs:nodejs /data
+
+
+# need to create the db folder for the prod.db file later, temporarily use root.
 USER nextjs
 
 EXPOSE 3000

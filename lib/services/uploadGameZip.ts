@@ -258,6 +258,6 @@ export const switchBucketGameFolder = async (game: {
     uploadedCount += chunk.length;
   }
   console.log(
-    `DEBUG: Moved ${uploadedCount} objects from ${oldBucket} to ${newBucket} for game ${game.id}`
+    `Moved ${uploadedCount} objects from ${oldBucket} to ${newBucket} for game ${game.id}`
   );
 }

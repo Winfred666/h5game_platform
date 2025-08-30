@@ -129,6 +129,7 @@ export default function GameCards({
           page={currentPage}
           pageSize={pageSize}
           totalCount={totalCount}
+          buildPageLink={ALL_NAVPATH.home.href}
         />
       ) : null}
     </>

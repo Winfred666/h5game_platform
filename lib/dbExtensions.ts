@@ -25,7 +25,7 @@ export const GameExtension = Prisma.defineExtension({
         return query({
           ...args,
           orderBy: {
-            createdAt: "desc", // order by creation time
+            updatedAt: "desc", // order by updated time
             ...args.orderBy, // keep other orderBy clauses
           },
           where: {

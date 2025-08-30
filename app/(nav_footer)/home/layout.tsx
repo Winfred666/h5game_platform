@@ -31,5 +31,6 @@ export default async function HomeLayout({
 // use revalidatePath + static for any page 
 // that you want to be fast and cached, 
 // but whose data might change due to user actions (be careful no dynamic auth is used ) 
-// export const dynamic = "force-static";
+// possible to use together: https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic
+export const dynamic = "force-static";
 export const revalidate = 43200;

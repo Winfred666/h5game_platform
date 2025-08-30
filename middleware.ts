@@ -32,9 +32,12 @@ const middlewareAuth = async (
   return session;
 };
 
+// not only check the protected route,
+// as we need redirect to some non protected route like /login or /home.
 export const config = {
   matcher: [
-    // only check the protected route
+    "/",
+    "/home",
     "/user/update",
     "/user/self/:path*",
     "/upload/:path*",
@@ -44,14 +47,27 @@ export const config = {
   ],
 };
 
-const userProtectedRoutes = ["/game/unaudit", "/upload", "/user/self", "/user/update"];
-const adminProtectedRoutes = ["/admin-dashboard"];
+const userProtectedRoutes = [
+  "/game/unaudit",
+  "/upload",
+  "/user/self",
+  "/user/update",
+];
+const adminProtectedRoutes = ["/admin-dashboard", "/api/backup"];
 
 export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const baseUrlWithPath =
     request.nextUrl.origin + request.nextUrl.basePath + "/"; // start with basepath
-  
+
+  console.log("Middleware processing for path:", pathname);
+  // for "common" home page like '/' or '/home' , redirect to valid home page /home/1.
+  if (pathname === "/" || pathname === "/home") {
+    return NextResponse.redirect(
+      createUrl(ALL_NAVPATH.home.href(), baseUrlWithPath)
+    );
+  }
+
   const isUserProtected = userProtectedRoutes.some((route) =>
     pathname.startsWith(route)
   );

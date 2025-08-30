@@ -53,7 +53,7 @@ export function GameIdPage({ game }: { game: IGame }) {
         )}
         <div className=" px-8 flex flex-col gap-8 lg:flex-row lg:justify-between">
           {/* Left column - Game info */}
-          <div className="lg:max-w-1/2 flex flex-col gap-6">
+          <div className="flex flex-col gap-6">
             <h2>{game.title}</h2>
 
             <div className=" whitespace-pre-line break-words">
@@ -88,7 +88,7 @@ export function GameIdPage({ game }: { game: IGame }) {
           </div>
 
           {/* Right column - Screenshots */}
-          <div className=" lg:max-w-1/2 flex flex-col gap-2 lg:gap-6">
+          <div className="flex flex-col gap-2 lg:gap-6">
             <h2>游戏截图</h2>
             {game.screenshots.length > 0 ? (
               <GamePoster

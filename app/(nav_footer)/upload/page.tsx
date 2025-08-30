@@ -13,4 +13,6 @@ export default async function UploadPage() {
   );
 }
 
-
+// WARNING: this is static page, only revalidate when tag changed.
+// if static page being 404 at first, it is db's error because at build time we might not have proper ENV.
+export const dynamic = "force-static";

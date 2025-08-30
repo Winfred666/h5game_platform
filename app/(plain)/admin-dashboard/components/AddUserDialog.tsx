@@ -90,8 +90,8 @@ export function AddUserDialog({
         </DialogHeader>
           <Textarea
             id="users-input"
-            placeholder={`12345,John Doe,https://xxx.jpg
-67890,Jane Smith,https://xxx.jpg`}
+            placeholder={`12345,John Doe,管理员,https://xxx.jpg
+67890,Jane Smith,成员,https://xxx.jpg`}
             rows={6}
             value={inputValue}
             onChange={(e) => handleInputChange(e.target.value)}

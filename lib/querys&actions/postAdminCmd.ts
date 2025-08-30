@@ -15,7 +15,7 @@ import {
   SwitcherStringSchema,
   TagSchema,
 } from "../types/zparams";
-import { ALL_NAVPATH, MINIO_BUCKETS } from "../clientConfig";
+import { MINIO_BUCKETS } from "../clientConfig";
 import { deleteImage, deleteImageFolder, uploadImageFromWebURL } from "../services/uploadImage";
 import {
   AddUserServerSchema,
@@ -33,13 +33,13 @@ import bcrypt from "bcryptjs";
 import {
   revalidateAsGameChange,
   revalidateAsTagChange,
+  revalidateAsTopGameChange,
   revalidateAsUserChange,
 } from "../services/revalidate";
 import {
   startAutoTopGamesCalc,
   stopAutoTopGamesCalc,
 } from "../services/dailyTopGame";
-import { revalidatePath } from "next/cache";
 
 const adminSelectOption = {
   id: true,
@@ -93,7 +93,7 @@ export const setAutoTopGameAction = buildServerAction(
     } else {
       await startAutoTopGamesCalc();
     }
-    revalidatePath(ALL_NAVPATH.admin_games.href);
+    revalidateAsTopGameChange();
   }
 );
 
@@ -101,8 +101,7 @@ export const updateTopGameAction = buildServerAction(
   [IDArrayStringSchema],
   async (gameIds) => {
     await setConfigurationValue(SWIPER_ID_KEY, gameIds);
-    revalidatePath(ALL_NAVPATH.admin_games.href);
-    revalidatePath(ALL_NAVPATH.home.href());
+    revalidateAsTopGameChange();
   }
 );
 

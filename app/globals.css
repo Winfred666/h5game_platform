@@ -166,10 +166,10 @@
   img {
     @apply rounded-sm;
   }
-  /* revert height layer so  */
-  /* img[height] {
+  /* revert height layer , so the height of image is not set to auto and will follow next.js's Image w/h  */
+  img[height] {
     height: revert-layer;
-  } */
+  }
 
   input[type="password"] {
     font-family: system-ui, sans-serif; /* 系统默认字体 */

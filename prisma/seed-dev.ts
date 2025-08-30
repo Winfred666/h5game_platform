@@ -117,7 +117,7 @@ async function main() {
   // ----------------------------------------
   console.log("🎮 Seeding games...");
   const createdGames = [];
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 21; i++) {
     // 1. Select 1 to 3 random developers (users) for this game
     const numDevelopers = faker.number.int({ min: 1, max: 3 });
     const selectedDevelopers = faker.helpers

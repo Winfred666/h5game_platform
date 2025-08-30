@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "db:dev": "set DATABASE_URL=file:./dev.db && prisma generate && prisma migrate dev --name init --create-only && tsx prisma/before-migrate.ts && npx prisma migrate dev && tsx prisma/seed-dev.ts && prisma studio",
-    "db:build": "mkdir -p /app/temp_db && export DATABASE_URL=file:/app/temp_db/prod.db && prisma generate && prisma migrate deploy && tsx prisma/seed.ts",
+    "db:build": "prisma generate && prisma migrate deploy && tsx prisma/seed.ts",
     "db:reset": "set DATABASE_URL=file:./dev.db && prisma migrate reset --force"
   },
   "dependencies": {

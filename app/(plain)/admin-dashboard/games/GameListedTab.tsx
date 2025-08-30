@@ -18,8 +18,6 @@ import { DeleteObjDialog } from "../components/DeleteObjDialog";
 import { useLoading } from "@/components/LoadingProvider";
 import Link from "next/link";
 
-// Interface definitions
-
 export default function GameListedTab({
   games,
   currentPage,
@@ -119,6 +117,7 @@ export default function GameListedTab({
           page={currentPage}
           pageSize={pageSize}
           totalCount={totalCount}
+          buildPageLink={(page)=>ALL_NAVPATH.admin_games.href+`?page=${page}`}
         />
       ) : null}
 

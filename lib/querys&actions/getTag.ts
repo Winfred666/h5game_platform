@@ -5,7 +5,11 @@ import { authProtectedModule, buildServerQuery } from "../services/builder";
 import { StringSchema } from "../types/zparams";
 import { db } from "../dbInit";
 
-export const getAllTags = cache(buildServerQuery([], () => db.tag.findMany()));
+export const getAllTags = cache(buildServerQuery([], async () => {
+  const tags = await db.tag.findMany();
+  // console.log("Fetched tags:", tags);
+  return tags;
+}));
 
 // WARNING: using undefined (not found, not error) if cannot find tag.
 export const getTagById = buildServerQuery([StringSchema], (id) =>
@@ -26,8 +30,8 @@ export const getAllTagsAdmin = buildServerQuery([], () => {
       hide: true,
       _count: {
         select: { games: true },
-      }
-    }
+      },
+    },
   });
 });
 
