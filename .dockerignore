@@ -8,5 +8,7 @@ README.md
 .git/
 **/.vscode/
 .env.development
-prisma/migrations
+
+# for deploy, use migrations in the dev mode
+!prisma/migrations/
 prisma/dev.db

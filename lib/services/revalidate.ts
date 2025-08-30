@@ -28,15 +28,16 @@ export async function revalidateAsGameChange(game: {
   }
 }
 
-// WARNING: only change game / home page, if user change name !!!
+// WARNING: change game / home page, if user change name !!!
 export async function revalidateAsUserChange(
   userId?: string,
-  userGames?: { id: string; isPrivate: boolean }[]
+  userGames?: { id: string; isPrivate: boolean }[],
 ) {
   if (userId) {
     revalidatePath(ALL_NAVPATH.user_id.href(userId));
     // Revalidate games where this user is a developer
     if (userGames) {
+      revalidatePath(ALL_NAVPATH.community.href);
       revalidatePath(ALL_NAVPATH.home.href());
       userGames.forEach((game) => {
         if (game.isPrivate) {
@@ -48,7 +49,6 @@ export async function revalidateAsUserChange(
     }
   }
   revalidatePath(ALL_NAVPATH.admin_users.href);
-  revalidatePath(ALL_NAVPATH.community.href);
 }
 
 // need to change all game using this tag..

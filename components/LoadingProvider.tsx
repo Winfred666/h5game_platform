@@ -96,7 +96,7 @@ export default function LoadingProvider({ children }: { children: ReactNode }) {
           {spinningMsg && (
             <>
               <Loader2 className="h-16 w-16 animate-spin text-primary" />
-              <p className="bg-background">{spinningMsg}</p>
+              <p className="bg-background p-1">{spinningMsg}</p>
             </>
           )}
         </div>

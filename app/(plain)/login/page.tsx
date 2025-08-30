@@ -17,6 +17,7 @@ export default function LoginPage({
   searchParams: Promise<{ callback?: string }>;
 }) {
   const { callback } = use(searchParams);
+  // console.log("callback: ", callback);
   const router = useRouter();
   const { startLoading } = useLoading();
 
@@ -40,8 +41,8 @@ export default function LoginPage({
         ...data,
       });
       if (!res.ok || res.error) {
+        console.error("Login failed:", res.error);
         throw new Error("登录失败，请检查QQ号和密码");
-        console.error("Login error:", res.error);
       }
       return { success: true, data: res.status };
     }, {

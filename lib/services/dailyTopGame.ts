@@ -2,8 +2,6 @@ import "server-only";
 import { db } from "@/lib/dbInit";
 import { IGame } from "../types/igame";
 import { ENABLE_DAILY_RECOMMENDATION_KEY, getConfigurationValue, setConfigurationValue, SWIPER_ID_KEY } from "../serverConfig";
-import { revalidatePath } from "next/cache";
-import { ALL_NAVPATH } from "../clientConfig";
 
 type GameScore = Pick<IGame, "id" | "title"> & {
   score: number;

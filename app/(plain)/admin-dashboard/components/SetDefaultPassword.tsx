@@ -20,7 +20,7 @@ export default function SetDefaultPasswordButton() {
   // This component is used to set a default password for new users.
   return (
     <div className=" flex gap-2 items-center">
-      <Label>修改新成员默认密码：</Label>
+      <Label>修改默认密码：<p className="text-muted-foreground"> 只影响此后新加成员</p></Label>
       <Input
         onChange={(e) => setPassword(e.target.value)}
         value={password}

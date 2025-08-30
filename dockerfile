@@ -15,7 +15,6 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
-
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
@@ -26,6 +25,14 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 ENV NEXT_TELEMETRY_DISABLED=1
+
+# first init db in the build stage
+RUN \
+  if [ -f yarn.lock ]; then yarn run db:build; \
+  elif [ -f package-lock.json ]; then npm run db:build; \
+  elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run db:build; \
+  else echo "Lockfile not found." && exit 1; \
+  fi
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
@@ -44,14 +51,17 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
+# Create data directory with proper ownership for nextjs user
+RUN mkdir -p /data/db && chown -R nextjs:nodejs /data
 
+COPY --from=builder /app/public ./public
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/.env.production ./
+COPY --from=builder /app/temp_db/prod.db ./temp_db/prod.db
 
 USER nextjs
 

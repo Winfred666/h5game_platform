@@ -10,7 +10,7 @@ export default function DevBanner({
   gameId,
   isPrivate,
 }: {
-  gameId: number,
+  gameId: string,
   isPrivate: boolean | undefined, // 'isPrivate' is hidden field of bd, exposing this means developer's authority
 }) {
   if (isPrivate === undefined) {

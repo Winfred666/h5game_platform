@@ -57,7 +57,7 @@ export default function UsersTab({ users }: { users: IUserAdmin[] }) {
         searchPlaceholder="Search by name or QQ..."
       >
         <Button onClick={() => setIsAddDialogOpen(true)}
-          className="mr-20">
+          className=" mx-10">
           <Plus className="h-4 w-4 mr-2" />
           添加用户
         </Button>

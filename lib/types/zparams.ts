@@ -48,6 +48,10 @@ export const QQSchema = z
     message: "QQ号必须以1-9开头且为纯数字",
   });
 
+export const URLSchema = z
+  .string()
+  .url("必须是有效的URL")
+
 export const UserSessionSchema = z.object(
   {
     id: IDSchema,

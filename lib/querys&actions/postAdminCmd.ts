@@ -16,7 +16,7 @@ import {
   TagSchema,
 } from "../types/zparams";
 import { ALL_NAVPATH, MINIO_BUCKETS } from "../clientConfig";
-import { deleteImageFolder } from "../services/uploadImage";
+import { deleteImage, deleteImageFolder, uploadImageFromWebURL } from "../services/uploadImage";
 import {
   AddUserServerSchema,
   UserAdminEditServerSchema,
@@ -35,7 +35,10 @@ import {
   revalidateAsTagChange,
   revalidateAsUserChange,
 } from "../services/revalidate";
-import { startAutoTopGamesCalc, stopAutoTopGamesCalc } from "../services/dailyTopGame";
+import {
+  startAutoTopGamesCalc,
+  stopAutoTopGamesCalc,
+} from "../services/dailyTopGame";
 import { revalidatePath } from "next/cache";
 
 const adminSelectOption = {
@@ -85,7 +88,7 @@ export const setAutoTopGameAction = buildServerAction(
   [SwitcherStringSchema],
   async (enabler) => {
     await setConfigurationValue(ENABLE_DAILY_RECOMMENDATION_KEY, enabler);
-    if(enabler === "0"){
+    if (enabler === "0") {
       stopAutoTopGamesCalc();
     } else {
       await startAutoTopGamesCalc();
@@ -94,12 +97,14 @@ export const setAutoTopGameAction = buildServerAction(
   }
 );
 
-export const updateTopGameAction = buildServerAction([IDArrayStringSchema],
-  async (gameIds)=>{
-   await setConfigurationValue(SWIPER_ID_KEY, gameIds);
-   revalidatePath(ALL_NAVPATH.admin_games.href);
-   revalidatePath(ALL_NAVPATH.home.href());
-})
+export const updateTopGameAction = buildServerAction(
+  [IDArrayStringSchema],
+  async (gameIds) => {
+    await setConfigurationValue(SWIPER_ID_KEY, gameIds);
+    revalidatePath(ALL_NAVPATH.admin_games.href);
+    revalidatePath(ALL_NAVPATH.home.href());
+  }
+);
 
 export const deleteGameAction = buildServerAction(
   [IDSchema],
@@ -238,23 +243,44 @@ export const addUsersAction = buildServerAction(
     });
     const existingQQs = new Set(existingUsers.map((user) => user.qq));
 
-    // 3. Filter out the users that already exist
-    const usersToCreate = data.filter((user) => !existingQQs.has(user.qq));
-
-    // 4. prepared default hash for new users
+    // 3. prepared default hash for new users
     const hash = await getConfigurationValue(DEFAULT_HASH_KEY);
 
-    // 5. create new users in a batch, if any
+    // 4. Filter out the users that already exist, add avatar and hash
+    const usersToCreate = data
+      .filter((user) => !existingQQs.has(user.qq))
+      .map((user) => ({
+        qq: user.qq,
+        name: user.name,
+        isAdmin: user.isAdmin,
+        hasAvatar: !!user.avatar,
+        hash,
+      }));
+
+    // 5. create new users in a batch
     if (usersToCreate.length > 0) {
       await db.user.createMany({
-        data: usersToCreate.map((user) => ({
-          ...user,
-          hash,
-        })),
+        data: usersToCreate,
       });
     }
 
-    // 6. revalidate admin user list page
+    // 6. if has avatar url, download and store it according to user's id,
+    const addedAvatarIds = await db.user.findMany({
+      where: {
+        qq: { in: usersToCreate.map((user) => user.qq) },
+        hasAvatar: true,
+      },
+      select: { id: true, qq: true },
+    });
+
+    for (const user of addedAvatarIds) {
+      const url = data.find(u => u.qq === user.qq)?.avatar || "";
+      console.log(`Uploading avatar for user ${user.qq} (ID: ${user.id}) from URL: ${url}`);
+      await uploadImageFromWebURL(MINIO_BUCKETS.AVATAR, `${user.id}.webp`,
+        url, false);
+    }
+
+    // 7. revalidate admin user list page
     revalidateAsUserChange();
     return usersToCreate.length;
   }
@@ -290,7 +316,7 @@ export const editUserAction = buildServerAction(
     });
 
     // 5. revalidate admin user list page
-    revalidateAsUserChange(data.id);
+    revalidateAsUserChange();
   }
 );
 
@@ -316,6 +342,9 @@ export const deleteUserAction = buildServerAction(
     await db.user.delete({
       where: { id: userId },
     });
+
+    // also delete user's avatar
+    await deleteImage(MINIO_BUCKETS.AVATAR, `${userId}.webp`);
 
     // 4. revalidate admin user list page
     revalidateAsUserChange(userId, user.games);

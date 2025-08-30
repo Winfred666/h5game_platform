@@ -3,16 +3,12 @@ import { UserThumbnail } from "@/components/UserListItem";
 import { getAllUsers } from "@/lib/querys&actions/getUser";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import Link from "next/link";
+import { IUser } from "@/lib/types/iuser";
 
 export default async function CommunityPage() {
   const allUsers = await getAllUsers();
   const userClassified: {
-    [key: string]: {
-      id: number;
-      name: string;
-      avatar?: string;
-      createdAt: string;
-    }[];
+    [key: string]: Pick<IUser, "id" | "name" | "avatar" | "createdAt">[];
   } = {};
   allUsers.forEach((user) => {
     const year = user.createdAt.split("/")[0];

@@ -51,7 +51,7 @@ export default async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const baseUrlWithPath =
     request.nextUrl.origin + request.nextUrl.basePath + "/"; // start with basepath
-
+  
   const isUserProtected = userProtectedRoutes.some((route) =>
     pathname.startsWith(route)
   );

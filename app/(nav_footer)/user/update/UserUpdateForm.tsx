@@ -26,6 +26,7 @@ import { objectToFormData } from "@/lib/utils";
 import { selfUpdateUserAction } from "@/lib/querys&actions/postUser";
 import { useSession } from "next-auth/react";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
+import { useState } from "react";
 
 export default function UserUpdateForm({
   currentUser,
@@ -35,6 +36,8 @@ export default function UserUpdateForm({
   const router = useRouter();
   const { startLoading } = useLoading();
   const { update } = useSession();
+
+  const [disabled, setDisabled] = useState(false);
 
   const form = useForm<UserUpdateFormInputType>({
     mode: "onBlur",
@@ -68,9 +71,10 @@ export default function UserUpdateForm({
       }
     );
     // 6. update session data and redirect
-    await update(); // no trust client-side session data.
-    form.reset();
-    setTimeout(() => router.replace(ALL_NAVPATH.user_id.href(curUserId)), 1000);
+    setDisabled(true);
+    if (currentUser.name !== values.name)
+      await update({ name: values.name });
+    setTimeout(() => router.replace(ALL_NAVPATH.profile.href(curUserId)), 1000);
   };
 
   // WARNING: this <Form> is a provider, every field can use the form context.
@@ -157,7 +161,7 @@ export default function UserUpdateForm({
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit">更新信息</Button>
+            <Button type="submit" disabled={disabled}>更新信息</Button>
           </CardFooter>
         </Card>
       </form>

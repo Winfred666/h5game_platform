@@ -9,7 +9,7 @@ import {
   ZipSchema,
 } from "./zfiles";
 import { formDataToObject } from "../utils";
-import { IDSchema, PasswordSchema, QQSchema } from "./zparams";
+import { BooleanSchema, IDSchema, PasswordSchema, QQSchema, URLSchema } from "./zparams";
 
 // const StringToNumberOptSchema = z
 //   .string()
@@ -170,6 +170,8 @@ export const AddUserServerSchema = z.array(
   z.object({
     name: NameSchema,
     qq: QQSchema,
+    isAdmin: BooleanSchema,
+    avatar: URLSchema,
   })
 );
 

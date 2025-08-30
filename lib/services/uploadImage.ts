@@ -8,11 +8,12 @@ import sharp from "sharp";
 export async function uploadImage(
   bucketName: MINIO_BUCKETS,
   objectName: string,
-  file: File,
+  file: File | Response,
+  compressed: boolean = true
 ) {
   const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
-  
+
   // 1. Convert File to ArrayBuffer
   const arrayBuffer = await file.arrayBuffer();
 
@@ -24,21 +25,24 @@ export async function uploadImage(
     });
     return;
   } else {
-
     // 3. Convert the image buffer to WebP format using Sharp
-    const webpBuffer =
-    bucketName === MINIO_BUCKETS.AVATAR
-    ? await sharp(arrayBuffer)
-    .resize(200, 200, {
-      fit: "cover",
-      position: "center",
-    })
-    .webp({ quality: 70 })
-    .toBuffer()
-    : await sharp(arrayBuffer)
-    .webp({ quality: 80 }) // std quality for WebP
-    .toBuffer();
+    let webpSharp: sharp.Sharp;
     
+    if (!compressed) {
+      webpSharp = sharp(arrayBuffer).webp({lossless: true});
+    } else if (bucketName === MINIO_BUCKETS.AVATAR) {
+      webpSharp = sharp(arrayBuffer)
+        .resize(200, 200, {
+          fit: "cover",
+          position: "center",
+        })
+        .webp({ quality: 70 });
+    } else {
+      webpSharp = sharp(arrayBuffer).webp({ quality: 80 }); // std quality for WebP
+    }
+
+    const webpBuffer = await webpSharp.toBuffer();
+
     // 4. Upload the WebP buffer to MinIO
     await minio.putObject(bucketName, objectName, webpBuffer, undefined, {
       "Content-Type": "image/webp", // Set the correct content type for WebP
@@ -46,14 +50,40 @@ export async function uploadImage(
   }
 }
 
+
+export async function uploadImageFromWebURL(
+  bucketName: MINIO_BUCKETS,
+  objectName: string,
+  imageUrl: string,
+  compressed: boolean = true
+) {
+  if(imageUrl.trim() === "") return;
+  const minio = await getMinio();
+  if (!minio) throw new Error("MinIO client is not initialized.");
+
+  // Download the image from the web URL
+  const response = await fetch(imageUrl);
+  // console.log(response);
+  if (!response.ok) throw new Error("Failed to download image");
+
+  // Upload the image buffer to MinIO
+  await uploadImage(bucketName, objectName, response, compressed);
+}
+
 // delete image from minio
-export async function deleteImage(bucketName: MINIO_BUCKETS, objectName: string) {
+export async function deleteImage(
+  bucketName: MINIO_BUCKETS,
+  objectName: string
+) {
   const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
   await minio.removeObject(bucketName, objectName);
 }
 
-export async function deleteImageFolder(bucketName: MINIO_BUCKETS, folderName: string) {
+export async function deleteImageFolder(
+  bucketName: MINIO_BUCKETS,
+  folderName: string
+) {
   const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
   // List all objects in the specified folder
@@ -70,11 +100,19 @@ export async function deleteImageFolder(bucketName: MINIO_BUCKETS, folderName: s
 }
 
 // rename image in minio
-export async function renameImage(bucketName: MINIO_BUCKETS, oldObjectName: string, newObjectName: string) {
+export async function renameImage(
+  bucketName: MINIO_BUCKETS,
+  oldObjectName: string,
+  newObjectName: string
+) {
   const minio = await getMinio();
   if (!minio) throw new Error("MinIO client is not initialized.");
   // Copy the object to the new name
-  await minio.copyObject(bucketName, newObjectName, `${bucketName}/${oldObjectName}`);
+  await minio.copyObject(
+    bucketName,
+    newObjectName,
+    `${bucketName}/${oldObjectName}`
+  );
   // Delete the old object
   await minio.removeObject(bucketName, oldObjectName);
 }

@@ -16,7 +16,7 @@ import { useLoading } from "@/components/LoadingProvider";
 import { AddUserServerSchema } from "@/lib/types/zforms";
 import { cn } from "@/lib/utils";
 
-type BatchedUsers = Array<{ qq: string; name: string }>;
+type BatchedUsers = Array<{ qq: string; name: string; avatar: string }>;
 
 interface AddUserDialogProps {
   isOpen: boolean;
@@ -45,8 +45,9 @@ export function AddUserDialog({
 
     try {
       const parsedUsers: BatchedUsers = lines.map((line) => {
-        const [qq, name] = line.split(",").map((s) => s.trim());
-        return { qq, name };
+        const [qq, name, role, avatar] = line.split(",").map((s) => s.trim());
+        // console.log(`Parsed user - QQ: ${qq}, Name: ${name}, Avatar: ${avatar}`);
+        return { qq, name, isAdmin: role !== "成员", avatar };
       });
       setNewUsers(AddUserServerSchema.parse(parsedUsers));
       setIsValid(true);
@@ -89,8 +90,8 @@ export function AddUserDialog({
         </DialogHeader>
           <Textarea
             id="users-input"
-            placeholder={`12345,John Doe
-67890,Jane Smith`}
+            placeholder={`12345,John Doe,https://xxx.jpg
+67890,Jane Smith,https://xxx.jpg`}
             rows={6}
             value={inputValue}
             onChange={(e) => handleInputChange(e.target.value)}
@@ -102,7 +103,7 @@ export function AddUserDialog({
             }
           />
           {!isValid && (
-            <p className="text-sm text-destructive">格式无效。请使用QQ,姓名</p>
+            <p className="text-sm text-destructive">格式无效。请使用QQ,姓名,成员/管理员,头像地址</p>
           )}
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

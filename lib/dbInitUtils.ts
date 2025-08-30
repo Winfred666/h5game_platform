@@ -1,4 +1,3 @@
-
 import type { PrismaClient } from "@prisma/client";
 import { MINIO_BUCKETS } from "./clientConfig";
 import * as Minio from "minio";
@@ -33,12 +32,12 @@ export async function createMinioClient(): Promise<Minio.Client | undefined> {
       }
     }
     console.log("✅ MinIO connection + bucket check successful");
-    
+
     // Fix: assign the client, not undefined minio variable
     if (process.env.NODE_ENV !== "production") {
       globalThis.minio = client;
     }
-    
+
     return client;
   } catch (error) {
     console.error("❌ MinIO connection failed", error);
@@ -100,15 +99,30 @@ export function generateBucketPolicy(
   return policy;
 }
 
+export async function setPrismaDefaultConfig(
+  prisma: PrismaClient,
+  hashedPassword: string
+) {
 
-export async function setPrismaDefaultConfig(prisma: PrismaClient, hashedPassword:string){
+  // ----------------------------------------
+  // CLEANUP
+  // ----------------------------------------
+  console.log("🧹 Deleting existing data...");
+  // To avoid foreign key constraint errors, we must delete models
+  // that have relations to other models first. Comment depends on User and Game.
+  // await prisma.comment.deleteMany();
+  await prisma.game.deleteMany(); // Deleting a game will also clear implicit relations
+  await prisma.user.deleteMany(); // Deleting a user will also clear implicit relations
+  await prisma.tag.deleteMany();
+  await prisma.configuration.deleteMany();
+  console.log("🗑️  Existing data deleted.");
+  
   // SET DEFAULT HASH / SWIPER / DAILY_RECOMMAND ...
   const settings = [
     { key: "DEFAULT_HASH", value: hashedPassword },
     { key: "SWIPER_ID", value: "" },
     { key: "ENABLE_DAILY_RECOMMENDATION", value: "1" },
   ];
-
 
   for (const setting of settings) {
     await prisma.configuration.upsert({
@@ -117,9 +131,10 @@ export async function setPrismaDefaultConfig(prisma: PrismaClient, hashedPasswor
       create: { key: setting.key, value: setting.value },
     });
   }
+  console.log("⚙️  Default configurations set.");
 
   await prisma.user.upsert({
-    where: {qq: process.env.ADMIN_QQ!},
+    where: { qq: process.env.ADMIN_QQ! },
     update: {
       name: process.env.ADMIN_NAME!,
       hash: hashedPassword,
@@ -130,6 +145,43 @@ export async function setPrismaDefaultConfig(prisma: PrismaClient, hashedPasswor
       name: process.env.ADMIN_NAME!,
       hash: hashedPassword,
       isAdmin: true,
-    }
+    },
   });
+
+  console.log(
+    `🔑 Default admin user created. QQ: ${process.env.ADMIN_QQ}, Name: ${process.env.ADMIN_NAME}`
+  );
+
+  // setting tags.
+  // ----------------------------------------
+  // SEED TAGS
+  // ----------------------------------------
+  console.log("🏷️ Seeding tags...");
+  const tagNames = [
+    "横版跳跃",
+    "射击",
+    "模拟经营",
+    "休闲益智",
+    "恐怖",
+    "解谜",
+    "角色扮演",
+    "竞速驾驶",
+    "沙盒",
+    "开放世界？",
+    "视觉小说",
+    "音乐节奏",
+    "卡牌",
+    "塔防",
+    "回合制",
+    "即时战略",
+    "Roguelike",
+    "多人",
+    "3D",
+    "2D",
+  ];
+  await prisma.tag.createMany({
+    data: tagNames.map((name) => ({ name })),
+  });
+
+  console.log(`✅ ${tagNames.length} tags created.`);
 }

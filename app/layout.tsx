@@ -50,5 +50,5 @@ export default function RootLayout({
     </html>
   );
 }
-
-export const revalidate = 300; // 5 minute
+// 5 minute by default, only set for those page that need timing ISR.
+// export const revalidate = 300;

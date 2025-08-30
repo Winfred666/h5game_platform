@@ -20,7 +20,7 @@ declare global {
 export const db = globalThis.prisma || createExtendedPrismaClient();
 
 // Only initialize once using global flag
-if (!globalThis.topGamesInitialized) {
+if (!globalThis.topGamesInitialized && process.env.NEXT_PHASE !== 'phase-production-build') {
   globalThis.topGamesInitialized = true;
   setTimeout(async () => {
     try {

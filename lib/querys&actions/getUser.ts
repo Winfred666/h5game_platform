@@ -65,8 +65,8 @@ export const getSelfUserById = buildServerQuery(
     let isMe = false;
     if (userId === "me") {
       userId = userSession.id; // if userId is 'me', use current user's id
-      isMe = userId === userSession.id;
     }
+    isMe = userId === userSession.id;
 
     if (!isMe && !isAdmin) {
       // if not admin or self, redirect to home page
@@ -91,8 +91,9 @@ export const getSelfUserById = buildServerQuery(
     });
 
     // 4. redirect to logout if session mismatch with db. (invalid session)
-    if (!curUser || (isMe && userSession.name !== curUser.name)
-      || (isMe && userSession.isAdmin !== curUser.isAdmin)) {
+    if (!curUser || (isMe && userSession.isAdmin !== curUser.isAdmin)) {
+      // WARNING: as user might change name, don't log user out if name mismatch.
+      // this will trigger when selfUpdateUserAction revalidate path before update JWT.
       return redirect(ALL_NAVPATH.auto_signout.href);
     }
 

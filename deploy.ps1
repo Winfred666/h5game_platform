@@ -1,11 +1,38 @@
+param (
+    [Parameter(Position=0)]
+    [ValidateSet("deploy", "clean")]
+    [string]$Command,
+    [string]$PublicFrontUrl,
+    [string]$PublicMinioUrl,
+    [string]$FrontPort,
+    [string]$MinioPort,
+    [string]$MinioConsolePort,
+    [string]$AdminName,
+    [switch]$SkipBuild,
+    [switch]$Force
+)
+# Set encoding after param block
 $OutputEncoding = [console]::OutputEncoding = New-Object System.Text.UTF8Encoding($true)
+
+# Set default values after param block
+if (-not $Command) { $Command = "deploy" }
+if (-not $PublicFrontUrl) { $PublicFrontUrl = "http://localhost:3000/h5game" }
+if (-not $PublicMinioUrl) { $PublicMinioUrl = "http://localhost:9000" }
+if (-not $AdminName) { $AdminName = "h5game_admin" }
+
+if (-not $FrontPort) { $FrontPort = 3000 }
+if (-not $MinioPort) { $MinioPort = 9000 }
+if (-not $MinioConsolePort) { $MinioConsolePort = 9001 }
 
 # 创建生产环境配置文件
 function Create-ProductionEnv {
     param (
-        [string]$PublicFrontUrl = "http://localhost:3000/h5game",
-        [string]$PublicMinioUrl = "http://localhost:9000",
-        [string]$AdminName = "h5game_admin",
+        [string]$PublicFrontUrl,
+        [string]$PublicMinioUrl,
+        [string]$AdminName,
+        [string]$FrontPort,
+        [string]$MinioPort,
+        [string]$MinioConsolePort
     )
     
     Write-Host "🔧 Creating production environment configuration..." -ForegroundColor Cyan
@@ -32,25 +59,30 @@ MINIO_SECRET_KEY=${minioPassword}
 
 # NextAuth Configuration
 AUTH_SECRET=${authSecret}
+AUTH_TRUST_HOST=true
 
 # Admin Configuration
 ADMIN_QQ=${adminQQ}
 ADMIN_NAME=${AdminName}
 DEFAULT_PASSWORD=${defaultPassword}
 
+# internal ports
+FRONT_PORT=${FrontPort}
+MINIO_PORT=${MinioPort}
+MINIO_CONSOLE_PORT=${MinioConsolePort}
 "@
     
     $envContent | Out-File -FilePath ".env.production" -Encoding UTF8
     Write-Host "✅ Created .env.production with secure credentials" -ForegroundColor Green
     Write-Host "   Username: $AdminName" -ForegroundColor White
+    Write-Host "   QQ: $adminQQ" -ForegroundColor White
     Write-Host "   Password: $defaultPassword for all new users" -ForegroundColor White
-    Write-Host "   Console: http://${Domain}:9001" -ForegroundColor White
 }
 
 # 构建 Docker 镜像
 function Build-DockerImage {
     try {
-        Write-Host "🏗️ Building Docker image..." -ForegroundColor Cyan
+        Write-Host "🏗️  Building Docker image..." -ForegroundColor Cyan
         # 构建镜像
         docker build --force-rm -t h5game_platform-frontend:v2.0 .
         if ($LASTEXITCODE -eq 0) {
@@ -84,9 +116,9 @@ function Start-Services {
 # 主部署函数
 function Deploy-Production {
     param (
-        [string]$PublicFrontUrl = "http://localhost:3000/h5game",
-        [string]$PublicMinioUrl = "http://localhost:9000",
-        [string]$AdminName = "h5game_admin",
+        [string]$PublicFrontUrl,
+        [string]$PublicMinioUrl,
+        [string]$AdminName,
         [switch]$SkipBuild,
         [switch]$Force
     )
@@ -94,23 +126,20 @@ function Deploy-Production {
     Write-Host "🚀 H5 Game Platform - Production Deployment" -ForegroundColor Magenta
     Write-Host "===========================================" -ForegroundColor Magenta
     
-    # 检查先决条件
-    Check-Prerequisites
-    
-    # 检查是否已有生产环境文件
-    if (Test-Path ".env.production" -and !$Force) {
-        $response = Read-Host "Production environment file already exists. Overwrite? (y/N)"
-        if ($response -ne "y" -and $response -ne "Y") {
-            Write-Host "Using existing .env.production file" -ForegroundColor Yellow
-        } else {
-            Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName
-        }
-    } else {
-        Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName
-    }
-    
-    # 构建镜像
     if (!$SkipBuild) {
+        # 检查是否已有生产环境文件，注意更换管理员密码必须重新 build，因 sqlite 数据库在 image 中已初始化。
+        if ((Test-Path ".env.production") -and (!$Force)) {
+            $response = Read-Host "Production environment file already exists. Overwrite? (y/N)"
+            if (($response -ne "y") -and ($response -ne "Y")) {
+                Write-Host "Using existing .env.production file" -ForegroundColor Yellow
+            } else {
+                Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -FrontPort $FrontPort -MinioPort $MinioPort -MinioConsolePort $MinioConsolePort
+            }
+        } else {
+            Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -FrontPort $FrontPort -MinioPort $MinioPort -MinioConsolePort $MinioConsolePort
+        }
+
+        # 构建镜像
         Build-DockerImage
     } else {
         Write-Host "⏭️ Skipping Docker build" -ForegroundColor Yellow
@@ -136,17 +165,6 @@ function Clean-Deployment {
     Write-Host "✅ Cleanup completed" -ForegroundColor Green
 }
 
-# 主入口点
-param (
-    [Parameter(Position=0)]
-    [ValidateSet("deploy", "clean")]
-    [string]$Command = "deploy",
-    [string]$PublicFrontUrl = "http://localhost:3000/h5game",
-    [string]$PublicMinioUrl = "http://localhost:9000",
-    [string]$AdminName = "h5game_admin",
-    [switch]$SkipBuild,
-    [switch]$Force
-)
 
 switch ($Command.ToLower()) {
     "deploy" {

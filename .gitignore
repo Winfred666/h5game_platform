@@ -42,7 +42,6 @@ yarn-error.log*
 next-env.d.ts
 
 /lib/generated/prisma
-/prisma/migrations
 *.db
 
 /public/mocks
