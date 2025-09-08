@@ -15,6 +15,8 @@ export function GameIdPage({ game }: { game: IGame }) {
   return (
     <>
       {/* Background Cover Image */}
+      <div>
+        {/* prevent skipping auto scroll behavior */}
       <div className="fixed inset-0 -z-10">
         <Image
           src={game.coverImage}
@@ -25,35 +27,30 @@ export function GameIdPage({ game }: { game: IGame }) {
         />
         <div className="absolute inset-0 bg-black opacity-50"></div>
       </div>
+      </div>
 
       {/* 主要内容，使用页面包裹 */}
       <div
         className="relative flex flex-col items-center
-  gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[90%] lg:min-w-1/2 h-fit
-   bg-card"
+  gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[85%] lg:min-w-1/2 
+  flex-grow bg-card"
         style={{
-          width: game.online && game.online.mode==="embed_in_page" ? `${game.online.width+20}px`: "auto",
+          width:
+            game.online && game.online.mode === "embed"
+              ? `${game.online.width + 20}px`
+              : "auto",
         }}
       >
-        {/* Online Game full screen/embed Modal */}
-        {game.online ? (
-          <EmbededCanvas
-            gameId={game.id}
-            online={game.online}
-            coverImg={game.coverImage}
-          ></EmbededCanvas>
-        ) : (
-          <Image
-            alt={game.title}
-            src={game.coverImage}
-            width={800}
-            height={400}
-            className="w-full max-h-[50vh] object-cover"
-          />
-        )}
+        {/* 4 mode, jump, embed, fullscreen(still jump), download(no button) */}
+        <EmbededCanvas
+          gameId={game.id}
+          online={game.online}
+          coverImg={game.coverImage}
+        ></EmbededCanvas>
+
         <div className=" px-8 flex flex-col gap-8 lg:flex-row lg:justify-between">
           {/* Left column - Game info */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 max-w-3/5">
             <h2>{game.title}</h2>
 
             <div className=" whitespace-pre-line break-words">
@@ -84,7 +81,7 @@ export function GameIdPage({ game }: { game: IGame }) {
               </div>
               <div>发布日期： {game.createdAt}</div>
             </div>
-            <DownloadButton game={game}/>
+            {game.downloadUrl !== "" && <DownloadButton game={game} />}
           </div>
 
           {/* Right column - Screenshots */}

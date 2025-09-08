@@ -8,7 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { GameFormInputType } from "@/lib/types/zforms";
+import { GameFormInputType } from "@/lib/types/zformClient";
 import GamePosters from "@/components/GamePosters";
 import { Button } from "@/components/ui/button";
 import { useMultiObjectURLs } from "@/lib/hooks/useBrowser";
@@ -22,7 +22,6 @@ interface GameFormImagesProps {
   oldCoverSrc?: string;
   oldScreenshotsSrc?: string[];
 }
-
 
 function ScreenshotForm(
   {
@@ -116,20 +115,28 @@ function ScreenshotForm(
   );
 }
 
-
 export function GameFormRight({
   form,
   oldCoverSrc,
   oldScreenshotsSrc = [],
 }: GameFormImagesProps) {
+  // get the value from form
+  const kindOfProject = form.watch("kind");
+  const embedOpProject = form.watch("embed_op");
   return (
     <div className="flex flex-col gap-6">
       {/* --- Cover Image Section --- */}
+
       <FormField
         control={form.control}
         name="cover"
         render={({ field }) => SingleImageForm(field, oldCoverSrc)}
       />
+      <span className=" text-muted-foreground text-sm">
+        {kindOfProject === "html" && embedOpProject === "embed"
+          ? "封面展示宽高将与游戏宽高相同"
+          : "封面展示宽高比为3:1"}
+      </span>
       {/* --- Screenshots Section --- */}
       {/* 3. The upload placeholder always available to add more */}
       <FormField

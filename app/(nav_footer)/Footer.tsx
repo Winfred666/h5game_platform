@@ -61,7 +61,7 @@ const Footer: React.FC = () => {
 
         {/* Replaces Typography with a simple <p> tag */}
         <p className="text-center text-sm text-muted-foreground">
-          ©2025-{new Date().getFullYear()} 以上图标为友情链接
+          ©2025-{new Date().getFullYear()} 部分图标为友情链接
         </p>
       </div>
     </footer>

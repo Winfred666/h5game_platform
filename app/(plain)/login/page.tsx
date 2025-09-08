@@ -4,7 +4,7 @@ import { useLoading } from "@/components/LoadingProvider";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
-import { LoginFormInputSchema, LoginFormInputType } from "@/lib/types/zforms";
+import { LoginFormInputSchema, LoginFormInputType } from "@/lib/types/zformClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";

@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { ActionResponse } from "@/lib/types/iaction";
 import { useLoading } from "@/components/LoadingProvider";
-import { AddUserServerSchema } from "@/lib/types/zforms";
+import { AddUserServerSchema } from "@/lib/types/zformServer";
 import { cn } from "@/lib/utils";
 
 type BatchedUsers = Array<{ qq: string; name: string; avatar: string }>;

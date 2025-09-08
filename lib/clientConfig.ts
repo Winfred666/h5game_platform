@@ -35,7 +35,7 @@ export const genUserAvatarURL = (userId: string) =>
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.AVATAR}/${userId}.webp`;
 
 
-export const MAX_ZIP_SIZE = 200 * 1024 * 1000; // 200MB
+export const MAX_ZIP_SIZE = 200 * 1024 * 1024; // 200MB
 
 export const ACCEPTED_ZIP_MIME_TYPES = [
   "application/zip",

@@ -1,7 +1,7 @@
 "use server";
 import { db } from "../dbInit";
 import { authProtectedModule, buildServerAction } from "../services/builder";
-import { UserUpdateFormServerSchema } from "../types/zforms";
+import { UserUpdateFormServerSchema } from "../types/zformServer";
 import bcrypt from "bcryptjs";
 import { MINIO_BUCKETS } from "../clientConfig";
 import { SALT_ROUNDS } from "../serverConfig";

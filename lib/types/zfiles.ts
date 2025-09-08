@@ -11,7 +11,7 @@ import {
 // use for both client and server, so in clientConfig.
 
 // Required ZIP schema
-export const ZipSchema = z.array(z.any()).superRefine((value, ctx) => {
+const ZipSchema = z.array(z.any()).superRefine((value, ctx) => {
   if (!value || value.length !== 1) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

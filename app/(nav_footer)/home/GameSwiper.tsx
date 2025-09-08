@@ -11,7 +11,8 @@ import GamePosters from "@/components/GamePosters";
 import { useRouter } from "next/navigation";
 import { IGame } from "@/lib/types/igame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
-import { ArrowRight, Cloud, Laptop } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { GameOnlineIcon } from "@/components/GameCards";
 
 type SwiperPropItem = IGame;
 
@@ -67,7 +68,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                     {val.title}
                   </div>
                   <div className="icon-lg">
-                  {val.online ? <Cloud /> : <Laptop />}
+                  <GameOnlineIcon online={val.online} />
                   </div>
                   <div
                     onClick={()=> router.push(ALL_NAVPATH.game_id.href(val.id))}
@@ -81,7 +82,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                       transition: "background-color 0.3s, color 0.3s",
                     }}
                   >
-                    <div>{val.online ? "线上游玩" : "下载游玩"}</div>
+                    <div>{val.online ? (val.online.mode === "jump" ? "查看详情" : "线上游玩") : "下载游玩"}</div>
                     <ArrowRight className=" hidden lg:block" />
                   </div>
                 </div>

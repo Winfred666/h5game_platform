@@ -103,7 +103,6 @@ export async function setPrismaDefaultConfig(
   prisma: PrismaClient,
   hashedPassword: string
 ) {
-
   // ----------------------------------------
   // CLEANUP
   // ----------------------------------------
@@ -116,7 +115,7 @@ export async function setPrismaDefaultConfig(
   await prisma.tag.deleteMany();
   await prisma.configuration.deleteMany();
   console.log("🗑️  Existing data deleted.");
-  
+
   // SET DEFAULT HASH / SWIPER / DAILY_RECOMMAND ...
   const settings = [
     { key: "DEFAULT_HASH", value: hashedPassword },
@@ -159,30 +158,67 @@ export async function setPrismaDefaultConfig(
   console.log("🏷️ Seeding tags...");
   const tagNames = [
     "横版跳跃",
-    "模拟经营",
     "休闲益智",
     "敏捷",
     "恐怖",
     "解谜",
+    "视觉小说",
+    "音乐节奏",
     "角色扮演",
     "竞速驾驶",
     "射击",
     "沙盒",
-    "开放世界？",
-    "视觉小说",
-    "音乐节奏",
     "卡牌",
     "塔防",
     "回合制",
+    "模拟经营",
     "即时战略",
     "Roguelike",
     "多人",
     "3D",
     "2D",
+    "OR工作室",
+    "求是潮",
   ];
   await prisma.tag.createMany({
     data: tagNames.map((name) => ({ name })),
   });
 
   console.log(`✅ ${tagNames.length} tags created.`);
+}
+
+export type AssetsTypeConfig = | { mode: "downloadable" }
+    | { mode: "fullscreen"; useSharedArrayBuffer: boolean }
+    | {
+        mode: "embed";
+        useSharedArrayBuffer: boolean;
+        width?: number;
+        height?: number;
+        isAutoStarted?: boolean;
+        hasFullscreenButton?: boolean;
+        enableScrollbars?: boolean;
+      }
+    | { mode: "jump"; url: string };
+    
+export function generateAssetsType(
+  config: AssetsTypeConfig
+): string {
+  switch (config.mode) {
+    case "downloadable":
+      return "";
+    case "fullscreen":
+      return `fullscreen|${config.useSharedArrayBuffer ? 1 : 0}`;
+    case "embed":
+      return `embed|${config.width || 0}|${config.height || 0}|${
+        config.useSharedArrayBuffer ? 1 : 0
+      }|${config.isAutoStarted ? 1 : 0}|${
+        config.hasFullscreenButton ? 1 : 0
+      }|${config.enableScrollbars ? 1 : 0}`;
+    case "jump":
+      return `jump|${config.url}`;
+    default: {
+      const _exhaustive: never = config;
+      return _exhaustive;
+    }
+  }
 }

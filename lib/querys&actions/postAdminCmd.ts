@@ -20,7 +20,7 @@ import { deleteImage, deleteImageFolder, uploadImageFromWebURL } from "../servic
 import {
   AddUserServerSchema,
   UserAdminEditServerSchema,
-} from "../types/zforms";
+} from "../types/zformServer";
 import {
   DEFAULT_HASH_KEY,
   ENABLE_DAILY_RECOMMENDATION_KEY,

@@ -12,9 +12,10 @@ export default function EmbededCanvas({
   coverImg,
 }: {
   gameId: string;
-  online: IOnlineEmbed;
+  online: IOnlineEmbed|undefined;
   coverImg: string;
 }) {
+  // is_playing and is_fullscreen are both specific to embed mode, not for jump/fullscreen/download mode.
   const [is_playing, set_playing] = useState<boolean>(false);
   const [is_fullscreen, set_fullscreen] = useState<boolean>(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -53,11 +54,22 @@ export default function EmbededCanvas({
     }
   }, [is_fullscreen]);
 
+  // set playing the game directly if embed + auto play
+  useEffect(() => {
+    if (online && online.mode === "embed" && online.isAutoStarted) {
+      set_playing(true);
+    }
+  }, [online]);
+
+
   const { width, height } = useWindowSize();
 
-  let finalWidth = "100vh",
-    finalHeight = "100vh";
-  if (!is_fullscreen && online.mode === "embed_in_page") {
+  let finalWidth,finalHeight,finalAspectRatio="auto";
+  if (!online || online.mode === "jump" || online.mode === "fullscreen") {
+    finalWidth = "100%";
+    finalHeight = "auto";
+    finalAspectRatio = "3"; // for a banner style 3 width 1 heigth.
+  } else if (online.mode === "embed" && !is_fullscreen) {
     if (width !== null && online.width > width) {
       finalWidth = "100vh";
     } else {
@@ -68,11 +80,14 @@ export default function EmbededCanvas({
     } else {
       finalHeight = `${online.height}px`;
     }
+  } else if(online.mode === "embed" && is_fullscreen){
+    finalWidth = "100vw";
+    finalHeight = "100vh";
   }
 
   // Determine iframe scroll behavior based on config
   const iframeOverflow =
-    online.mode === "embed_in_page" && !online.enableScrollbars
+    online && online.mode === "embed" && !online.enableScrollbars
       ? "hidden"
       : "auto";
 
@@ -88,11 +103,12 @@ export default function EmbededCanvas({
           zIndex: is_fullscreen ? 9999 : 1, // Higher z-index
           width: finalWidth,
           height: finalHeight,
+          aspectRatio: finalAspectRatio,
           backgroundImage: `url(${coverImg})`,
           backgroundColor: is_fullscreen ? "black" : "transparent", // Black background in fullscreen
         }}
       >
-        {is_playing && typeof online !== "string" ? (
+        {(online && is_playing) ? (
           <iframe
             ref={iframeRef}
             src={online.url}
@@ -102,7 +118,7 @@ export default function EmbededCanvas({
             // scrolling is deprecated; omit it
             style={{ overflow: iframeOverflow as any }}
             onLoad={() => {
-              if (online.mode !== "embed_in_page" || online.enableScrollbars) return;
+              if (online.mode !== "embed" || online.enableScrollbars) return;
               try {
                 const doc =
                   iframeRef.current?.contentDocument ??
@@ -127,13 +143,13 @@ export default function EmbededCanvas({
               }
             }}
           />
-        ) : (
+        ) : online && (
           <Button
             size="lg"
             onClick={() => {
               // for fullscreen game, just open new tab
               increViewsAction(gameId);
-              if (online.mode === "fullscreen") {
+              if (online.mode !== "embed") {
                 window.open(online.url, "_blank", "noopener");
               } else {
                 set_playing(true);
@@ -141,12 +157,14 @@ export default function EmbededCanvas({
             }}
           >
             <Play />
-            开始游戏
+            {online.mode === "jump" ? "点击跳转" : "开始游戏"}
           </Button>
         )}
 
+
+
         {/* Control Buttons */}
-        {online.mode === "embed_in_page" && online.hasFullscreenButton && (
+        {online && online.mode === "embed" && online.hasFullscreenButton && (
           <div className="absolute bottom-4 right-4 flex gap-2 opacity-20 hover:opacity-100 transition-opacity">
             <Button
               size="icon"

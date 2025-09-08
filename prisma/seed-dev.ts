@@ -1,12 +1,16 @@
 import { PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 import * as bcrypt from "bcryptjs";
-import { createMinioClient, setPrismaDefaultConfig } from "../lib/dbInitUtils";
+import {
+  createMinioClient,
+  generateAssetsType,
+  setPrismaDefaultConfig,
+} from "../lib/dbInitUtils";
 import { MINIO_BUCKETS } from "../lib/clientConfig";
 
 const SALT_ROUNDS = 10;
 
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 // awesome that next.js 15 has sharp built-in, webp is old but robust for images
 import sharp from "sharp";
 
@@ -39,7 +43,7 @@ async function main() {
       }
     ).then((res) => {
       if (!res.ok) {
-        throw new Error(`Failed to fetch image: ${res.statusText}`);
+        throw new Error(`Failed to fetch image: ${res}`);
       }
       return res.arrayBuffer();
     });
@@ -65,17 +69,22 @@ async function main() {
       `📸 Successfully uploaded ${objectName} to bucket ${bucketName}`
     );
   }
-  
+
   // ----------------------------------------
   // SEED USERS
   // ----------------------------------------
   console.log("👤 Seeding users...");
   const createdUsers = [];
-  const hashedPassword = await bcrypt.hash(process.env.DEFAULT_PASSWORD!, SALT_ROUNDS);
-  console.log(`🔑 Default password for all users is "${process.env.DEFAULT_PASSWORD}"`);
-  
+  const hashedPassword = await bcrypt.hash(
+    process.env.DEFAULT_PASSWORD!,
+    SALT_ROUNDS
+  );
+  console.log(
+    `🔑 Default password for all users is "${process.env.DEFAULT_PASSWORD}"`
+  );
+
   await setPrismaDefaultConfig(prisma, hashedPassword);
-  
+
   // Fetch all created tags to get their IDs for linking later
   const allTags = await prisma.tag.findMany();
 
@@ -130,12 +139,27 @@ async function main() {
 
     // --- Create the Game record with its relations ---
     const screenshotCount = faker.number.int({ min: 0, max: 4 });
+    const assetsType = generateAssetsType(
+      faker.helpers.arrayElement([
+        { mode: "downloadable" },
+        { mode: "fullscreen", useSharedArrayBuffer: faker.datatype.boolean() },
+        {
+          mode: "embed",
+          width: faker.helpers.arrayElement([400, 600, 800, 1080]),
+          height: faker.helpers.arrayElement([400, 720, 1080]),
+          useSharedArrayBuffer: false, // do not have nginx to support sab header changing at dev.
+          isAutoStarted: faker.datatype.boolean(),
+          hasFullscreenButton: faker.datatype.boolean(),
+          enableScrollbars: faker.datatype.boolean(),
+        },
+        { mode: "jump", url: faker.internet.url() },
+      ])
+    );
+
     const game = await prisma.game.create({
       data: {
         title: `${faker.hacker.adjective()} ${faker.hacker.noun()} #${i}`,
-        isOnline: faker.datatype.boolean(),
-        width: faker.helpers.arrayElement([1024, 1280, 1920, null]),
-        height: faker.helpers.arrayElement([768, 720, 1080, null]),
+        assetsType: assetsType,
         description: faker.lorem.paragraphs(2),
         isPrivate: faker.datatype.boolean(0.2), // 20% chance of being private
         size: faker.number.int({ min: 50, max: 5 * 1024 }), // 50MB to 5GB

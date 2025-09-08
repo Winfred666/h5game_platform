@@ -34,7 +34,7 @@ export default function AdminBackupButton() {
             <AlertDialogTitle>导出所有游戏？</AlertDialogTitle>
             <AlertDialogDescription>
               确定要导出所有游戏吗？此操作会打开一空白界面并加载较长时间，每次导出有
-              30 分钟缓存。可访问链接查看导出文件的格式整理方法：
+              30 分钟缓存。可访问链接，查看导出文件的整理方法：
               <Button variant="link">
                 <Link
                   href="https://docs.qq.com/doc/DV0xKdGxpcFBDU2ZR"

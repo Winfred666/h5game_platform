@@ -18,16 +18,12 @@ datasource db {
 model Game {
   id          String   @id @default(cuid()) // or @default(uuid())
   title       String   @unique
-  isOnline    Boolean  @map("is_online") // true if the game can be played online.
   
-  width       Int?
-  height      Int?
-  isAutoStarted Boolean @default(false) @map("is_auto_started")
-  useSharedArrayBuffer Boolean @default(false) @map("use_shared_array_buffer")
-  
-  hasFullscreenButton Boolean @default(true) @map("has_fullscreen_button")
-  enableScrollbars Boolean @default(true) @map("enable_scrollbars")
-
+  assetsType   String   @map("assets_type") // assetsType: 4 base types, aligned with IOnlineEmbed:
+// 1. "" :  downloadGame, interpret as undefined online option.
+// 2. "fullscreen|0": online fullscreen game, options: useSharedArrayBuffer
+// 3. "embed|100|100|0|0|0|0": online embed game, options: width|height|useSharedArrayBuffer|isAutoStarted|hasFullscreenButton|enableScrollbars
+// 4. "jump|https://XXXX": jumping game.
 
   description String   @default("")// must has, can be "" empty string.
 

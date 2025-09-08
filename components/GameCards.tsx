@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Cloud, Laptop } from "lucide-react";
+import { Cloud, ExternalLink, Laptop } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -13,6 +13,25 @@ import { IGame } from "@/lib/types/igame";
 import { useRouter } from "next/navigation";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { PaginationWithLinks } from "./ui/pagination-with-link";
+
+// New: Extracted icon component
+export function GameOnlineIcon({
+  online,
+  className,
+}: {
+  online: IGame["online"];
+  className?: string;
+}) {
+  return online ? (
+    online.mode === "jump" ? (
+      <ExternalLink className={className} />
+    ) : (
+      <Cloud className={className} />
+    )
+  ) : (
+    <Laptop className={className} />
+  );
+}
 
 type GameCardProps =
   | {
@@ -68,11 +87,10 @@ export function GameCard({ game, small }: GameCardProps) {
               <CardTitle className="text-lg leading-snug">
                 {game.title}
               </CardTitle>
-              {game.online ? (
-                <Cloud className="shrink-0 text-muted-foreground" />
-              ) : (
-                <Laptop className="shrink-0 text-muted-foreground" />
-              )}
+              <GameOnlineIcon
+                online={game.online}
+                className="shrink-0 text-muted-foreground"
+              />
             </div>
           </CardHeader>
 

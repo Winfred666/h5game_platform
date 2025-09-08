@@ -19,7 +19,7 @@ export interface IDeveloper {
 
 export type IOnlineEmbed =
   | {
-      mode: "embed_in_page";
+      mode: "embed";
       width: number; // pixel, optional, undefined for full screen
       height: number; // pixel, optional, undefined for full screen
       url: string; // the url for online play, like "https://example.com/game/index.html"
@@ -29,9 +29,13 @@ export type IOnlineEmbed =
       enableScrollbars: boolean; // enable scrollbars for iframe
     }
   | {
-      mode: "fullscreen";
+      mode: "fullscreen"; // fullscreen, still jump to minio resource.
       url: string; // the url for online play, like "https://example.com/game/index.html"
-    };
+    }
+  | {
+     mode: "jump"; // jump to another page, like itch.io page.
+     url: string;
+  };
 
 export interface IGame {
   id: string; // id is always string.
@@ -44,7 +48,8 @@ export interface IGame {
 
   developers: IDeveloper[];
   tags: IGameTag[];
-  // most important: url for download
+  // important: url for download, 
+  // for jumping page there is no downloadUrl, which set to "".
   downloadUrl: string;
   // optinal, for playing online, string for full-screen jump, canvas for embedded, undefined for off-line game.
   online?: IOnlineEmbed;

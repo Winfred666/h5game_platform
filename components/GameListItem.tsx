@@ -1,11 +1,12 @@
 import Image from "next/image";
-import { Cloud, Eye, Laptop } from "lucide-react"; // Added Trash2 icon
+import { Eye } from "lucide-react"; // Added Trash2 icon
 import { IGame, IGameAdmin } from "@/lib/types/igame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import React from "react";
 import GameTags from "./GameTags";
 import { Button } from "./ui/button";
 import Link from "next/link";
+import { GameOnlineIcon } from "./GameCards";
 
 type GameListAdminProps = {
   games: IGameAdmin[];
@@ -30,7 +31,9 @@ export const GameThumbnail = ({ game }: { game: IGame }): React.ReactNode => {
           {game.developers.map((dev) => dev.name).join(", ")}
         </p>
       </div>
-      <div className=" self-center">{game.online ? <Cloud /> : <Laptop />}</div>
+      <div className=" self-center">
+        <GameOnlineIcon online={game.online} />
+      </div>
     </div>
   );
 };

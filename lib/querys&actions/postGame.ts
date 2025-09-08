@@ -20,7 +20,7 @@ import {
 import {
   GameFormServerSchema,
   IncreGameFormServerSchema,
-} from "../types/zforms";
+} from "../types/zformServer";
 import { IDSchema } from "../types/zparams";
 import { revalidateAsGameChange } from "../services/revalidate";
 import { authDeveloperofGameOrAdmin } from "../services/authDeveloper";
@@ -28,11 +28,12 @@ import { authDeveloperofGameOrAdmin } from "../services/authDeveloper";
 const validateGameContent = async (
   data: {
     title: string;
-    isOnline: boolean;
+    assetsType: string;
     uploadfile: File[];
   },
   curGameId?: string
 ) => {
+  const isOnline = data.assetsType.startsWith("fullscreen") || data.assetsType.startsWith("embed");
   // 3.1 check game title unique, include isPrivate games.
   const existingGame = await db.game.findFirst({
     where: { title: data.title, isPrivate: undefined },
@@ -42,7 +43,7 @@ const validateGameContent = async (
   }
   // 3.2 check index.html before any db insertion.
   let zip: JSZip | undefined;
-  if (data.uploadfile.length > 0 && data.isOnline) {
+  if (data.uploadfile.length > 0 && isOnline) {
     zip = await checkZipHasIndexHtml(data.uploadfile[0]);
     if (!zip) {
       throw new Error("对于在线游戏，ZIP在根目录不包含“index.html”。");
@@ -79,7 +80,7 @@ export const submitNewGameAction = buildServerAction(
       cover: undefined,
       screenshots: undefined,
       screenshotCount: data.screenshots.add.length,
-      size: data.uploadfile[0].size,
+      size: data.uploadfile.length > 0 ? data.uploadfile[0].size : 0,
     };
 
     // 5. insert game metadata to database to get game id
@@ -94,11 +95,13 @@ export const submitNewGameAction = buildServerAction(
       // 6. upload game zip and image files to MinIO
 
       // upload game file to minio (minio may be uninit, wait for it first)
-      await uploadGameFolder(
-        { id: game.id, isPrivate: true },
-        data.uploadfile[0],
-        zip
-      );
+      if (data.uploadfile.length > 0) {
+        await uploadGameFolder(
+          { id: game.id, isPrivate: true },
+          data.uploadfile[0],
+          zip
+        );
+      }
 
       // upload screenshots to minio
       const promiseList = data.screenshots.add.map(
@@ -115,7 +118,6 @@ export const submitNewGameAction = buildServerAction(
         uploadImage(MINIO_BUCKETS.IMAGE, `${game.id}/cover.webp`, data.cover[0])
       );
       await Promise.all(promiseList);
-      
     } catch (error) {
       // clean up game metadata if file upload failed
       await db.game.delete({ where: { id: game.id } });
@@ -140,8 +142,8 @@ export const updateGameAction = buildServerAction(
     // 4. upload game zip and image files if needed to MinIO
     const updatePromiseList = [];
 
-    // upload game file to minio
-    if (data.uploadfile.length !== 0) {
+    // upload game file to minio (adaptive to jump mode which has no uploadfile)
+    if (data.uploadfile.length > 0) {
       updatePromiseList.push(
         deleteGameFolder(oldGame).then(() =>
           uploadGameFolder(oldGame, data.uploadfile[0], zip)

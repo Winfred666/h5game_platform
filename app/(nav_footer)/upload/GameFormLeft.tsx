@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { IGameTag } from "@/lib/types/igame";
-import { GameFormInputType } from "@/lib/types/zforms";
+import { GameFormInputType } from "@/lib/types/zformClient";
 import SearchBar from "@/components/SearchBar";
 import {
   DeletableTags,
@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CheckboxWithLabel } from "@/components/inputs/CheckboxWithLabel";
+import { MAX_ZIP_SIZE } from "@/lib/clientConfig";
+import { byteToMB } from "@/lib/utils";
 
 interface GameFormLeftProps {
   allTags: IGameTag[]; // All available tags for the game
@@ -56,21 +58,22 @@ export function GameFormLeft({
         data={[
           { id: "downloadable", description: "只下载" },
           { id: "html", description: "HTML (浏览器内可玩)" },
+          { id: "jump", description: "跳转到外部链接（如itch.io，gmhub等）" },
         ]}
       />
 
       {kindOfProject === "html" && (
         <div className=" flex flex-col gap-6">
           <SelectWithLabel<GameFormInputType>
-            fieldTitle="在线显示模式"
+            fieldTitle="HTML显示模式"
             nameInSchema="embed_op"
-            placeholder="选择在线显示方式"
+            placeholder="选择HTML显示方式"
             data={[
-              { id: "embed_in_page", description: "内嵌在页面中" },
+              { id: "embed", description: "内嵌在页面中" },
               { id: "fullscreen", description: "新窗口全屏模式" },
             ]}
           />
-          {embedOpProject === "embed_in_page" && (
+          {embedOpProject === "embed" && (
             <div className=" space-y-2">
               <FormLabel>游戏窗口尺寸 (内嵌时)</FormLabel>
               <div className=" flex items-baseline justify-between  gap-1">
@@ -92,7 +95,7 @@ export function GameFormLeft({
           )}
           <div className=" space-y-2">
             {/* Only for embed_in_page */}
-            {embedOpProject === "embed_in_page" && (
+            {embedOpProject === "embed" && (
               <>
                 <CheckboxWithLabel<GameFormInputType>
                   nameInSchema="isAutoStarted"
@@ -104,6 +107,11 @@ export function GameFormLeft({
                   label="显示全屏按钮"
                   description="在嵌入窗口中显示全屏按钮"
                 />
+                <CheckboxWithLabel<GameFormInputType>
+                  nameInSchema="enableScrollbars"
+                  label="启用滚动条"
+                  description="当游戏超出宽高时允许滚动查看"
+                />
               </>
             )}
             {/* Always for HTML kind */}
@@ -112,49 +120,53 @@ export function GameFormLeft({
               label="使用 SharedArrayBuffer"
               description="将严格规定同源策略，Godot引擎或多线程场景才需要"
             />
-            <CheckboxWithLabel<GameFormInputType>
-              nameInSchema="enableScrollbars"
-              label="启用滚动条"
-              description="当游戏超出宽高时允许滚动查看"
-            />
           </div>
         </div>
       )}
 
-      <FormField
-        name="uploadfile"
-        render={({ field: { onChange, onBlur } }) => (
-          <FormItem>
-            <FormLabel>游戏文件</FormLabel>
-            <FormControl>
-              <Input
-                type="file"
-                accept=".zip,.rar,.7zip"
-                onChange={(e) => onChange(Array.from(e.target.files ?? []))}
-                onBlur={onBlur}
-              />
-            </FormControl>
-            <FormDescription>
-              <span>
-                上传 .zip 文件；在线游戏需根目录内含 index.html；最大体积：1GB；
-              </span>
-              {downloadUrl && (
+      {kindOfProject === "jump" ? (
+        <InputWithLabel<GameFormInputType>
+          fieldTitle="跳转链接"
+          nameInSchema="jumpUrl"
+          placeholder="https://..."
+        />
+      ) : (
+        <FormField
+          name="uploadfile"
+          render={({ field: { onChange, onBlur } }) => (
+            <FormItem>
+              <FormLabel>游戏文件</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  accept=".zip,.rar,.7zip"
+                  onChange={(e) => onChange(Array.from(e.target.files ?? []))}
+                  onBlur={onBlur}
+                />
+              </FormControl>
+              <FormDescription>
                 <span>
-                  <br />
-                  当前文件:
-                  <Button variant="link" size="sm" className="h-fit" asChild>
-                    <Link href={downloadUrl} target="_blank">
-                      {downloadUrl}
-                    </Link>
-                  </Button>
-                  ；上传新文件将会替换它。
+                  上传 .zip 文件；在线游戏需根目录内含
+                  index.html；最大体积：{byteToMB(MAX_ZIP_SIZE)}；
                 </span>
-              )}
-            </FormDescription>
-            <FormMessage />
-          </FormItem>
-        )}
-      ></FormField>
+                {downloadUrl && (
+                  <span>
+                    <br />
+                    当前文件:
+                    <Button variant="link" size="sm" className="h-fit" asChild>
+                      <Link href={downloadUrl} target="_blank">
+                        {downloadUrl}
+                      </Link>
+                    </Button>
+                    ；上传新文件将会替换它。
+                  </span>
+                )}
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        ></FormField>
+      )}
 
       <TextAreaWithLabel<GameFormInputType>
         fieldTitle="游戏描述"

@@ -2,7 +2,7 @@ import "server-only";
 import NextAuth, { User } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { db } from "../dbInit";
-import { LoginFormInputSchema } from "../types/zforms";
+import { LoginFormInputSchema } from "../types/zformClient";
 import bcrypt from "bcryptjs";
 import { ALL_NAVPATH } from "../clientConfig";
 

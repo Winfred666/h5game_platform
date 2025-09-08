@@ -63,3 +63,8 @@ export const UserSessionSchema = z.object(
     invalid_type_error: "用户会话信息格式不正确",
   }
 );
+
+export const NameSchema = z
+  .string()
+  .min(1, "昵称不能为空")
+  .max(50, "昵称不能超过50个字符");

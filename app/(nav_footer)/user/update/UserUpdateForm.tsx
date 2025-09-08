@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   UserUpdateFormInputSchema,
   UserUpdateFormInputType,
-} from "@/lib/types/zforms";
+} from "@/lib/types/zformClient";
 import { IUser } from "@/lib/types/iuser";
 import { Form, FormField, FormLabel } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";

@@ -1,16 +1,14 @@
 import "server-only";
 
 import { Prisma } from "@prisma/client";
-import {
-  byteToMB,
-} from "./utils";
+import { byteToMB } from "./utils";
 
 import {
   genGameCoverURL,
   genGameDownloadURL,
   genGamePlayableURL,
   genGameScreenshotsURL,
-  genUserAvatarURL
+  genUserAvatarURL,
 } from "./clientConfig";
 
 export const GameExtension = Prisma.defineExtension({
@@ -52,47 +50,57 @@ export const GameExtension = Prisma.defineExtension({
       online: {
         needs: {
           id: true,
-          isOnline: true,
-          width: true,
-          height: true,
           isPrivate: true,
-          // include the 4 boolean options for online embed config
-          isAutoStarted: true,
-          hasFullscreenButton: true,
-          enableScrollbars: true,
-          useSharedArrayBuffer: true,
+          assetsType: true,
         },
-        compute({
-          id,
-          isOnline,
-          width,
-          height,
-          isPrivate,
-          isAutoStarted,
-          hasFullscreenButton,
-          enableScrollbars,
-          useSharedArrayBuffer,
-        }) {
-          if (!isOnline) return undefined; // downloadable game does not need this
-          const base = {
-            url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer),
-          };
-          if (width && height) {
-            return {
-              ...base,
-              mode: "embed_in_page" as const,
-              width,
-              height,
-              isAutoStarted,
-              hasFullscreenButton,
-              enableScrollbars,
-            };
+        compute({ id, isPrivate, assetsType }) {
+          const attrs = assetsType.split("|");
+          switch (attrs[0]) {
+            case "jump":
+              return {
+                mode: "jump" as const,
+                url: attrs[1],
+              };
+            case "fullscreen": {
+              const useSharedArrayBuffer = attrs[1] === "1";
+              return {
+                mode: "fullscreen" as const,
+                url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer),
+                useSharedArrayBuffer,
+              };
+            }
+            case "embed": {
+              const width = parseInt(attrs[1]);
+              const height = parseInt(attrs[2]);
+              const useSharedArrayBuffer = attrs[3] === "1";
+              const isAutoStarted = attrs[4] === "1";
+              const hasFullscreenButton = attrs[5] === "1";
+              const enableScrollbars = attrs[6] === "1";
+              return {
+                mode: "embed" as const,
+                width,
+                height,
+                url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer),
+                useSharedArrayBuffer,
+                isAutoStarted,
+                hasFullscreenButton,
+                enableScrollbars,
+              };
+            }
+            default:
+              return undefined;
           }
-          return {
-            ...base,
-            mode: "fullscreen" as const,
-          };
         },
+      },
+      downloadUrl: {
+        needs: { id: true, isPrivate: true, assetsType: true },
+        compute: ({ id, isPrivate, assetsType }) => assetsType.split("|")[0] !== "jump" ?genGameDownloadURL(id, isPrivate) : "",
+      },
+      
+      // do not expose raw assetsType to client
+      assetsType: {
+        needs: {},
+        compute: () => undefined,
       },
       // createdAt: { // later done at $allOperations
       //   // Date is not pure JSON type, so we need to convert it to string.
@@ -103,20 +111,6 @@ export const GameExtension = Prisma.defineExtension({
       //   needs: { updatedAt: true },
       //   compute: ({ updatedAt }) => dateToLocaleString(updatedAt),
       // },
-      width: {
-        needs: {},
-        compute: () => undefined,
-      },
-      height: {
-        needs: {},
-        compute: () => undefined,
-      },
-      // NOTE: We do not override the 4 boolean options here to avoid Prisma type issues in `needs` above.
-      // If you must hide these from API responses, strip them during serialization or map to a DTO.
-      // isAutoStarted
-      // hasFullscreenButton
-      // enableScrollbars
-      // useSharedArrayBuffer
 
       // is private is protected by omit.
       size: {
@@ -131,10 +125,6 @@ export const GameExtension = Prisma.defineExtension({
         needs: { id: true, screenshotCount: true },
         compute: ({ id, screenshotCount }) =>
           genGameScreenshotsURL(id, screenshotCount),
-      },
-      downloadUrl: {
-        needs: { id: true, isPrivate: true },
-        compute: ({ id, isPrivate }) => genGameDownloadURL(id, isPrivate),
       },
     },
   },
@@ -179,7 +169,6 @@ export const UserExtension = Prisma.defineExtension({
   },
 });
 
-
 export const TagExtension = Prisma.defineExtension({
   query: {
     tag: {
@@ -189,9 +178,9 @@ export const TagExtension = Prisma.defineExtension({
           where: {
             hide: false, // only return visible tags
             ...args.where,
-          }
-        })
-      }
-    }
-  }
-})
+          },
+        });
+      },
+    },
+  },
+});

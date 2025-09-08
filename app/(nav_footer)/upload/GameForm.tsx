@@ -4,7 +4,7 @@ import {
   IncreGameFormInputSchema,
   GameFormInputSchema,
   GameFormInputType,
-} from "@/lib/types/zforms";
+} from "@/lib/types/zformClient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FieldErrors, SubmitHandler, useForm } from "react-hook-form";
 import { GameFormLeft } from "./GameFormLeft";
@@ -46,9 +46,9 @@ export default function GameForm({
           title: game.title,
           kind: game.online ? "html" : "downloadable",
           uploadfile: [], // Assuming uploadfile is handled separately
-          embed_op: game.online ? game.online.mode : "embed_in_page",
-          width: game.online && game.online.mode === "embed_in_page" ? game.online.width.toString() : "",
-          height: game.online && game.online.mode === "embed_in_page" ? game.online.height.toString() : "",
+          embed_op: game.online && game.online.mode === "fullscreen" ? game.online.mode : "embed",
+          width: game.online && game.online.mode === "embed" ? game.online.width.toString() : "",
+          height: game.online && game.online.mode === "embed" ? game.online.height.toString() : "",
           description: game.description,
           tags: game.tags.map((tag) => tag.id),
           developers: game.developers.map((dev) => ({
@@ -57,21 +57,26 @@ export default function GameForm({
           })),
           cover: [],
           screenshots: { add: [], delete: [] },
+
+          jumpUrl: game.online ? game.online.url : "",
           // html only options.
           useSharedArrayBuffer: game.online && game.online.url.includes("/sab/") ? true : false,
-          enableScrollbars: game.online && game.online.mode === "embed_in_page" ? game.online.enableScrollbars : false,
-          isAutoStarted: game.online && game.online.mode === "embed_in_page" ? game.online.isAutoStarted : false,
-          hasFullscreenButton: game.online && game.online.mode === "embed_in_page" ? game.online.hasFullscreenButton : false,
+          enableScrollbars: game.online && game.online.mode === "embed" ? game.online.enableScrollbars : false,
+          isAutoStarted: game.online && game.online.mode === "embed" ? game.online.isAutoStarted : false,
+          hasFullscreenButton: game.online && game.online.mode === "embed" ? game.online.hasFullscreenButton : false,
         };
       } else {
         return {
           title: "",
           kind: "",
           uploadfile: [],
-          embed_op: "embed_in_page",
+          embed_op: "embed",
           width: "",
           height: "",
           description: "",
+          
+          jumpUrl: "",
+
           tags: [],
           developers: [],
           cover: [],

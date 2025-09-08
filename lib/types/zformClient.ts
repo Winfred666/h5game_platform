@@ -6,10 +6,14 @@ import {
   OptionalCoverSchema,
   OptionalZipSchema,
   ScreenshotsSchema,
-  ZipSchema,
 } from "./zfiles";
-import { formDataToObject } from "../utils";
-import { BooleanSchema, IDSchema, PasswordSchema, QQSchema, URLSchema } from "./zparams";
+import {
+  IDSchema,
+  NameSchema,
+  PasswordSchema,
+  QQSchema,
+  URLSchema,
+} from "./zparams";
 
 // const StringToNumberOptSchema = z
 //   .string()
@@ -26,21 +30,24 @@ const GameFormPrimitiveSchema = z.object({
   // because controlled react component cannot receive undefined as value.
   title: z.string().min(1, "标题不允许为空").max(50, "标题不能超过50个字符"),
   kind: z
-    .enum(["downloadable", "html", ""])
+    .enum(["downloadable", "html", "jump", ""])
     .refine((k) => k !== "", "请选择游戏类型"),
   // .transform((k) => k || "downloadable"), // should not use transform
-  
+
   // html only options.
   useSharedArrayBuffer: z.boolean(),
-  
+
   // html + embed only options.
   enableScrollbars: z.boolean(),
   isAutoStarted: z.boolean(),
   hasFullscreenButton: z.boolean(),
 
-  uploadfile: ZipSchema,
-  embed_op: z.enum(["embed_in_page", "fullscreen", ""]),
-  
+  uploadfile: OptionalZipSchema, // could be empty array if selecting 'jump' kind,
+
+  embed_op: z.enum(["embed", "fullscreen"]),
+
+  jumpUrl: z.union([URLSchema, z.literal("")]), // could be empty string if not 'jump' kind
+
   // first define a placeholder, then for optional value just transform
   width: z
     .string()
@@ -57,9 +64,7 @@ const GameFormPrimitiveSchema = z.object({
   description: z.string(),
   tags: z.array(IDSchema),
   // need name to show.
-  developers: z.array(
-    z.object({ id: IDSchema, name: z.string() })
-  ),
+  developers: z.array(z.object({ id: IDSchema, name: z.string() })),
   cover: CoverSchema,
   screenshots: z.object({
     add: ScreenshotsSchema,
@@ -68,60 +73,57 @@ const GameFormPrimitiveSchema = z.object({
 });
 
 // WARNING: should not break the calling chain of zod, cannot use wrapper function
-const clientGameValidation = (
+const clientGameEmbedValidation = (
   form: z.input<typeof GameFormPrimitiveSchema>
 ) => {
-  // post refine depends on multi field, must have width and height
+  // post refine depends on multi field, like html+embed type must have width and height
   if (form.kind === "html") {
-    return (
-      form.embed_op &&
-      (form.embed_op === "fullscreen" || (form.width && form.height))
+    return (form.embed_op === "fullscreen" ||
+        (form.embed_op === "embed" && form.width && form.height)
     );
   }
   return true;
 };
-const clientGameValidationError =
+
+const clientGameJumpValidation = (
+  form: z.input<typeof GameFormPrimitiveSchema>
+) => {
+  if (form.kind === "jump") {
+    return form.jumpUrl !== "";
+  }
+  return true;
+};
+
+const clientGameZipValidation = (
+  form: z.input<typeof GameFormPrimitiveSchema>
+) => {
+  if (form.kind === "downloadable" || form.kind === "html") {
+    return form.uploadfile.length === 1;
+  }
+  return true;
+};
+
+const clientGameEmbedValidationError =
   "HTML 嵌入必须指定窗口尺寸（可用引擎查看场景像素宽高），否则用全屏模式";
 
-export const GameFormInputSchema = GameFormPrimitiveSchema.strip().refine(
-  clientGameValidation,
-  clientGameValidationError
-);
+const clientGameJumpValidationError = "跳转外链必须指定合法链接";
+
+const clientGameZipValidationError = "HTML/只下载游戏都必须上传游戏包体";
+
+export const GameFormInputSchema = GameFormPrimitiveSchema.strip()
+  .refine(clientGameEmbedValidation, clientGameEmbedValidationError)
+  .refine(clientGameJumpValidation, clientGameJumpValidationError)
+  .refine(clientGameZipValidation, clientGameZipValidationError);
 
 export type GameFormInputType = z.input<typeof GameFormInputSchema>;
 
 export const IncreGameFormInputSchema = GameFormPrimitiveSchema.extend({
-  uploadfile: OptionalZipSchema,
   cover: OptionalCoverSchema,
 })
   .strip()
-  .refine(clientGameValidation, clientGameValidationError);
+  .refine(clientGameEmbedValidation, clientGameEmbedValidationError)
+  .refine(clientGameJumpValidation, clientGameJumpValidationError);
 
-const serverGameTransform = (form: GameFormInputType) => {
-  return {
-    ...form,
-    kind: undefined,
-    embed_op: undefined,
-    isOnline: form.kind === "html",
-    width: form.embed_op === "embed_in_page" ? parseInt(form.width) : null,
-    height: form.embed_op === "embed_in_page" ? parseInt(form.height) : null,
-    developers: form.developers.map((dev: { id: string }) => ({
-      id: dev.id,
-    })),
-    tags: form.tags.map((tagId: string) => ({ id: tagId })),
-  };
-};
-
-// transform is available in ServerSchema ; and any preprocess should only write in serverSchema to do server-side validtaion.
-export const GameFormServerSchema = z
-  .instanceof(FormData)
-  .transform(formDataToObject)
-  .pipe(GameFormInputSchema.transform(serverGameTransform));
-
-export const IncreGameFormServerSchema = z
-  .instanceof(FormData)
-  .transform(formDataToObject)
-  .pipe(IncreGameFormInputSchema.transform(serverGameTransform));
 
 export const LoginFormInputSchema = z.object({
   qq: QQSchema,
@@ -138,10 +140,7 @@ const userContactWaySchema = z
     "联系方式不能包含“，” 和 “：”"
   );
 
-const NameSchema = z
-  .string()
-  .min(1, "昵称不能为空")
-  .max(50, "昵称不能超过50个字符");
+
 
 export const UserUpdateFormInputSchema = z
   .object({
@@ -160,33 +159,3 @@ export const UserUpdateFormInputSchema = z
   .strip();
 
 export type UserUpdateFormInputType = z.input<typeof UserUpdateFormInputSchema>;
-
-export const UserUpdateFormServerSchema = z
-  .instanceof(FormData)
-  .transform(formDataToObject)
-  .pipe(
-    UserUpdateFormInputSchema.transform((form) => ({
-      ...form, // do not set password if leaves empty string
-      password: form.password.length > 0 ? form.password : undefined,
-      hasAvatar: form.avatar.length > 0 ? true : undefined, // from 0 to 1 or no change
-      contacts: form.contacts
-        .map((contact) => `${contact.way}:${contact.content}`)
-        .join(","),
-    }))
-  );
-
-export const AddUserServerSchema = z.array(
-  z.object({
-    name: NameSchema,
-    qq: QQSchema,
-    isAdmin: BooleanSchema,
-    avatar: URLSchema,
-  })
-);
-
-export const UserAdminEditServerSchema = z.object({
-  id: IDSchema,
-  qq: QQSchema,
-  isAdmin: z.boolean().default(false),
-  resetPassword: z.boolean().default(false),
-});
