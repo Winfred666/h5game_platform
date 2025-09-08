@@ -50,18 +50,47 @@ export const GameExtension = Prisma.defineExtension({
     // here is the post-processing of game result
     game: {
       online: {
-        needs: { id: true, isOnline: true, width: true, height: true, isPrivate: true },
-        compute({ id, isOnline, width, height, isPrivate }) {
+        needs: {
+          id: true,
+          isOnline: true,
+          width: true,
+          height: true,
+          isPrivate: true,
+          // include the 4 boolean options for online embed config
+          isAutoStarted: true,
+          hasFullscreenButton: true,
+          enableScrollbars: true,
+          useSharedArrayBuffer: true,
+        },
+        compute({
+          id,
+          isOnline,
+          width,
+          height,
+          isPrivate,
+          isAutoStarted,
+          hasFullscreenButton,
+          enableScrollbars,
+          useSharedArrayBuffer,
+        }) {
           if (!isOnline) return undefined; // downloadable game does not need this
-          if (!width || !height) {
+          const base = {
+            url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer),
+          };
+          if (width && height) {
             return {
-              url: genGamePlayableURL(id, isPrivate),
+              ...base,
+              mode: "embed_in_page" as const,
+              width,
+              height,
+              isAutoStarted,
+              hasFullscreenButton,
+              enableScrollbars,
             };
           }
           return {
-            url: genGamePlayableURL(id, isPrivate),
-            width,
-            height,
+            ...base,
+            mode: "fullscreen" as const,
           };
         },
       },
@@ -82,6 +111,13 @@ export const GameExtension = Prisma.defineExtension({
         needs: {},
         compute: () => undefined,
       },
+      // NOTE: We do not override the 4 boolean options here to avoid Prisma type issues in `needs` above.
+      // If you must hide these from API responses, strip them during serialization or map to a DTO.
+      // isAutoStarted
+      // hasFullscreenButton
+      // enableScrollbars
+      // useSharedArrayBuffer
+
       // is private is protected by omit.
       size: {
         needs: { size: true },

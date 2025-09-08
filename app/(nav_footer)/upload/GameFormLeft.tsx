@@ -25,6 +25,7 @@ import { X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { CheckboxWithLabel } from "@/components/inputs/CheckboxWithLabel";
 
 interface GameFormLeftProps {
   allTags: IGameTag[]; // All available tags for the game
@@ -32,7 +33,11 @@ interface GameFormLeftProps {
   downloadUrl?: string;
 }
 
-export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) {
+export function GameFormLeft({
+  allTags,
+  downloadUrl,
+  form,
+}: GameFormLeftProps) {
   const kindOfProject = form.watch("kind");
   const embedOpProject = form.watch("embed_op");
   // This function handles the logic for toggling a tag
@@ -62,7 +67,7 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
             placeholder="选择在线显示方式"
             data={[
               { id: "embed_in_page", description: "内嵌在页面中" },
-              { id: "fullscreen", description: "浏览器窗口全屏模式" },
+              { id: "fullscreen", description: "新窗口全屏模式" },
             ]}
           />
           {embedOpProject === "embed_in_page" && (
@@ -85,6 +90,34 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
               </div>
             </div>
           )}
+          <div className=" space-y-2">
+            {/* Only for embed_in_page */}
+            {embedOpProject === "embed_in_page" && (
+              <>
+                <CheckboxWithLabel<GameFormInputType>
+                  nameInSchema="isAutoStarted"
+                  label="自动开始"
+                  description="页面加载后自动开始游戏"
+                />
+                <CheckboxWithLabel<GameFormInputType>
+                  nameInSchema="hasFullscreenButton"
+                  label="显示全屏按钮"
+                  description="在嵌入窗口中显示全屏按钮"
+                />
+              </>
+            )}
+            {/* Always for HTML kind */}
+            <CheckboxWithLabel<GameFormInputType>
+              nameInSchema="useSharedArrayBuffer"
+              label="使用 SharedArrayBuffer"
+              description="将严格规定同源策略，Godot引擎或多线程场景才需要"
+            />
+            <CheckboxWithLabel<GameFormInputType>
+              nameInSchema="enableScrollbars"
+              label="启用滚动条"
+              description="当游戏超出宽高时允许滚动查看"
+            />
+          </div>
         </div>
       )}
 
@@ -111,7 +144,7 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
                   当前文件:
                   <Button variant="link" size="sm" className="h-fit" asChild>
                     <Link href={downloadUrl} target="_blank">
-                    {downloadUrl}
+                      {downloadUrl}
                     </Link>
                   </Button>
                   ；上传新文件将会替换它。
@@ -146,9 +179,7 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
               >
                 <DeletableTags
                   onDelete={(tag) =>
-                    onChange(
-                      value.filter((dev) => dev.id !== tag.id)
-                    )
+                    onChange(value.filter((dev) => dev.id !== tag.id))
                   }
                   selectedTags={value}
                   emptyText="没有选择协作者"
@@ -156,9 +187,7 @@ export function GameFormLeft({ allTags, downloadUrl, form }: GameFormLeftProps) 
                 <SearchBar<IUser>
                   thing="user"
                   onSelect={(user) => {
-                    if (
-                      value.some((dev) => dev.id === user.id)
-                    ) {
+                    if (value.some((dev) => dev.id === user.id)) {
                       toast.warning("开发者已存在于列表中");
                     } else {
                       onChange([...value, user]);

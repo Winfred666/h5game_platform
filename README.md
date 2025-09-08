@@ -80,9 +80,20 @@ chmod a+x deploy.sh
 
 ```nginx
 location ^~ /h5game/assets/ {
-                proxy_pass http://localhost:14399/;
+                proxy_pass http://localhost:${minio-port}/;
                 proxy_set_header Host $host;
 }
+
+location ^~ /h5game/assets/sab/ {
+                proxy_pass http://localhost:${minio-port}/;
+                
+                add_header Cross-Origin-Opener-Policy same-origin;
+                add_header Cross-Origin-Embedder-Policy require-corp;
+                
+                proxy_set_header Cross-Origin-Opener-Policy same-origin;
+                proxy_set_header Cross-Origin-Embedder-Policy require-corp;
+}
+
 location ^~ /h5game {
                 proxy_pass http://localhost:14400;
                 proxy_set_header Host $host;

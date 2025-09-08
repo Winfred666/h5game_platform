@@ -41,17 +41,14 @@ export default function GameForm({
     mode: "onBlur",
     defaultValues: (() => {
       if (game) {
+        
         return {
           title: game.title,
           kind: game.online ? "html" : "downloadable",
           uploadfile: [], // Assuming uploadfile is handled separately
-          embed_op: game.online
-            ? game.online.width
-              ? "embed_in_page"
-              : "fullscreen"
-            : "",
-          width: game.online?.width ? game.online.width.toString() : "",
-          height: game.online?.height ? game.online.height.toString() : "",
+          embed_op: game.online ? game.online.mode : "embed_in_page",
+          width: game.online && game.online.mode === "embed_in_page" ? game.online.width.toString() : "",
+          height: game.online && game.online.mode === "embed_in_page" ? game.online.height.toString() : "",
           description: game.description,
           tags: game.tags.map((tag) => tag.id),
           developers: game.developers.map((dev) => ({
@@ -60,6 +57,11 @@ export default function GameForm({
           })),
           cover: [],
           screenshots: { add: [], delete: [] },
+          // html only options.
+          useSharedArrayBuffer: game.online && game.online.url.includes("/sab/") ? true : false,
+          enableScrollbars: game.online && game.online.mode === "embed_in_page" ? game.online.enableScrollbars : false,
+          isAutoStarted: game.online && game.online.mode === "embed_in_page" ? game.online.isAutoStarted : false,
+          hasFullscreenButton: game.online && game.online.mode === "embed_in_page" ? game.online.hasFullscreenButton : false,
         };
       } else {
         return {
@@ -74,6 +76,11 @@ export default function GameForm({
           developers: [],
           cover: [],
           screenshots: { add: [], delete: [] },
+          // html only options.
+          useSharedArrayBuffer: false,
+          enableScrollbars: true,
+          isAutoStarted: false,
+          hasFullscreenButton: true,
         };
       }
     })(),

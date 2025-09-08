@@ -30,27 +30,34 @@ export default function LoginPage({
     },
   });
 
-  // need a whole function to be server side.
+  // Prevent open redirect attack
+  const isSafeInternalPath = (p?: string) =>
+    !!p && p.startsWith("/") && !p.startsWith("//") && !p.startsWith("/\\");
 
   const onSubmit: SubmitHandler<LoginFormInputType> = async (data) => {
     // Handle login logic here
     // console.log("Login data submitted:", data);
-    await startLoading(async () => {
-      const res = await signIn("credentials", {
-        redirect: false, // if redirect, will manage router automatically
-        ...data,
-      });
-      if (!res.ok || res.error) {
-        console.error("Login failed:", res.error);
-        throw new Error("登录失败，请检查QQ号和密码");
+    await startLoading(
+      async () => {
+        const res = await signIn("credentials", {
+          redirect: false, // if redirect, will manage router automatically
+          ...data,
+        });
+        if (!res.ok || res.error) {
+          console.error("Login failed:", res.error);
+          throw new Error("登录失败，请检查QQ号和密码");
+        }
+        return { success: true, data: res.status };
+      },
+      {
+        loadingMsg: "正在登录...",
+        successMsg: "登录成功！",
       }
-      return { success: true, data: res.status };
-    }, {
-      loadingMsg: "正在登录...",
-      successMsg: "登录成功！",
-    });
+    );
     // Redirect after successful login
-    router.push(callback || ALL_NAVPATH.home.href());
+    router.push(
+      isSafeInternalPath(callback) ? callback! : ALL_NAVPATH.home.href()
+    );
   };
 
   return (

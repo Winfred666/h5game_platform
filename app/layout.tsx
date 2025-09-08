@@ -12,7 +12,7 @@ import LoadingProvider from "@/components/LoadingProvider";
 
 export const metadata: Metadata = {
   title: "ZJU H5游戏中心",
-  description: "浙江大学H5游戏中心，提供多款H5游戏的在线试玩和下载服务。",
+  description: "ZJU H5游戏中心，提供多款H5游戏的在线试玩和下载服务。",
   icons: {
     icon: process.env.NEXT_PUBLIC_BASEPATH + "/favicon.ico",
   },

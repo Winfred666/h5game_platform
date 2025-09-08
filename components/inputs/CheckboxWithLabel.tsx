@@ -30,8 +30,7 @@ export function CheckboxWithLabel<TFieldValues extends FieldValues>({
       name={nameInSchema}
       render={({ field }) => (
         <FormItem
-          className="flex flex-row items-start 
-        gap-3 rounded-md border p-4"
+          className="flex flex-row items-start "
         >
           <FormControl>
             {/* The Checkbox component gets the `checked` and `onCheckedChange` props */}

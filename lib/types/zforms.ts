@@ -29,9 +29,18 @@ const GameFormPrimitiveSchema = z.object({
     .enum(["downloadable", "html", ""])
     .refine((k) => k !== "", "请选择游戏类型"),
   // .transform((k) => k || "downloadable"), // should not use transform
+  
+  // html only options.
+  useSharedArrayBuffer: z.boolean(),
+  
+  // html + embed only options.
+  enableScrollbars: z.boolean(),
+  isAutoStarted: z.boolean(),
+  hasFullscreenButton: z.boolean(),
 
   uploadfile: ZipSchema,
   embed_op: z.enum(["embed_in_page", "fullscreen", ""]),
+  
   // first define a placeholder, then for optional value just transform
   width: z
     .string()

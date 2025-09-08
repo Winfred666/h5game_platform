@@ -32,7 +32,7 @@ export function GameIdPage({ game }: { game: IGame }) {
   gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[90%] lg:min-w-1/2 h-fit
    bg-card"
         style={{
-          width: game.online?.width ? `${game.online.width+20}px`: "auto",
+          width: game.online && game.online.mode==="embed_in_page" ? `${game.online.width+20}px`: "auto",
         }}
       >
         {/* Online Game full screen/embed Modal */}

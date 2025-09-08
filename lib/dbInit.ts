@@ -13,6 +13,7 @@ declare global {
   var prisma: ReturnType<typeof createExtendedPrismaClient> | undefined;
   var minio: Minio.Client | undefined;
   var topGamesInitialized: boolean | undefined;
+  var userViewBucket: Map<string, number> | undefined; // For tracking user views by IP
 }
 
 // If globalThis.prisma exists, use it. Otherwise, create a new PrismaClient.

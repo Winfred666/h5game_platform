@@ -7,9 +7,10 @@ export enum MINIO_BUCKETS{
   AVATAR="avatars",
 };
 
-// savely add private
-export const genGamePlayableURL = (gameId: string, isPrivate: boolean) =>
-  `${process.env.NEXT_PUBLIC_MINIO_URL}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/index.html`;
+// savely add private, because the url is not secret, the security is protected by minio policy + cuid
+// for shared array buffer, use prefix for nginx to set proper headers
+export const genGamePlayableURL = (gameId: string, isPrivate: boolean, useSharedArrayBuffer: boolean) =>
+  `${process.env.NEXT_PUBLIC_MINIO_URL}${useSharedArrayBuffer ? "/sab" : ""}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/index.html`;
 
 export const genGameCoverURL = (gameId: string) =>
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.IMAGE}/${gameId}/cover.webp`;
@@ -34,7 +35,7 @@ export const genUserAvatarURL = (userId: string) =>
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.AVATAR}/${userId}.webp`;
 
 
-export const MAX_ZIP_SIZE = 1024 * 1024 * 1000; // 1GB
+export const MAX_ZIP_SIZE = 200 * 1024 * 1000; // 200MB
 
 export const ACCEPTED_ZIP_MIME_TYPES = [
   "application/zip",

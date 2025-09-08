@@ -17,11 +17,21 @@ export interface IDeveloper {
   name: string;
 }
 
-export interface IOnlineEmbed {
-  width?: number; // pixel, optional, undefined for full screen
-  height?: number; // pixel, optional, undefined for full screen
-  url: string; // the url for online play, like "https://example.com/game/index.html"
-}
+export type IOnlineEmbed =
+  | {
+      mode: "embed_in_page";
+      width: number; // pixel, optional, undefined for full screen
+      height: number; // pixel, optional, undefined for full screen
+      url: string; // the url for online play, like "https://example.com/game/index.html"
+
+      isAutoStarted: boolean; // auto start the embeded game
+      hasFullscreenButton: boolean; // show fullscreen button for embeded game
+      enableScrollbars: boolean; // enable scrollbars for iframe
+    }
+  | {
+      mode: "fullscreen";
+      url: string; // the url for online play, like "https://example.com/game/index.html"
+    };
 
 export interface IGame {
   id: string; // id is always string.
@@ -41,4 +51,4 @@ export interface IGame {
   size: string;
 }
 
-export type IGameAdmin = IGame & {views: number};
+export type IGameAdmin = IGame & { views: number };
