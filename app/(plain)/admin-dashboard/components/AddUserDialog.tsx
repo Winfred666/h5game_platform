@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { ActionResponse } from "@/lib/types/iaction";
 import { useLoading } from "@/components/LoadingProvider";
-import { AddUserServerSchema } from "@/lib/types/zformServer";
+import { AddUserInputSchema } from "@/lib/types/zformClient";
 import { cn } from "@/lib/utils";
 
 type BatchedUsers = Array<{ qq: string; name: string; avatar: string }>;
@@ -49,7 +49,7 @@ export function AddUserDialog({
         // console.log(`Parsed user - QQ: ${qq}, Name: ${name}, Avatar: ${avatar}`);
         return { qq, name, isAdmin: role !== "成员", avatar };
       });
-      setNewUsers(AddUserServerSchema.parse(parsedUsers));
+      setNewUsers(AddUserInputSchema.parse(parsedUsers));
       setIsValid(true);
     } catch {
       setNewUsers([]);

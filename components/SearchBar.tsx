@@ -1,5 +1,5 @@
 // 目前唯一使用 API 的组件
-import useSearchOptions_debounce from "@/lib/hooks/useSearchOptions";
+import useSearchOptionsDebounce from "@/lib/hooks/useSearchOptions";
 import { Command, CommandInput, CommandItem, CommandList } from "./ui/command";
 import { CommandEmpty, CommandLoading } from "cmdk";
 import { useEffect, useRef, useState } from "react";
@@ -27,7 +27,7 @@ export default function SearchBar<OptionType extends {id:string}>({
   disabled?: boolean
 }) {
   const { searchOptions, searchTerm, setSearchTerm, isLoading } =
-    useSearchOptions_debounce(thing);
+    useSearchOptionsDebounce<OptionType>(thing);
   const [showList, setShowList] = useState(false);
 
   // use click outside to close the list

@@ -10,7 +10,6 @@ import {
   UserUpdateFormInputSchema,
 } from "./zformClient";
 import { formDataToObject } from "../utils";
-import { BooleanSchema, IDSchema, NameSchema, QQSchema, URLSchema } from "./zparams";
 
 const serverGameTransform = (form: GameFormInputType) => {
   const assetsMode = form.kind === "html" ? form.embed_op : form.kind;
@@ -82,19 +81,3 @@ export const UserUpdateFormServerSchema = z
         .join(","),
     }))
   );
-
-export const AddUserServerSchema = z.array(
-  z.object({
-    name: NameSchema,
-    qq: QQSchema,
-    isAdmin: BooleanSchema,
-    avatar: URLSchema,
-  })
-);
-
-export const UserAdminEditServerSchema = z.object({
-  id: IDSchema,
-  qq: QQSchema,
-  isAdmin: z.boolean().default(false),
-  resetPassword: z.boolean().default(false),
-});

@@ -128,16 +128,11 @@ export const uploadGameFolder = async (
       }
     );
 
-    console.log(`DEBUG: Uploaded original ZIP: ${originalZipName}, isOnline: ${isOnline}`);
-
     // 3. Extract and upload ZIP contents (reuse loaded ZIP)
     if (isOnline) {
       await uploadZipContents(game, zip);
     }
-
-    console.log(
-      `DEBUG: Game package uploaded successfully for game ${game.id}`
-    );
+    
   } catch (error) {
     console.error(
       `DEBUG: Failed to upload game package for game ${game.id}:`,

@@ -4,7 +4,12 @@ import { ALL_NAVPATH } from "../clientConfig";
 // getUser should wrap in cache for frequently auth
 import { db } from "../dbInit";
 import { authProtectedModule, buildServerQuery } from "../services/builder";
-import { IDOrMeSchema, IDSchema, StringSchema } from "../types/zparams";
+import {
+  IDOrMeSchema,
+  IDSchema,
+  PositiveIntSchema,
+  StringSchema,
+} from "../types/zparams";
 
 const IncludeGames = {
   include: {
@@ -41,17 +46,26 @@ export const getAllUsers = buildServerQuery(
     }) // not include game, only show user info that enough for thumbnail.
 );
 
-export const getAllUsersWithQQ = buildServerQuery([], async () => {
-  await authProtectedModule(true); // ensure only admin can access this
-  return db.user.findMany({
-    select: {
-      ...SelectThumbnail.select,
-      createdAt: true,
-      isAdmin: true,
-      qq: true,
-    },
-  });
-});
+// pagination is preferred for large user base, avoid too large response.
+export const getAllUsersWithQQ = buildServerQuery(
+  [PositiveIntSchema, PositiveIntSchema],
+  async (page, pageSize) => {
+    await authProtectedModule(true); // ensure only admin can access this
+    return db.user.findMany({
+      select: {
+        ...SelectThumbnail.select,
+        createdAt: true,
+        isAdmin: true,
+        qq: true,
+      },
+      skip: (page - 1) * pageSize, // page start from 1 while index from 0.
+      take: pageSize,
+    });
+  }
+);
+
+// get self user by id, id could be 'me' or specific id. Permission check inside,
+export const getUserCount = buildServerQuery([], () => db.user.count());
 
 // could be admin or me.
 export const getSelfUserById = buildServerQuery(
@@ -122,4 +136,23 @@ export const getUsersByNameOrQQ = buildServerQuery([StringSchema], (name_qq) =>
     },
     take: 10, // Limit to 10 results
   })
+);
+
+export const getUserByNameOrQQWithQQ = buildServerQuery(
+  [StringSchema],
+  async (name_qq) => {
+    await authProtectedModule(true); // ensure only admin can access this
+    return db.user.findMany({
+      select: {
+        ...SelectThumbnail.select,
+        createdAt: true,
+        isAdmin: true,
+        qq: true,
+      },
+      where: {
+        OR: [{ name: { contains: name_qq } }, { qq: { contains: name_qq } }],
+      },
+      take: 10, // Limit to 10 results
+    });
+  }
 );

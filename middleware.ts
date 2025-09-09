@@ -37,10 +37,11 @@ type Rule = { test: (p: string) => boolean; limit: number; windowMs: number };
 
 // Order matters; first match wins
 const RATE_RULES: Rule[] = [
-  { test: (p) => p.startsWith("/api/auth/"), limit: 30, windowMs: 60_000 }, // strict
-  { test: (p) => p.startsWith("/login"), limit: 100, windowMs: 60_000 },     // login UX
-  { test: (p) => p.startsWith("/api/"), limit: 500, windowMs: 60_000 },     // other API
-  { test: () => true, limit: 5_000, windowMs: 60_000 },                      // public pages (looser)
+  { test: (p) => p.startsWith("/api/auth/session"), limit: 500, windowMs: 60_000 }, // relax
+  { test: (p) => p.startsWith("/api/auth/"), limit: 100, windowMs: 60_000 }, // strict
+  { test: (p) => p.startsWith("/login"), limit: 250, windowMs: 60_000 }, // login UX
+  { test: (p) => p.startsWith("/api/"), limit: 500, windowMs: 60_000 }, // other API
+  { test: () => true, limit: 5_000, windowMs: 60_000 }, // public pages (looser)
 ];
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
@@ -63,14 +64,16 @@ function rateLimitPerPath(pathname: string): NextResponse | null {
 
   if (entry.count >= rule.limit) {
     // Reject without extra headers
-    return new NextResponse("Too Many Requests", { status: 429 });
+    return NextResponse.json(
+      { error: "too_many_requests", path: pathname },
+      { status: 429 }
+    );
   }
 
   entry.count += 1;
   return null;
 }
 // ---- end limiter ----
-
 
 // not only check the protected route,
 // as we need redirect to some non protected route like /login or /home.
@@ -84,7 +87,7 @@ export const config = {
     "/upload/:path*",
     "/admin-dashboard/:path*",
     "/game/unaudit/:path*",
-    
+
     "/login/:path*",
     "/api/auth/:path*", // ensure auth endpoints are limited too
   ],
@@ -109,7 +112,7 @@ export default async function middleware(request: NextRequest) {
   if (limited) return limited;
 
   // console.log("Middleware processing for path:", pathname);
-  
+
   // 2. for "common" home page like '/' or '/home' , redirect to valid home page /home/1.
   if (pathname === "/" || pathname === "/home") {
     return NextResponse.redirect(

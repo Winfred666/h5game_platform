@@ -1,45 +1,74 @@
-import { useEffect, useRef, useState } from "react";
-import useSWR from 'swr';
+import { useEffect, useState } from "react";
+import useSWR from "swr";
 
-export default function useSearchOptions_debounce(
-  thing: "game"|"user",
-  delay: number = 800, // default debounce delay
-) {
-  // useRef to store the search options
-  // keep one function/object alive across renders and do not trigger any effect.
+type SearchKind = "game" | "user" | "admin_game" | "admin_user";
+
+interface Options<T = any> {
+  searchOptions: T[];
+  searchTerm: string;
+  setSearchTerm: (v: string) => void;
+  isLoading: boolean;
+}
+
+const PATH_MAP: Record<SearchKind, string> = {
+  game: "games?name=",
+  admin_game: "games?include=admin&name=",
+  user: "users?name_qq=",
+  admin_user: "users?include=admin&name_qq=",
+};
+
+/**
+ * Debounced search with SWR
+ * - Debounces input before triggering SWR
+ * - Resets results on clear
+ * - URL-encodes query
+ * - Optional minChars threshold (default 1)
+ */
+export default function useSearchOptionsDebounce<T = any>(
+  kind: SearchKind,
+  delay = 1000,
+  minChars = 1
+): Options<T> {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchTermDebounced, setSearchTermDebounced] = useState("");
-  const [isTimeLoading, setIsTimeLoading] = useState(false);
+  const [debounced, setDebounced] = useState("");
+  const [isDebouncing, setIsDebouncing] = useState(false);
 
-  // for highly dynamics data, still use swr and api router to fetch data.
-  const api = thing == "game" ? "games?name=" : "users?name_qq=";
-  const apiFinal = searchTermDebounced.length > 0 ? `/${api}${searchTermDebounced}` : null;
-  const {data: searchOptions, isLoading} = useSWR(apiFinal, {
+
+  // Debounce logic
+  useEffect(() => {
+    const trimmed = searchTerm.trim();
+    if (trimmed.length === 0) {
+      setDebounced("");
+      setIsDebouncing(false);
+      return;
+    }
+    setIsDebouncing(true);
+    const t = setTimeout(() => {
+      setDebounced(trimmed);
+      setIsDebouncing(false);
+    }, delay);
+    return () => clearTimeout(t);
+  }, [searchTerm, delay]);
+
+  const base = PATH_MAP[kind];
+  const shouldSearch =
+    debounced.length >= minChars && debounced.trim().length >= minChars;
+
+  const key = shouldSearch
+    ? `/${base}${encodeURIComponent(debounced)}`
+    : null;
+
+  const { data, isLoading } = useSWR<T[]>(key, {
     fallbackData: [],
     revalidateOnFocus: false,
     revalidateOnReconnect: false,
   });
 
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // add debounce directly into it
-  useEffect(() => {
-    if (searchTerm) {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-      setIsTimeLoading(true);
-      timerRef.current = setTimeout(() => {
-        setSearchTermDebounced(searchTerm);
-        setIsTimeLoading(false);
-      }, delay);
-    }
-    return () => {
-      setIsTimeLoading(false);
-      if (timerRef.current) {
-        clearTimeout(timerRef.current); // clear the timer when the component unmounts or searchTerm changes
-      }
-    };
-  }, [searchTerm, setSearchTermDebounced, delay, setIsTimeLoading]);
-  
-  return {searchOptions, searchTerm, setSearchTerm, isLoading:(isLoading || isTimeLoading)};
+
+  return {
+    searchOptions: data || [],
+    searchTerm,
+    setSearchTerm,
+    isLoading: isLoading || isDebouncing,
+  };
 }

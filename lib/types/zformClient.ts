@@ -8,6 +8,7 @@ import {
   ScreenshotsSchema,
 } from "./zfiles";
 import {
+  BooleanSchema,
   IDSchema,
   NameSchema,
   PasswordSchema,
@@ -141,7 +142,6 @@ const userContactWaySchema = z
   );
 
 
-
 export const UserUpdateFormInputSchema = z
   .object({
     name: NameSchema,
@@ -159,3 +159,20 @@ export const UserUpdateFormInputSchema = z
   .strip();
 
 export type UserUpdateFormInputType = z.input<typeof UserUpdateFormInputSchema>;
+
+
+export const AddUserInputSchema = z.array(
+  z.object({
+    name: NameSchema,
+    qq: QQSchema,
+    isAdmin: BooleanSchema,
+    avatar: URLSchema,
+  })
+);
+
+export const UserAdminEditInputSchema = z.object({
+  id: IDSchema,
+  qq: QQSchema,
+  isAdmin: z.boolean().default(false),
+  resetPassword: z.boolean().default(false),
+});

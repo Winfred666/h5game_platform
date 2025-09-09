@@ -17,6 +17,7 @@ import { PaginationWithLinks } from "@/components/ui/pagination-with-link";
 import { DeleteObjDialog } from "../components/DeleteObjDialog";
 import { useLoading } from "@/components/LoadingProvider";
 import Link from "next/link";
+import useSearchOptionsDebounce from "@/lib/hooks/useSearchOptions";
 
 export default function GameListedTab({
   games,
@@ -29,7 +30,6 @@ export default function GameListedTab({
   pageSize?: number;
   totalCount?: number;
 }) {
-  const [searchQuery, setSearchQuery] = useState("");
   const { startLoading } = useLoading();
 
   const [curDeleteGame, setCurDeleteGame] = useState<
@@ -40,22 +40,12 @@ export default function GameListedTab({
     | undefined
   >();
 
-  const handleSearch = (value: string) => {
-    setSearchQuery(value);
-  };
+  const { searchOptions, searchTerm, setSearchTerm, isLoading } =
+      useSearchOptionsDebounce<IGameAdmin>("admin_game");
 
-  const filteredGames = games?.filter(
-    (game: IGameAdmin) =>
-      searchQuery === "" ||
-      game.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      game.developers.some((dev) =>
-        dev.name.toLowerCase().includes(searchQuery.toLowerCase())
-      ) ||
-      game.tags?.some(
-        (tag) =>
-          tag.name.includes(searchQuery) || searchQuery.includes(tag.name)
-      )
-  );
+
+  // Do not filter game on the games view, just select to show pagination or result of debounce.
+  const filteredGames = (searchTerm.trim() === "" || isLoading) ? games : searchOptions;
 
   const showPagination =
     currentPage !== undefined &&
@@ -68,17 +58,19 @@ export default function GameListedTab({
       loadingMsg: "正在返回未审核状态...",
       successMsg: "游戏已返回未审核状态！",
     });
+  
+  
 
   return (
     <div className="space-y-6">
       <SearchHeader
         title="游戏列表"
         subtitle="管理员可进入编辑/删除任何游戏"
-        searchValue={searchQuery}
-        onSearchChange={handleSearch}
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
         searchPlaceholder="Search games..."
       />
-
+      {isLoading && <div className=" w-full py-1 text-center">搜索中...</div>}
       <GameListAdmin
         games={filteredGames}
         renderActions={(game) => (
@@ -112,6 +104,7 @@ export default function GameListedTab({
         )}
         actionsInfo="/编辑/回未审核/删除"
       />
+
       {showPagination ? (
         <PaginationWithLinks
           page={currentPage}

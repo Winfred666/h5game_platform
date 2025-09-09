@@ -2,23 +2,27 @@
 Reorganize H5 platform backup into per-game folders with assets and introduction.md
 Usage:
   python reorganize_backup.py
+
+Updated: Adapted to new Game.assetsType (assets_type) encoding.
 """
 
 import sqlite3
 import os
 import shutil
+from datetime import datetime
 
 backup_dir = "h5game_backup"
 output_dir = "reorganized_games"
 
+# Updated SQL: remove deprecated boolean columns, add assets_type
 SQL_ALL_GAMES = """
 SELECT
   g.id,
   g.title,
+  g.assets_type,
   g.description,
   g.size,
   g.screenshot_count,
-  g.is_online,
   g.is_private,
   g.views,
   g.created_at,
@@ -33,14 +37,89 @@ LEFT JOIN "user" AS u ON u.id = gu.B
 GROUP BY g.id
 ORDER BY g.updated_at DESC;
 """
+
 def unpack_and_remove(path: str):
     """Unpack zip to dest and delete zip if unpack succeeded."""
     if os.path.exists(f"{path}.zip"):
         shutil.unpack_archive(f"{path}.zip", path)
-        # os.remove(f"{path}.zip")
+        # WARNING: if there is nothing but only game.zip inside, unpack also
+        if os.path.exists(f"{path}/game.zip"):
+            shutil.unpack_archive(f"{path}/game.zip", path)
+            os.remove(f"{path}/game.zip")
         return True
     else:
         return False
+
+# --- assetsType parsing helpers ---
+
+def _to_bool(v: str) -> bool:
+    return str(v).strip() in {"1", "true", "True", "yes", "on"}
+
+def parse_assets_type(assets_type: str):
+    """Parse the compact assets_type string into a structured dict.
+
+    Formats:
+      "" (empty)                         -> download only
+      "fullscreen|<useSharedArrayBuffer>" -> fullscreen online
+      "embed|w|h|sab|auto|fsBtn|scroll"  -> embedded iframe online
+      "jump|<url>"                       -> external jump
+    All numeric flag fields are 0/1.
+    """
+    if not assets_type:
+        return {
+            "mode": "download",
+            "label": "离线下载游戏",
+            "summary": "离线下载（无在线运行模式）",
+            "flags": {},
+        }
+    parts = assets_type.split("|")
+    kind = parts[0]
+    if kind == "fullscreen":
+        use_sab = _to_bool(parts[1]) if len(parts) > 1 else False
+        return {
+            "mode": "fullscreen",
+            "label": "全屏在线",
+            "summary": f"全屏在线{' (SharedArrayBuffer)' if use_sab else ''}",
+            "flags": {"useSharedArrayBuffer": use_sab},
+        }
+    if kind == "embed":
+        # width|height|useSharedArrayBuffer|isAutoStarted|hasFullscreenButton|enableScrollbars
+        width = parts[1] if len(parts) > 1 else "?"
+        height = parts[2] if len(parts) > 2 else "?"
+        use_sab = _to_bool(parts[3]) if len(parts) > 3 else False
+        auto = _to_bool(parts[4]) if len(parts) > 4 else False
+        fs_btn = _to_bool(parts[5]) if len(parts) > 5 else False
+        scroll = _to_bool(parts[6]) if len(parts) > 6 else False
+        return {
+            "mode": "embed",
+            "label": "内嵌在线",
+            "summary": f"内嵌 {width}x{height} 在线游戏",
+            "width": width,
+            "height": height,
+            "flags": {
+                "useSharedArrayBuffer": use_sab,
+                "isAutoStarted": auto,
+                "hasFullscreenButton": fs_btn,
+                "enableScrollbars": scroll,
+            },
+        }
+    if kind == "jump":
+        url = parts[1] if len(parts) > 1 else "(缺失URL)"
+        return {
+            "mode": "jump",
+            "label": "外链跳转",
+            "summary": f"跳转到外部地址: {url}",
+            "url": url,
+            "flags": {},
+        }
+    # Fallback / unknown
+    return {
+        "mode": "unknown",
+        "label": "未知模式",
+        "summary": f"未识别的 assets_type: {assets_type}",
+        "raw": assets_type,
+        "flags": {},
+    }
 
 def reorganize_backup():
     """重组备份数据为可读格式"""
@@ -77,7 +156,6 @@ def reorganize_backup():
     cursor.execute(SQL_ALL_GAMES)
 
     rows = cursor.fetchall()
-    # convert sqlite3.Row -> dict so .get() works in helpers
     games = [dict(r) for r in rows]
 
     print(f"📦 发现 {len(games)} 个游戏，开始重组...")
@@ -86,7 +164,6 @@ def reorganize_backup():
         game_id = game["id"]
         game_title = game["title"] or f"game_{game_id}"
 
-        # 创建游戏目录（使用标题作为文件夹名）
         safe_title = "".join(
             c for c in game_title if c.isalnum() or c in (" ", "-", "_")
         ).rstrip()
@@ -122,34 +199,64 @@ def reorganize_backup():
 
 def create_game_markdown(game, output_dir):
     """为每个游戏创建 introduction.md 文件"""
-    tags = (game["tags"] or "").split(",") if game["tags"] else []
+    tags = (game["tags"] or "").split(",") if game.get("tags") else []
+    developers = (game["developers"] or "").split(",") if game.get("developers") else []
 
-    developers = (game["developers"] or "").split(",") if game["developers"] else []
-
-    # Prepare screenshots markup outside the f-string to avoid backslash in expression
     screenshot_count = game.get("screenshot_count") or 0
-    screenshot_lines = []
-    for i in range(screenshot_count):
-        screenshot_lines.append(f"![游戏截图{i}](assets/screenshot{i}.webp)")
+    screenshot_lines = [f"![游戏截图{i}](assets/screenshot{i}.webp)" for i in range(screenshot_count)]
     screenshots_md = "\n\n".join(screenshot_lines)
 
-    cover_md = "![封面图](assets/cover.webp)\n"  # keep even if cover may be missing
+    cover_md = "![封面图](assets/cover.webp)\n"
 
     title = game.get("title") or f"game_{game.get('id')}"
     description = game.get("description") or "暂无介绍"
     size_bytes = game.get("size") or 0
     size_mb = round(size_bytes / (1024 * 1024), 2)
 
+    assets_info = parse_assets_type(game.get("assets_type") or "")
+
+    # Build flags markdown (only show True flags)
+    true_flags = [
+        name for name, val in assets_info.get("flags", {}).items() if val
+    ]
+    flags_md = ", ".join(true_flags) if true_flags else "无"
+
+    # Dates (format friendly)
+    def fmt_ts(ts):
+        if not ts:
+            return ""
+        try:
+            return datetime.fromisoformat(str(ts)).isoformat(sep=" ")
+        except Exception:
+            return str(ts)
+
     md_lines = [
         f"# {title}",
         "",
-        cover_md if cover_md else "",
+        cover_md,
         "",
         "## 游戏介绍",
         "",
         screenshots_md,
         "",
         description,
+        "",
+        "## 运行方式",
+        "",
+        f"- 概述: {assets_info['summary']}",
+    ]
+
+    if assets_info.get("mode") == "embed":
+        md_lines.extend([
+            f"- 尺寸: {assets_info.get('width')} x {assets_info.get('height')}",
+        ])
+    if assets_info.get("mode") == "jump":
+        md_lines.extend([
+            f"- 外链: {assets_info.get('url')}",
+        ])
+
+    md_lines.extend([
+        f"- 标志(启用): {flags_md}",
         "",
         "## 标签",
         "",
@@ -161,14 +268,20 @@ def create_game_markdown(game, output_dir):
         "",
         "## 元信息",
         "",
-        f"- **游戏ID**: {game.get('id')}",
-        f"- **文件大小**: {size_mb} MB",
+        f"- 游戏ID: {game.get('id')}",
+        f"- 文件大小: {size_mb} MB",
+        f"- 浏览量: {game.get('views')}",
+        f"- 私有: {'是' if game.get('is_private') else '否'}",
+        f"- 创建时间: {fmt_ts(game.get('created_at'))}",
+        f"- 更新时间: {fmt_ts(game.get('updated_at'))}",
         "",
         "*此文件由 H5游戏平台备份数据自动生成*",
         "",
-    ]
-    md_content = "\n".join(filter(None, md_lines))
+    ])
+
+    md_content = "\n".join(line for line in md_lines if line is not None)
     with open(f"{output_dir}/introduction.md", "w", encoding="utf-8") as f:
         f.write(md_content)
+
 if __name__ == "__main__":
     reorganize_backup()

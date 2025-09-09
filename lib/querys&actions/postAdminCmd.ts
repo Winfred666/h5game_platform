@@ -18,9 +18,9 @@ import {
 import { MINIO_BUCKETS } from "../clientConfig";
 import { deleteImage, deleteImageFolder, uploadImageFromWebURL } from "../services/uploadImage";
 import {
-  AddUserServerSchema,
-  UserAdminEditServerSchema,
-} from "../types/zformServer";
+  AddUserInputSchema,
+  UserAdminEditInputSchema,
+} from "../types/zformClient";
 import {
   DEFAULT_HASH_KEY,
   ENABLE_DAILY_RECOMMENDATION_KEY,
@@ -227,7 +227,7 @@ export const addTagAction = buildServerAction(
 );
 
 export const addUsersAction = buildServerAction(
-  [AddUserServerSchema],
+  [AddUserInputSchema],
   async (data) => {
     // 1. check user is admin
     await authProtectedModule(true);
@@ -286,7 +286,7 @@ export const addUsersAction = buildServerAction(
 );
 
 export const editUserAction = buildServerAction(
-  [UserAdminEditServerSchema],
+  [UserAdminEditInputSchema],
   async (data) => {
     // 1. check user is admin
     await authProtectedModule(true);
