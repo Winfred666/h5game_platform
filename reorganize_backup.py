@@ -194,6 +194,8 @@ def reorganize_backup():
         create_game_markdown(game, game_output_dir)
 
     conn.close()
+    # delete the unpacked backup folder to save space
+    shutil.rmtree(backup_dir)
     print(f"✅ 数据重组完成！输出目录: {output_dir}")
 
 
@@ -223,10 +225,50 @@ def create_game_markdown(game, output_dir):
 
     # Dates (format friendly)
     def fmt_ts(ts):
-        if not ts:
+        """Format various timestamp representations to 'YYYY-MM-DD HH:MM:SS'.
+        Supports:
+        - Epoch seconds, milliseconds, microseconds (int/str)
+        - ISO strings (e.g., 2025-09-19T03:42:07.123Z)
+        - Common 'YYYY-MM-DD HH:MM:SS' strings
+        """
+        if ts is None or ts == "":
             return ""
         try:
-            return datetime.fromisoformat(str(ts)).isoformat(sep=" ")
+            # Numeric (or numeric string)
+            if isinstance(ts, (int, float)) or (isinstance(ts, str) and ts.strip().lstrip("-+").isdigit()):
+                v = int(str(ts).strip())
+                # Detect unit by magnitude
+                if abs(v) >= 1_000_000_000_000_000:  # microseconds
+                    seconds = v / 1_000_000
+                elif abs(v) >= 1_000_000_000_00:     # milliseconds
+                    seconds = v / 1_000
+                else:                                 # seconds
+                    seconds = v
+                dt = datetime.fromtimestamp(seconds)
+                return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+            # String timestamps
+            s = str(ts).strip()
+            # Handle trailing Z as UTC
+            s2 = s[:-1] + "+00:00" if s.endswith("Z") else s
+            try:
+                dt = datetime.fromisoformat(s2)
+                # Convert aware dt to local time for readability
+                if dt.tzinfo is not None:
+                    dt = dt.astimezone()
+                return dt.strftime("%Y-%m-%d %H:%M:%S")
+            except Exception:
+                pass
+
+            # Fallback known patterns
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d"):
+                try:
+                    dt = datetime.strptime(s, fmt)
+                    return dt.strftime("%Y-%m-%d %H:%M:%S")
+                except Exception:
+                    continue
+
+            return s
         except Exception:
             return str(ts)
 
@@ -282,6 +324,7 @@ def create_game_markdown(game, output_dir):
     md_content = "\n".join(line for line in md_lines if line is not None)
     with open(f"{output_dir}/introduction.md", "w", encoding="utf-8") as f:
         f.write(md_content)
+        
 
 if __name__ == "__main__":
     reorganize_backup()
