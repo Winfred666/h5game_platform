@@ -127,9 +127,12 @@ server {
 
     # 4) dynamic part of App
     location /h5game {
-        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
         proxy_set_header Host $host;
         proxy_pass http://localhost:14399;
+
+        proxy_set_header X-Real-IP $remote_addr; # get client ip
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme; # came via https and safe to visit __Secure cookie.
     }
 }
 ```

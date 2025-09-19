@@ -16,11 +16,11 @@ const createUrl = (path: string, baseUrlWithPath: string) => {
 // It doesn’t use Node-only modules like bcrypt or crypto in middleware.
 
 const middlewareAuth = async (request: NextRequest) => {
-  const isHttps = request.nextUrl.protocol === "https:";
-  const isProd = process.env.NODE_ENV === "production";
+  const isSecure = request.nextUrl.protocol.startsWith("https");
+  const isProduction = process.env.NODE_ENV === "production";
 
   // Match your custom NextAuth cookie names from authSQL.ts
-  const cookieName = isProd && isHttps
+  const cookieName = isProduction && isSecure
     ? "__Secure-h5games.session-token"
     : "h5games.session-token";
 
@@ -28,7 +28,7 @@ const middlewareAuth = async (request: NextRequest) => {
     req: request,
     secret: process.env.AUTH_SECRET,
     cookieName,
-    secureCookie: isHttps,
+    secureCookie: isProduction && isSecure,
   });
 
   if (!token) throw new Error("No session or user found");

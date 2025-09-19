@@ -9,7 +9,7 @@ import { ALL_NAVPATH } from "../clientConfig";
 // provide authentication services of SQL to user.
 // WARNING: more mordern auth services like OAuth2, OpenID Connect, MAGIC LINK, etc. are recommended.
 const isProduction = process.env.NODE_ENV === "production";
-const isSecure = process.env.AUTH_URL?.startsWith("https://") || false;
+const isSecure = process.env.AUTH_URL?.startsWith("https") || false;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -25,12 +25,24 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         isProduction && isSecure
           ? `__Secure-h5games.session-token`
           : `h5games.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax", // CSRF protection
+        path: "/", // allow access from all pages
+        secure: isProduction && isSecure, // only over https in production
+      }
     },
     callbackUrl: {
       name:
         isProduction && isSecure
           ? `__Secure-h5games.callback-url`
           : `h5games.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax", // CSRF protection
+        path: "/", // allow access from all pages
+        secure: isProduction && isSecure, // only over https in production
+      }
     },
     csrfToken: {
       // Use the __Host- prefix in production(https, only '/' path, too strict)
