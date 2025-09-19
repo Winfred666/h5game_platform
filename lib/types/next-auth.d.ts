@@ -5,7 +5,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       isAdmin: boolean;
-      updatedAt: string; // just getTime().toString, not ISO type to prevent URL issues
+      avatar: string | undefined;
       id: string; // Changed to string to match NextAuth requirements
       name: string; // Explicitly declare name
     } & DefaultSession["user"]
@@ -13,7 +13,7 @@ declare module "next-auth" {
 
   interface User extends DefaultUser {
     isAdmin: boolean;
-    updatedAt: string;
+    avatar: string | undefined;
     id: string; // Changed to string
     name: string; // Explicitly declare name
   }
@@ -22,7 +22,7 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT extends DefaultJWT {
     isAdmin: boolean;
-    updatedAt: string;
+    avatar: string | undefined;
     id: string; // Changed to string
     name: string; // Explicitly declare name
   }
@@ -40,6 +40,6 @@ declare module "@auth/core/adapters" {
     emailVerified: Date | null;
     /** Custom field: whether the user is an admin. */
     isAdmin: boolean;
-    updatedAt: string;
+    avatar: string | undefined;
   }
 }

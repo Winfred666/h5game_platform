@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Gamepad2, User, LogOut } from "lucide-react";
 import Link from "next/link";
-import { ALL_NAVPATH, genUserAvatarURL } from "@/lib/clientConfig";
+import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { usePathname } from "next/navigation";
 import SearchBar from "@/components/SearchBar";
 import { GameThumbnail } from "@/components/GameListItem";
@@ -28,7 +28,7 @@ export default function NavBar() {
     ? {
         ...session.user,
         id: session.user.id,
-        avatar: genUserAvatarURL(session.user.id, session.user.updatedAt),
+        avatar: session.user.avatar,
       }
     : undefined;
 

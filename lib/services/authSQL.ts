@@ -56,7 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             name: true,
             isAdmin: true,
             hash: true,
-            updatedAt: true,
+            avatar: true,
           }, // only use these as JWT payload
         });
         // console.log("User found:", user);
@@ -70,7 +70,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return {
           id: user.id,
           isAdmin: user.isAdmin,
-          updatedAt: user.updatedAt.getTime().toString(),
+          avatar: user.avatar,
           name: user.name,
         };
       },
@@ -85,7 +85,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.id = user.id;
         token.isAdmin = user.isAdmin;
-        token.updatedAt = user.updatedAt;
+        token.avatar = user.avatar;
         token.name = user.name; // ensure name is always set
       }
       if (trigger === "update") {
@@ -99,7 +99,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       session.user.id = token.id;
       session.user.isAdmin = token.isAdmin;
-      session.user.updatedAt = token.updatedAt;
+      session.user.avatar = token.avatar;
       session.user.name = token.name; // default exposed field.
       return session;
     },
