@@ -85,7 +85,7 @@ export function GameIdPage({ game }: { game: IGame }) {
           </div>
 
           {/* Right column - Screenshots */}
-          <div className="flex flex-col gap-2 lg:gap-6">
+          <div className="flex flex-col gap-4 lg:gap-6">
             <h2>游戏截图</h2>
             {game.screenshots.length > 0 ? (
               <GamePoster
