@@ -127,6 +127,8 @@ server {
 
     # 4) dynamic part of App
     location /h5game {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+
         proxy_set_header Host $host;
         proxy_pass http://localhost:14399;
 

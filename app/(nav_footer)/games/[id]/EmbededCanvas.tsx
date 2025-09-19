@@ -71,7 +71,7 @@ export default function EmbededCanvas({
     finalAspectRatio = "3"; // for a banner style 3 width 1 heigth.
   } else if (online.mode === "embed" && !is_fullscreen) {
     if (width !== null && online.width > width) {
-      finalWidth = "100vh";
+      finalWidth = "100vw";
     } else {
       finalWidth = `${online.width}px`;
     }
