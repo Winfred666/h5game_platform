@@ -52,9 +52,11 @@ export const GameExtension = Prisma.defineExtension({
           id: true,
           isPrivate: true,
           assetsType: true,
+          updatedAt: true,
         },
-        compute({ id, isPrivate, assetsType }) {
+        compute({ id, isPrivate, assetsType, updatedAt }) {
           const attrs = assetsType.split("|");
+          const version = updatedAt.getTime().toString(); // use updatedAt as version control
           switch (attrs[0]) {
             case "jump":
               return {
@@ -65,7 +67,7 @@ export const GameExtension = Prisma.defineExtension({
               const useSharedArrayBuffer = attrs[1] === "1";
               return {
                 mode: "fullscreen" as const,
-                url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer),
+                url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer, version),
                 useSharedArrayBuffer,
               };
             }
@@ -80,7 +82,7 @@ export const GameExtension = Prisma.defineExtension({
                 mode: "embed" as const,
                 width,
                 height,
-                url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer),
+                url: genGamePlayableURL(id, isPrivate, useSharedArrayBuffer, version),
                 useSharedArrayBuffer,
                 isAutoStarted,
                 hasFullscreenButton,
@@ -93,10 +95,13 @@ export const GameExtension = Prisma.defineExtension({
         },
       },
       downloadUrl: {
-        needs: { id: true, isPrivate: true, assetsType: true },
-        compute: ({ id, isPrivate, assetsType }) => assetsType.split("|")[0] !== "jump" ?genGameDownloadURL(id, isPrivate) : "",
+        needs: { id: true, isPrivate: true, assetsType: true, updatedAt: true },
+        compute: ({ id, isPrivate, assetsType, updatedAt }) =>
+          assetsType.split("|")[0] !== "jump"
+            ? genGameDownloadURL(id, isPrivate, updatedAt.getTime().toString())
+            : "",
       },
-      
+
       // do not expose raw assetsType to client
       assetsType: {
         needs: {},
@@ -118,13 +123,18 @@ export const GameExtension = Prisma.defineExtension({
         compute: ({ size }) => byteToMB(size), // 转换为MB并保留两位小数
       },
       coverImage: {
-        needs: { id: true },
-        compute: ({ id }) => genGameCoverURL(id),
+        needs: { id: true, updatedAt: true },
+        compute: ({ id, updatedAt }) =>
+          genGameCoverURL(id, updatedAt.getTime().toString()), // use updatedAt as version control
       },
       screenshots: {
-        needs: { id: true, screenshotCount: true },
-        compute: ({ id, screenshotCount }) =>
-          genGameScreenshotsURL(id, screenshotCount),
+        needs: { id: true, screenshotCount: true, updatedAt: true },
+        compute: ({ id, screenshotCount, updatedAt }) =>
+          genGameScreenshotsURL(
+            id,
+            screenshotCount,
+            updatedAt.getTime().toString()
+          ),
       },
     },
   },
@@ -157,9 +167,9 @@ export const UserExtension = Prisma.defineExtension({
         },
       },
       avatar: {
-        needs: { hasAvatar: true, id: true },
-        compute: ({ hasAvatar, id }) =>
-          hasAvatar ? genUserAvatarURL(id) : undefined,
+        needs: { hasAvatar: true, id: true, updatedAt: true },
+        compute: ({ hasAvatar, id, updatedAt }) =>
+          hasAvatar ? genUserAvatarURL(id, updatedAt.toISOString()) : undefined,
       },
       hasAvatar: {
         needs: {},

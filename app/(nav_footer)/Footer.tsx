@@ -61,7 +61,11 @@ const Footer: React.FC = () => {
 
         {/* Replaces Typography with a simple <p> tag */}
         <p className="text-center text-sm text-muted-foreground">
-          ©2025-{new Date().getFullYear()} 部分图标为友情链接
+          Copyright © 2025-{new Date().getFullYear()}
+          <Link href="http://beian.miit.gov.cn/" className="inline px-1">
+            粤ICP备2025472855号
+          </Link>
+           部分图标为友情链接
         </p>
       </div>
     </footer>

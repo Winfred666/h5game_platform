@@ -34,7 +34,7 @@ export const selfUpdateUserAction = buildServerAction(
       );
 
     // 4. update user information in the database
-    await db.user.update({
+    const newUser = await db.user.update({
       where: {
         id: sessionUser.id,
       },
@@ -43,21 +43,27 @@ export const selfUpdateUserAction = buildServerAction(
 
     let changedUserGames = undefined;
 
-    if ( sessionUser.name !== data.name ){
-      changedUserGames = (await db.user.findUnique({
-        where: { id: sessionUser.id },
-        select: {
-          games: {
-            select: { id: true, isPrivate: true },
-          },
-        }
-      }))?.games ?? undefined;
+    if (sessionUser.name !== data.name) {
+      changedUserGames =
+        (
+          await db.user.findUnique({
+            where: { id: sessionUser.id },
+            select: {
+              games: {
+                select: { id: true, isPrivate: true },
+              },
+            },
+          })
+        )?.games ?? undefined;
     }
 
     // 5. revalidate the path to refresh the user data
     // no change to name, so no need to revalidate game/home page.
     revalidateAsUserChange(sessionUser.id, changedUserGames);
     // 6. need client to update the session (authSQL jwt() callback with 'update' trigger).
-    return sessionUser.id;
+    return {
+      id: sessionUser.id,
+      updatedAt: newUser.updatedAt.getTime().toString(),
+    };
   }
 );

@@ -9,29 +9,45 @@ export enum MINIO_BUCKETS{
 
 // savely add private, because the url is not secret, the security is protected by minio policy + cuid
 // for shared array buffer, use prefix for nginx to set proper headers
-export const genGamePlayableURL = (gameId: string, isPrivate: boolean, useSharedArrayBuffer: boolean) =>
-  `${process.env.NEXT_PUBLIC_MINIO_URL}${useSharedArrayBuffer ? "/sab" : ""}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/index.html`;
+// add sab + version control in production mode. in dev/test mode there is no nginx proxy ahead.
+export const genGamePlayableURL = (gameId: string, isPrivate: boolean, useSharedArrayBuffer: boolean, version: string) =>
+  process.env.NODE_ENV === "production" ?
+  `${process.env.NEXT_PUBLIC_MINIO_URL
+  }${useSharedArrayBuffer ? "/sab" : ""}/${version}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/index.html` : 
+  `${process.env.NEXT_PUBLIC_MINIO_URL
+  }/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/index.html`;
 
-export const genGameCoverURL = (gameId: string) =>
+// for image, use version control to avoid cache issue, set before bucket name
+export const genGameCoverURL = (gameId: string, version: string) =>
+  process.env.NODE_ENV === "production" ?
+  `${process.env.NEXT_PUBLIC_MINIO_URL}/${version}/${MINIO_BUCKETS.IMAGE}/${gameId}/cover.webp` :
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.IMAGE}/${gameId}/cover.webp`;
 
 export const genGameScreenshotsURL = (
   gameId: string,
-  screenshotNum: number
+  screenshotNum: number,
+  version: string
 ) => {
   const screenshotsURL = [];
   for (let i = 0; i < screenshotNum; i++) {
     screenshotsURL.push(
+      process.env.NODE_ENV === "production" ?
+      `${process.env.NEXT_PUBLIC_MINIO_URL}/${version}/${MINIO_BUCKETS.IMAGE}/${gameId}/screenshot${i}.webp` :
       `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.IMAGE}/${gameId}/screenshot${i}.webp`
     );
   }
   return screenshotsURL;
 };
 
-export const genGameDownloadURL = (gameId: string, isPrivate: boolean) =>
+
+export const genGameDownloadURL = (gameId: string, isPrivate: boolean, version: string) =>
+  process.env.NODE_ENV === "production" ?
+  `${process.env.NEXT_PUBLIC_MINIO_URL}/${version}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/game.zip` :
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${isPrivate ? MINIO_BUCKETS.UNAUDIT_GAME : MINIO_BUCKETS.GAME}/${gameId}/game.zip`;
 
-export const genUserAvatarURL = (userId: string) =>
+export const genUserAvatarURL = (userId: string, version: string) =>
+  process.env.NODE_ENV === "production" ?
+  `${process.env.NEXT_PUBLIC_MINIO_URL}/${version}/${MINIO_BUCKETS.AVATAR}/${userId}.webp` :
   `${process.env.NEXT_PUBLIC_MINIO_URL}/${MINIO_BUCKETS.AVATAR}/${userId}.webp`;
 
 
@@ -66,7 +82,7 @@ export const ALL_NAVPATH = {
     upload: {name:"上传", href:"/upload"},
     game_update: {name:"更新游戏", href:(id: string) => `/upload/${id}`},
 
-    community: {name:"社区", href:"/community"},
+    authors: {name:"作者", href:"/authors"},
     // there is actually no "me" router, middleware will handle it to my user_id
     user_id: {name:"指定id用户", href:(id: string) => `/user/${id}`},
     

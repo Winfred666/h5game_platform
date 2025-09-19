@@ -16,8 +16,23 @@ const loadZipFromFile = async (file: File): Promise<JSZip> => {
 export const checkZipHasIndexHtml = async (file: File): Promise<JSZip> => {
   // Check for index.html specifically at root level
   const zip = await loadZipFromFile(file);
-  const valid = zip.files["index.html"] !== undefined;
-  if (!valid) throw new Error("在ZIP根目录未检测到index.html，无法在线游玩");
+  // 1. if there exist index.html at root, it's valid and do nothing
+  // 2. if there exist unique XXX.html at root, copy it to index.html and remove the original (JSZip has no rename)
+  if (!zip.files["index.html"]) {
+    const rootHtmlFiles = Object.keys(zip.files).filter(
+      (name) => name.endsWith(".html") && !name.includes("/")
+    );
+    if (rootHtmlFiles.length === 1) {
+      const sourceName = rootHtmlFiles[0];
+      const source = zip.file(sourceName);
+      if (source) {
+        const content = await source.async("arraybuffer");
+        zip.file("index.html", content);
+        zip.remove(sourceName);
+      }
+    } else if (rootHtmlFiles.length > 1) throw new Error("在ZIP根目录检测到多个HTML文件，请指定一个作为启动 index.html");
+    else throw new Error("在ZIP根目录未检测到index.html，无法在线游玩");
+  }
   return zip;
 };
 

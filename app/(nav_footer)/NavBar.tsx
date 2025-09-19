@@ -28,14 +28,14 @@ export default function NavBar() {
     ? {
         ...session.user,
         id: session.user.id,
-        avatar: genUserAvatarURL(session.user.id),
+        avatar: genUserAvatarURL(session.user.id, session.user.updatedAt),
       }
     : undefined;
 
   const navLinks = [
     { ...ALL_NAVPATH.home, href: ALL_NAVPATH.home.href() }, // shortest at last
     ALL_NAVPATH.upload,
-    ALL_NAVPATH.community,
+    ALL_NAVPATH.authors,
   ];
 
   // Find the nav link whose href has the longest overlap with the current path
@@ -59,7 +59,7 @@ export default function NavBar() {
             className="flex items-center gap-2"
           >
             <Gamepad2 className="h-6 w-6 text-primary" />
-            <h3 className="font-medium hidden lg:block">ZJU H5游戏分享平台</h3>
+            <h3 className="font-medium hidden lg:block">临水OR 游戏展示</h3>
           </Link>
         </div>
         {/* 2. 中间的主要导航链接 */}

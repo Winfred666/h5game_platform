@@ -8,6 +8,8 @@ param (
     [string]$MinioPort,
     [string]$MinioConsolePort,
     [string]$AdminName,
+    [ValidateSet("production", "test")]
+    [string]$NodeEnv,
     [switch]$SkipBuild,
     [switch]$Force
 )
@@ -23,6 +25,7 @@ if (-not $AdminName) { $AdminName = "h5game_admin" }
 if (-not $FrontPort) { $FrontPort = 3000 }
 if (-not $MinioPort) { $MinioPort = 9000 }
 if (-not $MinioConsolePort) { $MinioConsolePort = 9001 }
+if (-not $NodeEnv) { $NodeEnv = "test" }
 
 # 创建生产环境配置文件
 function Create-ProductionEnv {
@@ -32,7 +35,8 @@ function Create-ProductionEnv {
         [string]$AdminName,
         [string]$FrontPort,
         [string]$MinioPort,
-        [string]$MinioConsolePort
+        [string]$MinioConsolePort,
+        [string]$NodeEnv
     )
     
     Write-Host "🔧 Creating production environment configuration..." -ForegroundColor Cyan
@@ -70,6 +74,9 @@ DEFAULT_PASSWORD=${defaultPassword}
 FRONT_PORT=${FrontPort}
 MINIO_PORT=${MinioPort}
 MINIO_CONSOLE_PORT=${MinioConsolePort}
+
+# runtime env
+NODE_ENV=${NodeEnv}
 "@
     
     $envContent | Out-File -FilePath ".env.production" -Encoding UTF8
@@ -77,6 +84,7 @@ MINIO_CONSOLE_PORT=${MinioConsolePort}
     Write-Host "   Username: $AdminName" -ForegroundColor White
     Write-Host "   QQ: $adminQQ" -ForegroundColor White
     Write-Host "   Password: $defaultPassword for all new users" -ForegroundColor White
+    Write-Host "   NODE_ENV: $NodeEnv" -ForegroundColor White
 }
 
 # 构建 Docker 镜像
@@ -119,6 +127,8 @@ function Deploy-Production {
         [string]$PublicFrontUrl,
         [string]$PublicMinioUrl,
         [string]$AdminName,
+        [ValidateSet("production", "test")]
+        [string]$NodeEnv,
         [switch]$SkipBuild,
         [switch]$Force
     )
@@ -133,10 +143,10 @@ function Deploy-Production {
             if (($response -ne "y") -and ($response -ne "Y")) {
                 Write-Host "Using existing .env.production file" -ForegroundColor Yellow
             } else {
-                Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -FrontPort $FrontPort -MinioPort $MinioPort -MinioConsolePort $MinioConsolePort
+                Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -FrontPort $FrontPort -MinioPort $MinioPort -MinioConsolePort $MinioConsolePort -NodeEnv $NodeEnv
             }
         } else {
-            Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -FrontPort $FrontPort -MinioPort $MinioPort -MinioConsolePort $MinioConsolePort
+            Create-ProductionEnv -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -FrontPort $FrontPort -MinioPort $MinioPort -MinioConsolePort $MinioConsolePort -NodeEnv $NodeEnv
         }
 
         # 构建镜像
@@ -168,7 +178,7 @@ function Clean-Deployment {
 
 switch ($Command.ToLower()) {
     "deploy" {
-        Deploy-Production -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -SkipBuild:$SkipBuild -Force:$Force
+        Deploy-Production -PublicFrontUrl $PublicFrontUrl -PublicMinioUrl $PublicMinioUrl -AdminName $AdminName -NodeEnv $NodeEnv -SkipBuild:$SkipBuild -Force:$Force
     }
     "clean" {
         Clean-Deployment

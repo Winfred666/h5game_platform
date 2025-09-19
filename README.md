@@ -45,7 +45,7 @@ Open [http://localhost:3000/h5game](http://localhost:3000/h5game) with your brow
 
 需要使用 docker, docker compose, openssl
 
-### Windows
+### Windows (test 环境)
 
 在 windows 环境下，注意使用 `powershell 7` 版本，即 `$PSVersionTable.PSVersion` 应该显示 7。你可以直接用该命令启动所有容器：
 
@@ -67,39 +67,63 @@ Open [http://localhost:3000/h5game](http://localhost:3000/h5game) with your brow
 .\deploy.ps1 clean
 ```
 
-### Linux
+### Linux (prod 环境)
 
 在 linux 环境下 （支持 docker-compose v3），可以尝试使用该命令，直接在本机构建所有容器：
 
 ```bash
 chmod a+x deploy.sh
-./deploy.sh deploy --public-front-url http://localhost:3002/h5game --public-minio-url http://localhost:9000 --admin-name first_admin --front-port 3000 --minio-port 9000 --minio-console-port 9001
+./deploy.sh deploy --public-front-url https://example.com/h5game --public-minio-url https://example.com/h5game/assets --admin-name first_admin --front-port 14399 --minio-port 14400 --minio-console-port 14401
 ```
 
-最后在 `nginx.conf` 中，映射 `--public-front-url` 到本机的 `--front-port`； `--public-minio-url` 到本机的 `--minio-port` ，由于前端已经在next.js 和 auth.js session 中设置了 basePath，因此不需要截去 `/h5game` 前缀。 
+这里以上面的脚本设置为例，进行最后的 nginx 配置：
+
+在 `nginx.conf` 中，映射 `--public-front-url` 对应的 location 到本机的 `--front-port`； `--public-minio-url` 对应的 location，到本机的 `--minio-port` 。
+
+需要配合 nginx 以完成配置的有：
+1. shared array buffer 即 sab 类型游戏需要 nginx 添加特殊的 header
+2. 刷新 cache，减缓流量压力。需要 nginx 匹配版本控制段，同时在 nginx 中设置较大缓存。
 
 ```nginx
-location ^~ /h5game/assets/ {
-                proxy_pass http://localhost:${minio-port}/;
-                proxy_set_header Host $host;
+# in server block with server_name example.com;
+
+# 1) Versioned SAB assets: /h5game/assets/<version>/sab/...
+#    - Strip <version> before proxying (CDN sees versioned path; MinIO does not)
+#    - Add COOP/COEP for SAB games
+#    - Long cache with no revalidate (immutable)
+location ~ ^/h5game/assets/[^/]+/(sab/.*)$ {
+    # Strip the version segment so upstream gets /sab/...
+    rewrite ^/h5game/assets/[^/]+/(sab/.*)$ /$1 break;
+
+    add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
+    add_header Cross-Origin-Opener-Policy "same-origin" always;
+    add_header Cross-Origin-Embedder-Policy "require-corp" always;
+
+    proxy_set_header Host $host;
+    proxy_pass http://localhost:14400/;
 }
 
-location ^~ /h5game/assets/sab/ {
-                proxy_pass http://localhost:${minio-port}/;
-                
-                add_header Cross-Origin-Opener-Policy same-origin;
-                add_header Cross-Origin-Embedder-Policy require-corp;
-                
-                proxy_set_header Cross-Origin-Opener-Policy same-origin;
-                proxy_set_header Cross-Origin-Embedder-Policy require-corp;
+# 2) Versioned general assets: /h5game/assets/<version>/* (non-SAB)
+#    - Strip <version> before proxying
+#    - Long cache with no revalidate (immutable)
+location ~ ^/h5game/assets/[^/]+/(.*)$ {
+    rewrite ^/h5game/assets/[^/]+/(.*)$ /$1 break;
+
+    add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
+
+    proxy_set_header Host $host;
+    proxy_pass http://localhost:14400/;
 }
 
+# 4) App
 location ^~ /h5game {
-                proxy_pass http://localhost:14400;
-                proxy_set_header Host $host;
+    proxy_set_header Host $host;
+    proxy_pass http://localhost:14399;
 }
+
 ```
 
+由于前端已经在next.js 和 auth.js session 中设置了 basePath，因此在最后一个 location block 中，对于 ${nextjs-port} 不需要截去 `/h5game` 前缀。
 
 ## 备份和恢复
 

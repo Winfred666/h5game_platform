@@ -12,8 +12,8 @@ services:
     volumes:
       - shared_data:/data  # Share the same volume
     environment:
-      - DATABASE_URL=file:/data/db/prod.db  # Add this for runtime
-      - NODE_ENV=production
+      DATABASE_URL: file:/data/db/prod.db  # Add this for runtime
+      NODE_ENV: ${NODE_ENV:-production}
     networks:
       - h5game_platform_net
     # Copy built database to volume at startup, then start app

@@ -177,7 +177,7 @@ export async function setPrismaDefaultConfig(
     "多人",
     "3D",
     "2D",
-    "OR工作室",
+    "OR工作室-2024",
     "求是潮",
   ];
   await prisma.tag.createMany({

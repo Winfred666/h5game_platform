@@ -22,7 +22,8 @@ CREATE TABLE "user" (
     "contacts" TEXT NOT NULL DEFAULT '',
     "hash" TEXT NOT NULL,
     "is_admin" BOOLEAN NOT NULL DEFAULT false,
-    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" DATETIME NOT NULL
 );
 
 -- CreateTable

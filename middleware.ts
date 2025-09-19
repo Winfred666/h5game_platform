@@ -41,7 +41,7 @@ const RATE_RULES: Rule[] = [
   { test: (p) => p.startsWith("/api/auth/"), limit: 100, windowMs: 60_000 }, // strict
   { test: (p) => p.startsWith("/login"), limit: 250, windowMs: 60_000 }, // login UX
   { test: (p) => p.startsWith("/api/"), limit: 500, windowMs: 60_000 }, // other API
-  { test: () => true, limit: 5_000, windowMs: 60_000 }, // public pages (looser)
+  { test: () => true, limit: 10_000, windowMs: 60_000 }, // public pages (looser)
 ];
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
@@ -81,7 +81,7 @@ export const config = {
   matcher: [
     "/",
     "/home",
-
+    "/authors",
     "/user/update",
     "/user/self/:path*",
     "/upload/:path*",
@@ -94,6 +94,7 @@ export const config = {
 };
 
 const userProtectedRoutes = [
+  "/authors",
   "/game/unaudit",
   "/upload",
   "/user/self",

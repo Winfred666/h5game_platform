@@ -63,7 +63,7 @@ export default function UserUpdateForm({
 
   const onSubmit = async (values: UserUpdateFormInputType) => {
     // console.log(values);
-    const curUserId = await startLoading(
+    const {id: curUserId, updatedAt} = await startLoading(
       () => selfUpdateUserAction(objectToFormData(values)),
       {
         loadingMsg: "正在更新个人信息...",
@@ -73,7 +73,7 @@ export default function UserUpdateForm({
     // 6. update session data and redirect
     setDisabled(true);
     if (currentUser.name !== values.name)
-      await update({ name: values.name });
+      await update({ name: values.name, updatedAt: updatedAt });
     setTimeout(() => router.replace(ALL_NAVPATH.profile.href(curUserId)), 1000);
   };
 

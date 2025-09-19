@@ -45,7 +45,7 @@ export async function revalidateAsUserChange(
     revalidatePath(ALL_NAVPATH.user_id.href(userId));
     // Revalidate games where this user is a developer
     if (userGames) {
-      revalidatePath(ALL_NAVPATH.community.href);
+      revalidatePath(ALL_NAVPATH.authors.href);
       // revalidatePath(homePagePath, "layout"); // user in top game may also change, but no needs.
       userGames.forEach((game) => {
         if (game.isPrivate) {

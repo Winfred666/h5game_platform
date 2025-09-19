@@ -5,7 +5,7 @@ import { ALL_NAVPATH } from "@/lib/clientConfig";
 import Link from "next/link";
 import { IUser } from "@/lib/types/iuser";
 
-export default async function CommunityPage() {
+export default async function AuthorsPage() {
   const allUsers = await getAllUsers();
   const userClassified: {
     [key: string]: Pick<IUser, "id" | "name" | "avatar" | "createdAt">[];
