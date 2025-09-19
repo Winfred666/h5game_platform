@@ -11,8 +11,8 @@ import LoadingProvider from "@/components/LoadingProvider";
 // hot start prisma sqlite + minio.
 
 export const metadata: Metadata = {
-  title: "临水创制 OR工作室 游戏展示",
-  description: "临水创制 OR工作室 游戏展示，提供个人制作H5游戏的在线试玩和下载服务。",
+  title: "临水创制 OR 游戏展示",
+  description: "临水创制 OR 游戏展示，提供个人制作H5游戏的在线试玩和下载服务。",
   icons: {
     icon: process.env.NEXT_PUBLIC_BASEPATH + "/favicon.ico",
   },
