@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ALL_NAVPATH } from "./lib/clientConfig";
+import { getToken } from "next-auth/jwt";
 
 const createUrl = (path: string, baseUrlWithPath: string) => {
   // remove the '/' at the beginning of path if it exists
@@ -10,26 +11,28 @@ const createUrl = (path: string, baseUrlWithPath: string) => {
 };
 
 // WARNING: becaseu Edge env cannot use Node.js modules like bcrypt, only use fetch API to call auth services.
-const middlewareAuth = async (
-  request: NextRequest,
-  baseUrlWithPath: string
-) => {
-  const authResponse = await fetch(
-    createUrl("/api/auth/session", baseUrlWithPath),
-    {
-      headers: {
-        Cookie: request.headers.get("cookie") || "",
-      },
-    }
-  );
-  if (!authResponse.ok) {
-    throw new Error("Failed to fetch auth session");
-  }
-  const session = await authResponse.json();
-  if (!session || !session.user) {
-    throw new Error("No session or user found");
-  }
-  return session;
+// or to avoid extra self-fetch, Edge can call getToken because 
+// NextAuth uses the Web Crypto API (SubtleCrypto) via the jose library, which is available in the Edge runtime. 
+// It doesn’t use Node-only modules like bcrypt or crypto in middleware.
+
+const middlewareAuth = async (request: NextRequest) => {
+  const isHttps = request.nextUrl.protocol === "https:";
+  const isProd = process.env.NODE_ENV === "production";
+
+  // Match your custom NextAuth cookie names from authSQL.ts
+  const cookieName = isProd && isHttps
+    ? "__Secure-h5games.session-token"
+    : "h5games.session-token";
+
+  const token = await getToken({
+    req: request,
+    secret: process.env.AUTH_SECRET,
+    cookieName,
+    secureCookie: isHttps,
+  });
+
+  if (!token) throw new Error("No session or user found");
+  return token; // contains your fields like id, isAdmin, name
 };
 
 // ---- Simple per-path fixed-window limiter (per instance) ----
@@ -130,16 +133,15 @@ export default async function middleware(request: NextRequest) {
   // 3. If the route is protected, check authentication
   if (isUserProtected || isAdminProtected) {
     try {
-      const session = await middlewareAuth(request, baseUrlWithPath);
-      if (isAdminProtected && !session.user?.isAdmin) {
-        // 4. If the route is admin protected, check if the user is an admin
+      const token = await middlewareAuth(request);
+      if (isAdminProtected && !token.isAdmin) {
         return NextResponse.redirect(
           createUrl(ALL_NAVPATH.not_found.href, baseUrlWithPath)
         );
-      } else return NextResponse.next();
+      }
+      return NextResponse.next();
     } catch {
       // Auth check failed, redirect to login
-      // redirect to login page
       const loginUrl = createUrl(
         ALL_NAVPATH.login.href(pathname),
         baseUrlWithPath
@@ -149,9 +151,8 @@ export default async function middleware(request: NextRequest) {
     }
   } else if (pathname.startsWith("/login")) {
     try {
-      // already login, do not enter login page
-      const session = await middlewareAuth(request, baseUrlWithPath);
-      if (session && session.user) {
+      const token = await middlewareAuth(request);
+      if (token) {
         const callback = request.nextUrl.searchParams.get("callback");
         return NextResponse.redirect(
           callback

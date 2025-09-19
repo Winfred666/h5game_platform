@@ -72,6 +72,9 @@ export default function UserUpdateForm({
     );
     // 6. update session data and redirect
     setDisabled(true);
+    // 7. logout if password changed
+    if (values.password.length > 0) router.replace(ALL_NAVPATH.auto_signout.href);
+    // 8. update session info, so that the avatar and name change can be reflected in NavBar
     if (currentUser.name !== values.name)
       await update({ name: values.name, updatedAt: updatedAt });
     setTimeout(() => router.replace(ALL_NAVPATH.profile.href(curUserId)), 1000);
@@ -101,7 +104,7 @@ export default function UserUpdateForm({
                 placeholder="输入您的新昵称"
               />
               <InputWithLabel<UserUpdateFormInputType>
-                fieldTitle="设置新密码（请一定牢记）"
+                fieldTitle="设置新密码（将登出，请一定牢记）"
                 nameInSchema="password"
                 type="password"
                 placeholder="请输入新密码，不设置可留空"

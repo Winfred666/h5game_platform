@@ -94,26 +94,23 @@ export function buildServerAction<
 
       return { success: true as const, data: plain };
     } catch (err) {
-      // 1. Check if the error is a redirect error
+
+      // 1. Check for other Next.js special errors by name or message
+      // (In case digest is not set in some environments)
       if (
         err instanceof Error &&
-        (err as any).digest?.startsWith("NEXT_REDIRECT")
+        (err.name === "RedirectError" ||
+         err.message?.includes("NEXT_REDIRECT") ||
+         err.name === "NotFoundError" ||
+         err.message?.includes("NEXT_NOT_FOUND"))
       ) {
-        throw err; // Re-throw it to let Next.js handle the redirect
+        throw err;
       }
 
-      // 2. Check if the error is a notFound error
-      if (
-        err instanceof Error &&
-        (err as any).digest?.startsWith("NEXT_NOT_FOUND")
-      ) {
-        throw err; // Re-throw it to let Next.js show the 404 page
-      }
-
-      // 3. If it's any other error, handle it as a failure
+      // 2. If it's any other error, handle it as a failure
       if (process.env.NODE_ENV !== "production") console.error("DEBUG:", err);
 
-      // 4. for query , not return ActionResponse, just return 404
+      // 3. for query , not return ActionResponse, just return 404
       if (isQuery) notFound();
 
       return {
