@@ -77,55 +77,62 @@ chmod a+x deploy.sh
 ```
 
 这里以上面的脚本设置为例，进行最后的 nginx 配置：
-
-在 `nginx.conf` 中，映射 `--public-front-url` 对应的 location 到本机的 `--front-port`； `--public-minio-url` 对应的 location，到本机的 `--minio-port` 。
-
-需要配合 nginx 以完成配置的有：
-1. shared array buffer 即 sab 类型游戏需要 nginx 添加特殊的 header
-2. 刷新 cache，减缓流量压力。需要 nginx 匹配版本控制段，同时在 nginx 中设置较大缓存。
+1. 在 `/etc/nginx/conf.d` 中创建新的代理规则。 
+2. 映射 `--public-front-url` 对应的 location 到本机的 `--front-port`；
+3. 映射 `--public-minio-url` 对应的 location，到本机的 `--minio-port` 。
+4. shared array buffer 即 sab 类型游戏需要 nginx 添加特殊的 header
+5. 刷新 cache，减缓流量压力。需要 nginx 匹配版本控制段，同时在 nginx 中设置较大缓存。
 
 ```nginx
-# in server block with server_name example.com;
+server {
+    listen 443 ssl;
+    server_name example.com;
+    http2 on;
+    client_max_body_size 500m; # consistent with that in next.config.ts
 
-client_max_body_size 500m; # consistent with that in next.config.ts
+    # 1) Versioned SAB assets: /h5game/assets/sab/<version>/...
+    #    - Strip <version> before proxying (CDN sees versioned path; MinIO does not)
+    #    - Add COOP/COEP for SAB games
+    #    - Long cache with no revalidate (immutable)
+    location ~ ^/h5game/assets/sab/[^/]+/(.*)$ {
+        # Strip the version segment so upstream gets /sab/...
+        rewrite ^/h5game/assets/sab/[^/]+/(.*)$ /$1 break;
 
-# 1) Versioned SAB assets: /h5game/assets/<version>/sab/...
-#    - Strip <version> before proxying (CDN sees versioned path; MinIO does not)
-#    - Add COOP/COEP for SAB games
-#    - Long cache with no revalidate (immutable)
-location ~ ^/h5game/assets/[^/]+/(sab/.*)$ {
-    # Strip the version segment so upstream gets /sab/...
-    rewrite ^/h5game/assets/[^/]+/(sab/.*)$ /$1 break;
+        add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Cross-Origin-Embedder-Policy "require-corp" always;
 
-    add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
-    add_header Cross-Origin-Opener-Policy "same-origin" always;
-    add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        proxy_set_header Host $host;
+        proxy_pass http://localhost:14400;
+    }
 
-    proxy_set_header Host $host;
-    proxy_pass http://localhost:14400/;
+    # 2) Versioned general assets: /h5game/assets/<version>/* (non-SAB)
+    #    - Strip <version> before proxying
+    #    - Long cache with no revalidate (immutable)
+    location ~ ^/h5game/assets/[^/]+/(.*)$ {
+        rewrite ^/h5game/assets/[^/]+/(.*)$ /$1 break;
+
+        add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
+
+        proxy_set_header Host $host;
+        proxy_pass http://localhost:14400;
+    }
+
+    # 3) static part of App
+    location /h5game/_next/static/ {
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        proxy_set_header Host $host;
+        proxy_pass http://localhost:14399;
+    }
+
+    # 4) dynamic part of App
+    location /h5game {
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0" always;
+        proxy_set_header Host $host;
+        proxy_pass http://localhost:14399;
+    }
 }
-
-# 2) Versioned general assets: /h5game/assets/<version>/* (non-SAB)
-#    - Strip <version> before proxying
-#    - Long cache with no revalidate (immutable)
-location ~ ^/h5game/assets/[^/]+/(.*)$ {
-    rewrite ^/h5game/assets/[^/]+/(.*)$ /$1 break;
-
-    add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
-
-    proxy_set_header Host $host;
-    proxy_pass http://localhost:14400/;
-}
-
-# 4) App
-location ^~ /h5game {
-    proxy_set_header Host $host;
-    proxy_pass http://localhost:14399;
-}
-
 ```
-
-由于前端已经在next.js 和 auth.js session 中设置了 basePath，因此在最后一个 location block 中，对于 ${nextjs-port} 不需要截去 `/h5game` 前缀。
 
 ## 备份和恢复
 
