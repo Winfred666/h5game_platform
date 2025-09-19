@@ -50,7 +50,7 @@ export function GameIdPage({ game }: { game: IGame }) {
 
         <div className=" px-8 flex flex-col gap-8 lg:flex-row lg:justify-between">
           {/* Left column - Game info */}
-          <div className="flex flex-col gap-6 max-w-3/5">
+          <div className="flex flex-col gap-6 lg:max-w-3/5">
             <h2>{game.title}</h2>
 
             <div className=" whitespace-pre-line break-words">
