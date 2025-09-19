@@ -64,7 +64,7 @@ MINIO_SECRET_KEY=${minioPassword}
 # NextAuth Configuration
 AUTH_SECRET=${authSecret}
 AUTH_TRUST_HOST=true
-NEXTAUTH_URL=${PublicFrontUrl}
+AUTH_URL=${PublicFrontUrl}
 
 # Admin Configuration
 ADMIN_QQ=${adminQQ}
