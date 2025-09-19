@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { createOrReuseBackupZip } from "@/lib/services/adminBackup";
 import { createReadStream } from "fs";
+import { authProtectedModule } from "@/lib/services/builder";
 
 export async function GET() {
   try {
+    
+    await authProtectedModule(true); // require admin
     // smartly create or reuse existing backup file
     const {backupPath, fileName, size} = await createOrReuseBackupZip();
 

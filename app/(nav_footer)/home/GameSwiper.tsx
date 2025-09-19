@@ -1,9 +1,7 @@
 "use client";
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
+
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination } from "swiper/modules";
+import { Autoplay, Pagination, Navigation} from "swiper/modules";
 import Image from "next/image";
 import GameTags from "@/components/GameTags";
 import { useState } from "react";
@@ -13,6 +11,12 @@ import { IGame } from "@/lib/types/igame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
 import { ArrowRight } from "lucide-react";
 import { GameOnlineIcon } from "@/components/GameCards";
+
+// Import Swiper styles
+import "swiper/css";
+import "swiper/css/pagination";
+import 'swiper/css/navigation';
+import { Button } from "@/components/ui/button";
 
 type SwiperPropItem = IGame;
 
@@ -24,11 +28,12 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
     <div className="pointer-events-auto">
       <Swiper
         className="homepage-swiper"
-        modules={[Autoplay, Pagination]}
+        modules={[Autoplay, Pagination, Navigation]}
         spaceBetween={0}
         slidesPerView={1}
         init={true}
-        autoplay={{ delay: 4000, disableOnInteraction: true }}
+        navigation={true}
+        autoplay={{ delay: 3000, disableOnInteraction: true }}
         pagination={{ clickable: true }}
         loop={true}
       >

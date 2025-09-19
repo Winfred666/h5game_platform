@@ -1,13 +1,14 @@
 import "server-only";
 
 import JSZip from "jszip";
-import { MINIO_BUCKETS } from "../clientConfig";
+import { MAX_ZIP_SIZE, MINIO_BUCKETS } from "../clientConfig";
 import { MINIO_CONCURRENT_WORKERS } from "../serverConfig";
 import { lookup } from "mime-types";
 import { getMinio } from "../dbInit";
 
 // Shared function to load ZIP once
 const loadZipFromFile = async (file: File): Promise<JSZip> => {
+  if (file.size > MAX_ZIP_SIZE) throw new Error("上传的ZIP文件过大，无法处理");
   const arrayBuffer = await file.arrayBuffer();
   return await JSZip.loadAsync(arrayBuffer);
 };
@@ -171,7 +172,7 @@ export const deleteGameFolder = async (game: {
 
     const objectsList: string[] = [];
     const objectsStream = minio.listObjects(
-      MINIO_BUCKETS.GAME,
+      bucket,
       `${game.id}/`,
       true
     );
@@ -261,7 +262,7 @@ export const switchBucketGameFolder = async (game: {
     // Inside a chunk, all copy + delete operations run in parallel.
     const movePromises = chunk.map(async (objectName) => {
       if (!minio) throw new Error("MinIO client not available");
-      await minio.copyObject(newBucket, objectName, `${oldBucket}/${objectName}`);
+      await minio.copyObject(newBucket, objectName, `/${oldBucket}/${objectName}`);
       await minio.removeObject(oldBucket, objectName);
     });
     await Promise.all(movePromises);

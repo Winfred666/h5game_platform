@@ -16,7 +16,7 @@ export default async function HomeLayout({
   return (
     <div className="flex flex-col grow mb-6 gap-4">
       <div className="mx-auto w-full">
-        <GameSwiper swipers={top_games} />
+        {top_games.length > 0 && <GameSwiper swipers={top_games} />}
       </div>
       <div className="mx-4 space-y-4">
         <h2>最新游戏</h2>

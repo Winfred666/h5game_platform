@@ -228,3 +228,9 @@ th,td {
 .swiper-slide-next {
   left: -6%;
 }
+
+
+.swiper-button-prev::after, .swiper-button-next::after {
+  font-size: 1rem;     /* shrink arrow if needed */
+  line-height: 1;      /* center better */
+}

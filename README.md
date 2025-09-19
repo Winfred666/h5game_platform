@@ -87,6 +87,8 @@ chmod a+x deploy.sh
 ```nginx
 # in server block with server_name example.com;
 
+client_max_body_size 500m; # consistent with that in next.config.ts
+
 # 1) Versioned SAB assets: /h5game/assets/<version>/sab/...
 #    - Strip <version> before proxying (CDN sees versioned path; MinIO does not)
 #    - Add COOP/COEP for SAB games
@@ -174,13 +176,13 @@ docker compose --env-file .env.production up -d
 echo "✅ Restore completed!"
 ```
 
-### APP 内备份
+### APP内可读形式导出
 
 此备份将所有数据下载到本地。打开 `${NEXT_PUBLIC_FRONT_URL}/h5game/admin-dashboard/games`，最上方有导出数据库按钮，可一次性将所有数据本地化。
 
 下载的 `h5game_backup.zip` 包含完整的系统数据，可以使用 Python 脚本重组数据结构。
 
-将 `./reorganize_backup.py` 脚本复制到 `h5game_backup.zip` 所在文件夹。
+将 [reorganize_backup.py](/reorganize_backup.py) 脚本复制到 `h5game_backup.zip` 所在文件夹。
 
 ```bash
 python reorganize_backup.py

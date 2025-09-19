@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
         <p className="text-center text-sm text-muted-foreground">
           Copyright © 2025-{new Date().getFullYear()}
           <Link href="http://beian.miit.gov.cn/" className="inline px-1">
-            粤ICP备2025472855号
+            粤ICP备2025472855号-1
           </Link>
            部分图标为友情链接
         </p>

@@ -13,18 +13,23 @@ declare global {
   var prisma: ReturnType<typeof createExtendedPrismaClient> | undefined;
   var minio: Minio.Client | undefined;
   var topGamesInitialized: boolean | undefined;
-  var userViewBucket: Map<string, number> | undefined; // For tracking user views by IP
+  var userViewBucket: Map<string, string> | undefined; // For tracking user views by IP
 }
 
 // If globalThis.prisma exists, use it. Otherwise, create a new PrismaClient.
 // This prevents creating new connections on every hot-reload in development.
 export const db = globalThis.prisma || createExtendedPrismaClient();
 
+export const userViewBucket: Map<string, string> =
+  globalThis.userViewBucket || (globalThis.userViewBucket = new Map());
+
 // Only initialize once using global flag
 if (!globalThis.topGamesInitialized && process.env.NEXT_PHASE !== 'phase-production-build') {
   globalThis.topGamesInitialized = true;
   setTimeout(async () => {
     try {
+      // WARNING: this is a daily task, add any logic here will run daily
+      userViewBucket.clear(); // clear view bucket every day
       const { startAutoTopGamesCalc } = await import("./services/dailyTopGame");
       await startAutoTopGamesCalc();
     } catch (error) {

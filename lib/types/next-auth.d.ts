@@ -5,7 +5,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       isAdmin: boolean;
-      updatedAt: string; // ISO type of date
+      updatedAt: string; // just getTime().toString, not ISO type to prevent URL issues
       id: string; // Changed to string to match NextAuth requirements
       name: string; // Explicitly declare name
     } & DefaultSession["user"]

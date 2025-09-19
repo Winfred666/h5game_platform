@@ -169,7 +169,7 @@ export const UserExtension = Prisma.defineExtension({
       avatar: {
         needs: { hasAvatar: true, id: true, updatedAt: true },
         compute: ({ hasAvatar, id, updatedAt }) =>
-          hasAvatar ? genUserAvatarURL(id, updatedAt.toISOString()) : undefined,
+          hasAvatar ? genUserAvatarURL(id, updatedAt.getTime().toString()) : undefined,
       },
       hasAvatar: {
         needs: {},
