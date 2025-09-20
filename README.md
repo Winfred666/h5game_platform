@@ -152,13 +152,13 @@ H5游戏平台使用 Docker volumes 存储持久数据：
 ### 备份 volume
 
 ```bash
-BACKUP_FILE=$(date +%Y%m%d_%H%M%S)
-mkdir -p ./backups/$BACKUP_FILE
+BACKUP_TIME=$(date +%Y%m%d_%H%M%S)
+mkdir -p ./backups/$BACKUP_TIME
 
 # Backup the entire shared volume
 sudo docker run --rm \
   -v h5game_platform_shared_data:/source:ro \
-  -v $(pwd)/backups/$BACKUP_FILE:/backup \
+  -v $(pwd)/backups/$BACKUP_TIME:/backup \
   alpine tar czf /backup/h5game_backup.tar.gz -C /source .
 ```
 
@@ -175,7 +175,7 @@ docker volume rm h5game_platform_shared_data
 docker volume create h5game_platform_shared_data
 
 # Restore from backup
-BACKUP_FILE="./backups/20240830_143000/h5game_backup.tar.gz"
+BACKUP_FILE="./backups/$BACKUP_TIME/h5game_backup.tar.gz"
 docker run --rm \
   -v h5game_platform_shared_data:/target \
   -v $(pwd)/$(dirname $BACKUP_FILE):/backup \
