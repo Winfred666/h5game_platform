@@ -21,7 +21,7 @@ export default function DownloadButton({ game }: { game: Pick<IGame, "id"|"downl
   };
 
   return (
-    <Button onClick={handleDownloadClick} className="w-fit hidden lg:block">
+    <Button onClick={handleDownloadClick} className="w-fit hidden lg:flex lg:items-center">
       <Download />
       下载游戏（{game.size}）
     </Button>

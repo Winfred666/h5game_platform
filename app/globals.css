@@ -206,7 +206,7 @@ th,td {
   bottom: -1px;
 }
 
-.homepage-swiper {
+.swiper {
   --swiper-theme-color: var(--primary);
   --swiper-pagination-color: var(--primary);
   --swiper-pagination-bullet-size: 10px;
@@ -216,21 +216,19 @@ th,td {
   @apply flex flex-col items-stretch min-h-screen;
 }
 
-.swiper-slide {
+.home-swiper-slide {
   height: auto !important;
   align-self: stretch !important;
   width: 92% !important;
   margin: 0 4%;
 }
-.swiper-slide-prev {
+.home-swiper-slide.swiper-slide-prev {
   right: -6%;
 }
-.swiper-slide-next {
+.home-swiper-slide .swiper-slide-next {
   left: -6%;
 }
 
-
 .swiper-button-prev::after, .swiper-button-next::after {
-  font-size: 1rem;     /* shrink arrow if needed */
-  line-height: 1;      /* center better */
+  @apply  scale-x-75 lg:scale-x-100;
 }

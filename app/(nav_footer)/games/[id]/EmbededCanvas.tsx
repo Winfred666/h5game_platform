@@ -71,7 +71,7 @@ export default function EmbededCanvas({
     finalAspectRatio = "3"; // for a banner style 3 width 1 heigth.
   } else if (online.mode === "embed" && !is_fullscreen) {
     if (width !== null && online.width > width) {
-      finalWidth = "100vw";
+      finalWidth = "100%";
     } else {
       finalWidth = `${online.width}px`;
     }
@@ -81,8 +81,8 @@ export default function EmbededCanvas({
       finalHeight = `${online.height}px`;
     }
   } else if(online.mode === "embed" && is_fullscreen){
-    finalWidth = "100vw";
-    finalHeight = "100vh";
+    finalWidth = "100%";
+    finalHeight = "100%";
   }
 
   // Determine iframe scroll behavior based on config

@@ -1,6 +1,6 @@
 import EmbededCanvas from "./EmbededCanvas";
 import Image from "next/image";
-import GamePoster from "@/components/GamePosters";
+import GamePosters from "@/components/GamePosters";
 import GameTags from "@/components/GameTags";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -32,7 +32,7 @@ export function GameIdPage({ game }: { game: IGame }) {
       {/* 主要内容，使用页面包裹 */}
       <div
         className="relative flex flex-col items-center
-  gap-6 mx-auto pb-4 max-w-[100vw] lg:max-w-[85%] lg:min-w-1/2 
+  gap-6 mx-auto pb-4 max-w-full lg:max-w-[85%] lg:min-w-1/2 
   flex-grow bg-card"
         style={{
           width:
@@ -88,7 +88,8 @@ export function GameIdPage({ game }: { game: IGame }) {
           <div className="flex flex-col gap-4 lg:gap-6">
             <h2>游戏截图</h2>
             {game.screenshots.length > 0 ? (
-              <GamePoster
+              <GamePosters
+                id="game_screenshots"
                 imageList={game.screenshots.map((screenshot, index) => ({
                   src: screenshot,
                   alt: `${game.title}_screen${index}`,

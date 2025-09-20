@@ -5,7 +5,7 @@ import { Autoplay, Pagination, Navigation} from "swiper/modules";
 import Image from "next/image";
 import GameTags from "@/components/GameTags";
 import { useState } from "react";
-import GamePosters from "@/components/GamePosters";
+import GamePosters, { SwiperNavigationButton } from "@/components/GamePosters";
 import { useRouter } from "next/navigation";
 import { IGame } from "@/lib/types/igame";
 import { ALL_NAVPATH } from "@/lib/clientConfig";
@@ -16,29 +16,31 @@ import { GameOnlineIcon } from "@/components/GameCards";
 import "swiper/css";
 import "swiper/css/pagination";
 import 'swiper/css/navigation';
-import { Button } from "@/components/ui/button";
 
 type SwiperPropItem = IGame;
 
 const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
+  const id = "homepage-swiper";
   return (
     // pointer-events: auto 是 CSS 的默认值,表示该元素可以响应鼠标事件(如点击、悬停等)
-    <div className="pointer-events-auto">
+    <div className="  relative pointer-events-auto">
       <Swiper
-        className="homepage-swiper"
         modules={[Autoplay, Pagination, Navigation]}
         spaceBetween={0}
         slidesPerView={1}
         init={true}
-        navigation={true}
+        navigation={{
+          nextEl: `.${id}-next-button`,
+          prevEl: `.${id}-prev-button`,
+        }}
         autoplay={{ delay: 3000, disableOnInteraction: true }}
         pagination={{ clickable: true }}
         loop={true}
       >
         {swipers.map((val: SwiperPropItem, index: number) => (
-          <SwiperSlide key={`slide${index}`} className="w-full overflow-hidden">
+          <SwiperSlide key={`slide${index}`} className="home-swiper-slide w-full overflow-hidden">
             <Image
               alt={`bg_${val.title}`}
               src={val.coverImage}
@@ -66,8 +68,8 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                 />
               </div>
 
-              <div className="h-full flex flex-col justify-start lg:gap-4">
-                <div className="w-full flex flex-wrap justify-start lg:flex-nowrap items-center gap-4 lg:gap-8
+              <div className="h-full flex flex-col justify-start gap-2 lg:gap-4">
+                <div className="w-full flex flex-wrap justify-start lg:flex-nowrap items-center gap-2 lg:gap-8
                  font-medium">
                   <div className="text-2xl lg:max-w-3/5 overflow-hidden">
                     {val.title}
@@ -97,6 +99,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
                 </div>
                 <GameTags tags={val.tags} id={`swiper_${index}`} />
                 <GamePosters
+                  id={`swiper_posters_${index}`}
                   variant="small"
                   imageList={val.screenshots.map((screenshot, index) => ({
                     src: screenshot,
@@ -108,6 +111,7 @@ const ImageSwiper = ({ swipers }: { swipers: SwiperPropItem[] }) => {
           </SwiperSlide>
         ))}
       </Swiper>
+      <SwiperNavigationButton id={id} offsetPixel={8}/>
     </div>
   );
 };

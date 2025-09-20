@@ -10,7 +10,7 @@ export default async function NavFooterLayout({
   return (
     <div className="flex flex-col justify-start items-stretch min-h-screen">
         <NavBar />
-        <main className="flex-grow flex flex-col">{children}</main>
+        <main className="flex-grow flex flex-col w-full min-w-0">{children}</main>
         <Footer />
     </div>
   );

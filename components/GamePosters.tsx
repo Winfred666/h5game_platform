@@ -3,11 +3,13 @@
 import Image from "next/image";
 import { useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ImageDialog } from "./ui/image-dialog";
+import { Dialog, DialogContent, DialogTitle } from "./ui/dialog";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination } from "swiper/modules";
 
 // --- STYLING (using cva for variants) ---
 
@@ -23,20 +25,17 @@ const galleryVariants = cva("flex w-full", {
   },
 });
 
-const imageCardVariants = cva(
-  "relative shadow-sm overflow-hidden",
-  {
-    variants: {
-      variant: {
-        default: "h-48 lg:h-52 rounded-md aspect-[4/3]",
-        small: "grow lg:grow-0 lg:aspect-[4/3] h-32",
-      },
+const imageCardVariants = cva("relative shadow-sm overflow-hidden", {
+  variants: {
+    variant: {
+      default: "h-48 lg:h-52 rounded-md aspect-[4/3]",
+      small: "grow lg:grow-0 lg:aspect-[4/3] h-32",
     },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "default",
+  },
+});
 
 // --- TYPE DEFINITIONS ---
 
@@ -46,6 +45,7 @@ interface ImageItem {
 }
 
 interface GamePostersProps extends VariantProps<typeof galleryVariants> {
+  id: string; // To help React identify the component uniquely
   imageList: ImageItem[];
   onDelete?: (img: ImageItem) => void;
   className?: string;
@@ -54,7 +54,42 @@ interface GamePostersProps extends VariantProps<typeof galleryVariants> {
 
 // --- MAIN COMPONENT ---
 
+export function SwiperNavigationButton({ id, offsetPixel }: { id: string; offsetPixel: number }) {
+  const darkGhostClasses = " absolute top-1/2 z-50 -translate-y-1/2 text-white bg-black/50 hover:bg-black/75";
+  return (
+    <>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className={`${id}-prev-button ${darkGhostClasses}`}
+        style={{ left: `${offsetPixel}px` }}
+        aria-label="Previous image"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <ChevronLeft/>
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className={`${id}-next-button ${darkGhostClasses}`}
+        style={{ right: `${offsetPixel}px` }}
+        aria-label="Next image"
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
+      >
+        <ChevronRight />
+      </Button>
+    </>
+  );
+}
+
 export default function GamePosters({
+  id,
   imageList,
   onDelete,
   variant,
@@ -67,20 +102,6 @@ export default function GamePosters({
 
   const handleOpenDialog = (index: number) => setSelectedImageIndex(index);
   const handleCloseDialog = () => setSelectedImageIndex(null);
-
-  const handleNext = () => {
-    if (selectedImageIndex === null) return
-    // Loop back to the start if at the end
-    setSelectedImageIndex((selectedImageIndex + 1) % imageList.length)
-  }
-
-  const handlePrev = () => {
-    if (selectedImageIndex === null) return
-    // Loop to the end if at the beginning
-    setSelectedImageIndex(
-      (selectedImageIndex - 1 + imageList.length) % imageList.length
-    )
-  }
 
   return (
     <div className={cn(galleryVariants({ variant }), className)}>
@@ -95,13 +116,48 @@ export default function GamePosters({
           onBlur={onBlur}
         />
       ))}
+
       {/* A SINGLE Dialog for the entire gallery */}
-      <ImageDialog
-        images={imageList}
-        selectedIndex={selectedImageIndex}
-        onClose={handleCloseDialog}
-        onNext={handleNext}
-        onPrev={handlePrev} />
+      {selectedImageIndex !== null && (
+        <Dialog
+          open={selectedImageIndex !== null}
+          onOpenChange={(isOpen) => !isOpen && handleCloseDialog()}
+        >
+          <DialogContent
+            className=" bg-transparent border-none shadow-none p-0 
+            min-w-[80vw] h-[60vh] lg:h-[70vh]
+            [&>button]:text-white [&>button]:bg-black/50 [&>button]:hover:bg-black/75 [&>button]:scale-150"
+            aria-describedby={undefined}
+          >
+            <DialogTitle className="sr-only">图片预览</DialogTitle>
+            <Swiper
+              initialSlide={selectedImageIndex ?? 0}
+              modules={[Navigation, Pagination]}
+              navigation={{
+                nextEl: `.${id}-next-button`,
+                prevEl: `.${id}-prev-button`,
+              }}
+              pagination={{ clickable: true }}
+              className="relative w-[75vw] h-full z-0"
+            >
+              {imageList.map((image, index) => (
+                <SwiperSlide
+                  key={`${id}_${index}`}
+                  className="relative w-full h-auto max-h-full"
+                >
+                  <Image
+                    fill
+                    src={image.src}
+                    alt={image.alt}
+                    className="object-contain select-none"
+                  />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <SwiperNavigationButton id={id} offsetPixel={0} />
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
@@ -111,11 +167,17 @@ export default function GamePosters({
 interface ImageCardProps extends VariantProps<typeof imageCardVariants> {
   image: ImageItem;
   onClick: () => void;
-  onDelete?: (img:ImageItem) => void;
+  onDelete?: (img: ImageItem) => void;
   onBlur?: () => void;
 }
 
-function ImageCard({ image, variant, onClick, onDelete, onBlur }: ImageCardProps) {
+function ImageCard({
+  image,
+  variant,
+  onClick,
+  onDelete,
+  onBlur,
+}: ImageCardProps) {
   return (
     <div className={imageCardVariants({ variant })}>
       <Image

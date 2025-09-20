@@ -83,6 +83,7 @@ function ScreenshotForm(
       {/* Filter out the existing screenshots that are marked for deletion
             also add newly added screenshots that are not yet uploaded*/}
       <GamePosters
+        id="upload_screenshots"
         imageList={coverPreview}
         onDelete={onDeleteScreenshot}
         onBlur={onBlur}
