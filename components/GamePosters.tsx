@@ -28,7 +28,7 @@ const galleryVariants = cva("flex w-full", {
 const imageCardVariants = cva("relative shadow-sm overflow-hidden", {
   variants: {
     variant: {
-      default: "h-48 lg:h-52 rounded-md aspect-[4/3]",
+      default: "h-48 rounded-md aspect-[4/3]",
       small: "grow lg:grow-0 lg:aspect-[4/3] h-32",
     },
   },
@@ -154,7 +154,7 @@ export default function GamePosters({
                 </SwiperSlide>
               ))}
             </Swiper>
-            <SwiperNavigationButton id={id} offsetPixel={0} />
+            <SwiperNavigationButton id={id} offsetPixel={8} />
           </DialogContent>
         </Dialog>
       )}

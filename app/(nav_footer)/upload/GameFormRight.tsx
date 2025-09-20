@@ -135,8 +135,8 @@ export function GameFormRight({
       />
       <span className=" text-muted-foreground text-sm">
         {kindOfProject === "html" && embedOpProject === "embed"
-          ? "封面展示宽高将与游戏宽高相同"
-          : "封面展示宽高比为3:1"}
+          ? "封面展示宽高将与游戏宽高相同，游戏截图展示宽高比为4:3"
+          : "封面展示宽高比为3:1，游戏截图展示宽高比为4:3"}
       </span>
       {/* --- Screenshots Section --- */}
       {/* 3. The upload placeholder always available to add more */}

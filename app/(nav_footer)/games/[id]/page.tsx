@@ -17,27 +17,27 @@ export function GameIdPage({ game }: { game: IGame }) {
       {/* Background Cover Image */}
       <div>
         {/* prevent skipping auto scroll behavior */}
-      <div className="fixed inset-0 -z-10">
-        <Image
-          src={game.coverImage}
-          alt={game.title + "_bg"}
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-black opacity-50"></div>
-      </div>
+        <div className="fixed inset-0 -z-10">
+          <Image
+            src={game.coverImage}
+            alt={game.title + "_bg"}
+            fill
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-black opacity-50"></div>
+        </div>
       </div>
 
       {/* 主要内容，使用页面包裹 */}
       <div
         className="relative flex flex-col items-center
-  gap-6 mx-auto pb-4 max-w-full lg:max-w-[85%] lg:min-w-1/2 
+  gap-6 mx-auto pb-4 max-w-full lg:max-w-[85%] lg:min-w-3/5
   flex-grow bg-card"
         style={{
           width:
             game.online && game.online.mode === "embed"
-              ? `${game.online.width + 20}px`
+              ? `${game.online.width + 16}px`
               : "auto",
         }}
       >
@@ -48,7 +48,7 @@ export function GameIdPage({ game }: { game: IGame }) {
           coverImg={game.coverImage}
         ></EmbededCanvas>
 
-        <div className=" px-8 flex flex-col gap-8 lg:flex-row lg:justify-between">
+        <div className="relative w-full px-4 lg:px-2 flex flex-col gap-8 lg:flex-row lg:justify-between">
           {/* Left column - Game info */}
           <div className="flex flex-col gap-6 lg:max-w-3/5">
             <h2>{game.title}</h2>
