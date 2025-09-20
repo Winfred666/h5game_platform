@@ -82,6 +82,7 @@ function CommandInput({
   )
 }
 
+// Any pop over should have z-index at least 50
 function CommandList({
   className,
   ...props
@@ -90,7 +91,7 @@ function CommandList({
     <CommandPrimitive.List
       data-slot="command-list"
       className={cn(
-        "scroll-py-1 overflow-x-hidden overflow-y-auto",
+        "scroll-py-1 overflow-x-hidden overflow-y-auto z-50",
         className
       )}
       {...props}

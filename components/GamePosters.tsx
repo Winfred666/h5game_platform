@@ -55,7 +55,7 @@ interface GamePostersProps extends VariantProps<typeof galleryVariants> {
 // --- MAIN COMPONENT ---
 
 export function SwiperNavigationButton({ id, offsetPixel }: { id: string; offsetPixel: number }) {
-  const darkGhostClasses = " absolute top-1/2 z-50 -translate-y-1/2 text-white bg-black/50 hover:bg-black/75";
+  const darkGhostClasses = " absolute top-1/2 z-30 -translate-y-1/2 text-white bg-black/50 hover:bg-black/75";
   return (
     <>
       <Button

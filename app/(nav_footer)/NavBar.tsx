@@ -50,7 +50,7 @@ export default function NavBar() {
     }).idx;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-sidebar">
+    <header className="sticky top-0 z-40 w-full border-b bg-sidebar">
       <div className="w-full flex h-14 gap-2 lg:gap-4 px-2 lg:px-4 items-center">
         {/* 1. Logo 和标题 */}
         <div className="flex items-center">
