@@ -9,7 +9,7 @@ import { ALL_NAVPATH } from "../clientConfig";
 // provide authentication services of SQL to user.
 // WARNING: more mordern auth services like OAuth2, OpenID Connect, MAGIC LINK, etc. are recommended.
 const isProduction = process.env.NODE_ENV === "production";
-const isSecure = process.env.AUTH_URL?.startsWith("https") || false;
+const isSecure = process.env.NEXT_PUBLIC_FRONT_URL?.startsWith("https") || false;
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {

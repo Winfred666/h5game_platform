@@ -65,7 +65,7 @@ const Footer: React.FC = () => {
           <Link href="http://beian.miit.gov.cn/" className="inline px-1">
             粤ICP备2025472855号-1
           </Link>
-           部分图标为友情链接
+           （部分图标为友情链接）
         </p>
       </div>
     </footer>

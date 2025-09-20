@@ -16,7 +16,7 @@ const createUrl = (path: string, baseUrlWithPath: string) => {
 // It doesn’t use Node-only modules like bcrypt or crypto in middleware.
 
 const middlewareAuth = async (request: NextRequest) => {
-  const isSecure = process.env.AUTH_URL?.startsWith("https") || false;
+  const isSecure = process.env.NEXT_PUBLIC_FRONT_URL?.startsWith("https") || false;
   const isProduction = process.env.NODE_ENV === "production";
 
   // Match your custom NextAuth cookie names from authSQL.ts
