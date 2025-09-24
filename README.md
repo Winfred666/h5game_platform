@@ -76,7 +76,7 @@ chmod a+x deploy.sh
 ./deploy.sh deploy --public-front-url https://example.com/h5game --public-minio-url https://example.com/h5game/assets --admin-name first_admin --front-port 14399 --minio-port 14400 --minio-console-port 14401
 ```
 
-这里以上面的脚本设置为例，进行最后的 nginx 配置：
+这里以上面的脚本设置为例，进行最后的 nginx 配置，需要 编译时 --with-http_auth_request_module：
 1. 在 `/etc/nginx/conf.d` 中创建新的代理规则。 
 2. 映射 `--public-front-url` 对应的 location 到本机的 `--front-port`；
 3. 映射 `--public-minio-url` 对应的 location，到本机的 `--minio-port` 。
@@ -90,32 +90,45 @@ server {
     http2 on;
     client_max_body_size 500m; # consistent with that in next.config.ts
 
+    # Internal location for asset version validation.
+    # This is called by auth_request.
+    location = /h5game_internal_auth {
+        internal; # Ensures this can only be called from within Nginx
+        
+        # Proxy to the Next.js auth API endpoint
+        # The query string from the auth_request directive is automatically passed.
+        proxy_pass http://localhost:14399/api/auth-asset;
+        
+        # Standard cleanup for auth requests
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header X-Original-URI $request_uri;
+    }
+
     # 1) Versioned SAB assets: /h5game/assets/sab/<version>/...
-    #    - Strip <version> before proxying (CDN sees versioned path; MinIO does not)
-    #    - Add COOP/COEP for SAB games
-    #    - Long cache with no revalidate (immutable)
-    location ~ ^/h5game/assets/sab/[^/]+/(.*)$ {
-        # Strip the version segment so upstream gets /sab/...
-        rewrite ^/h5game/assets/sab/[^/]+/(.*)$ /$1 break;
+    location ~ "^/h5game/assets/sab/(\d{13})/(.*)$" {
+        # Perform validation before serving.
+        # Pass the captured version ($1) and path ($2) as query params.
+        auth_request /h5game_internal_auth?version=$1&path=$2;
 
         add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
         add_header Cross-Origin-Opener-Policy "same-origin" always;
         add_header Cross-Origin-Embedder-Policy "require-corp" always;
 
         proxy_set_header Host $host;
-        proxy_pass http://localhost:14400;
+        proxy_pass http://localhost:14400/$2;
     }
 
     # 2) Versioned general assets: /h5game/assets/<version>/* (non-SAB)
-    #    - Strip <version> before proxying
-    #    - Long cache with no revalidate (immutable)
-    location ~ ^/h5game/assets/[^/]+/(.*)$ {
-        rewrite ^/h5game/assets/[^/]+/(.*)$ /$1 break;
+    location ~ "^/h5game/assets/(\d{13})/(.*)$" {
+        # Perform validation before serving.
+        # Pass the captured version ($1) and path ($2) as query params.
+        auth_request /h5game_internal_auth?version=$1&path=$2;
 
         add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
-
         proxy_set_header Host $host;
-        proxy_pass http://localhost:14400;
+        
+        proxy_pass http://localhost:14400/$2;
     }
 
     # 3) static part of App

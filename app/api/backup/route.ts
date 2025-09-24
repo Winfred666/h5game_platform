@@ -48,7 +48,7 @@ export async function GET() {
       },
     });
   } catch (error) {
-    console.error("❌ Backup download error:", error);
+    console.error("Backup error:", error);
     return NextResponse.json(
       { error: "Backup generation failed" }, 
       { status: 500 }
