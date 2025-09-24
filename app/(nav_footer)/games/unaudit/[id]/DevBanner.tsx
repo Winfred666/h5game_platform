@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button" // Import the shadcn/ui Button
 import { AlertTriangle, CheckCircle2 } from "lucide-react" // Optional: Icons for better UX
 import { ALL_NAVPATH } from "@/lib/clientConfig"
+import { useSession } from "next-auth/react"
 
 
 export default function DevBanner({
@@ -13,6 +14,8 @@ export default function DevBanner({
   gameId: string,
   isPrivate: boolean | undefined, // 'isPrivate' is hidden field of bd, exposing this means developer's authority
 }) {
+  const {data:session} = useSession();
+  
   if (isPrivate === undefined) {
     return null // Returning null is slightly cleaner than an empty fragment
   }
@@ -42,6 +45,15 @@ export default function DevBanner({
       >
         <Link href={ALL_NAVPATH.game_update.href(gameId)}>修改游戏</Link>
       </Button>
+      {session?.user?.isAdmin && (
+        <Button
+          asChild
+          variant="link"
+          className="h-auto p-0 text-primary-foreground underline hover:text-primary-foreground/80"
+        >
+          <Link href={ALL_NAVPATH.admin_review.href}>前往审核</Link>
+        </Button>
+      )}
     </div>
   )
 }
