@@ -88,7 +88,8 @@ server {
     listen 443 ssl;
     server_name example.com;
     http2 on;
-    client_max_body_size 500m; # consistent with that in next.config.ts
+    
+    client_max_body_size 1025m; # consistent with that in next.config.ts + clientConfig.ts
 
     # Internal location for asset version validation.
     # This is called by auth_request.

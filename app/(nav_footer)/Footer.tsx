@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Mail, Home, Tv } from "lucide-react";
+import Image from "next/image";
 
 const Footer: React.FC = () => {
   return (
@@ -60,12 +61,22 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Replaces Typography with a simple <p> tag */}
-        <p className="text-center text-sm text-muted-foreground">
-          Copyright © 2025-{new Date().getFullYear()}
+        <p className="text-center text-sm text-muted-foreground flex items-center gap-2">
+          <span>© 2025-{new Date().getFullYear()} WinfredX</span>
           <Link href="http://beian.miit.gov.cn/" className="inline px-1">
             粤ICP备2025472855号-1
           </Link>
-           （部分图标为友情链接）
+          <span className="flex items-center">
+            <Image src={process.env.NEXT_PUBLIC_BASEPATH + "/beian-logo.png"} width="20" height="20" alt="备案" />
+            <a
+              href="https://beian.mps.gov.cn/#/query/webSearch?code=44196502000142"
+              rel="noreferrer"
+              target="_blank"
+            >
+              粤公网安备44196502000142号
+            </a>
+          </span>
+          <span>（部分图标为友情链接）</span>
         </p>
       </div>
     </footer>
