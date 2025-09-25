@@ -136,6 +136,8 @@ server {
     location /h5game/_next/static/ {
         add_header Cache-Control "public, max-age=31536000, immutable" always;
         proxy_set_header Host $host;
+
+        proxy_http_version 1.1;
         proxy_pass http://localhost:14399;
     }
 
