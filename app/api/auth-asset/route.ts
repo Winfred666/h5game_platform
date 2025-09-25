@@ -1,6 +1,8 @@
 // nginx will check whether this version is valid
 // for a minio path. If valid, it will serve the file with a long cache time.
-// If not valid, it will return 404 immediately.
+// The status code should match the auth_request status code:
+// 200: OK, serve the file
+// 403: denied
 
 import { MINIO_BUCKETS } from "@/lib/clientConfig";
 import { db } from "@/lib/dbInit";
@@ -12,7 +14,7 @@ export async function GET(request: NextRequest) {
     const version = searchParams.get("version");
     const assetPath = searchParams.get("path"); // e.g., "BucketName/cmfqand2t00158xvsii0fug6d/game.zip"
     if (!version || !assetPath) {
-      return new NextResponse(null, { status: 400 }); // Bad Request
+      return new NextResponse(null, { status: 401 }); // Unauthorized
     }
 
     // Extract the game ID from the path
@@ -26,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (!bucketName || !thingId) {
-      return new NextResponse(null, { status: 400 });
+      return new NextResponse(null, { status: 401 });
     }
     switch (bucketName) {
       case MINIO_BUCKETS.AVATAR:
@@ -39,7 +41,7 @@ export async function GET(request: NextRequest) {
           !userUpdate ||
           userUpdate.updatedAt.getTime().toString() !== version
         ) {
-          return new NextResponse(null, { status: 404 }); // Not Found
+          return new NextResponse(null, { status: 401 }); // Not Found
         }
         break;
       case MINIO_BUCKETS.IMAGE:
@@ -53,25 +55,19 @@ export async function GET(request: NextRequest) {
           !gameUpdate ||
           gameUpdate.updatedAt.getTime().toString() !== version
         ) {
-          return new NextResponse(null, { status: 404 }); // Not Found
+          return new NextResponse(null, { status: 401 }); // Not Found
         }
         if (bucketName === MINIO_BUCKETS.GAME && gameUpdate.isPrivate) {
           // private game with wrong access
-          return new NextResponse(null, { status: 404 }); // Not Found
+          return new NextResponse(null, { status: 401 }); // Not Found
         }
         break;
       default:
-        return new NextResponse(null, { status: 404 }); // Not Found
+        return new NextResponse(null, { status: 401 }); // Not Found
     }
     return new NextResponse(null, { status: 200 }); // OK, authorized
   } catch (error) {
-    console.error(
-      "User IP:",
-      request.headers.get("x-forwarded-for") ||
-        request.headers.get("x-real-ip"),
-      "Asset error:",
-      error
-    );
-    return new NextResponse(null, { status: 500 });
+    console.error("assets error:", error);
+    return new NextResponse(null, { status: 403 }); // Error
   }
 }

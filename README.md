@@ -95,41 +95,40 @@ server {
     # This is called by auth_request.
     location = /h5game_internal_auth {
         internal; # Ensures this can only be called from within Nginx
-        
-        # Proxy to the Next.js auth API endpoint
-        # The query string from the auth_request directive is automatically passed.
-        proxy_pass http://localhost:14399/api/auth-asset;
+        access_log /var/log/nginx/auth_debug.log debug_format;
         
         # Standard cleanup for auth requests
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
         proxy_set_header X-Original-URI $request_uri;
+
+        # Proxy to the Next.js auth API endpoint
+        proxy_pass $auth_request_uri;
     }
 
-    # 1) Versioned SAB assets: /h5game/assets/sab/<version>/...
-    location ~ "^/h5game/assets/sab/(\d{13})/(.*)$" {
+    # 1) Combined location for ALL versioned assets (SAB and non-SAB)
+    #    - Captures an optional 'sab/' prefix in $1
+    #    - Captures the version in $2
+    #    - Captures the real asset path in $3
+    location ~ "^/h5game/assets/(sab/)?(\d{13})/(.*)$" {
         # Perform validation before serving.
-        # Pass the captured version ($1) and path ($2) as query params.
-        auth_request /h5game_internal_auth?version=$1&path=$2;
+        # Pass the version ($2) and the real path ($3) to the auth API.
+        set $auth_request_uri "http://localhost:14399/api/auth-asset?version=$2&path=$asset_path";
+        auth_request /h5game_internal_auth;
 
+        # Set COOP/COEP headers ONLY if the 'sab/' prefix ($1) was present.
+        if ($1 = "sab/") {
+            add_header Cross-Origin-Opener-Policy "same-origin" always;
+            add_header Cross-Origin-Embedder-Policy "require-corp" always;
+        }
+
+        # Always add the cache header.
         add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
-        add_header Cross-Origin-Opener-Policy "same-origin" always;
-        add_header Cross-Origin-Embedder-Policy "require-corp" always;
 
+        rewrite "^/h5game/assets/(sab/)?(\d{13})/(.*)$" /$3 break;
         proxy_set_header Host $host;
-        proxy_pass http://localhost:14400/$2;
-    }
-
-    # 2) Versioned general assets: /h5game/assets/<version>/* (non-SAB)
-    location ~ "^/h5game/assets/(\d{13})/(.*)$" {
-        # Perform validation before serving.
-        # Pass the captured version ($1) and path ($2) as query params.
-        auth_request /h5game_internal_auth?version=$1&path=$2;
-
-        add_header Cache-Control "public, max-age=31536000, immutable, s-maxage=604800" always;
-        proxy_set_header Host $host;
-        
-        proxy_pass http://localhost:14400/$2;
+        # Proxy to MinIO using the real asset path ($3).
+        proxy_pass http://localhost:14400/$3;
     }
 
     # 3) static part of App
