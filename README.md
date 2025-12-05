@@ -1,6 +1,6 @@
 # h5game_platform
 
-简单的 h5 在线游戏内容 CMS 分享平台 ，支持服务器部署，ZJU-SE 课程作业。新版本使用 next.js ，sqlite 和 minio 以精简代码，将容器减少到两个。跟目录就是 create next app 配置的文件结构。
+简单的 h5 在线游戏内容 CMS 分享平台 ，支持服务器部署，ZJU-SE 课程作业。新版本使用 next.js ，sqlite 和 minio 以精简代码，将容器减少到两个。根目录为 create next app 的默认文件结构。
 
 ## 开发
 
@@ -76,7 +76,7 @@ chmod a+x deploy.sh
 ./deploy.sh deploy --public-front-url https://example.com/h5game --public-minio-url https://example.com/h5game/assets --admin-name first_admin --front-port 14399 --minio-port 14400 --minio-console-port 14401
 ```
 
-这里以上面的脚本设置为例，进行最后的 nginx 配置，需要 编译时 --with-http_auth_request_module：
+这里以上面的脚本设置为例，进行最后的 nginx 配置，需要 nginx 在编译时携带 --with-http_auth_request_module：
 1. 在 `/etc/nginx/conf.d` 中创建新的代理规则。 
 2. 映射 `--public-front-url` 对应的 location 到本机的 `--front-port`；
 3. 映射 `--public-minio-url` 对应的 location，到本机的 `--minio-port` 。
@@ -158,7 +158,7 @@ server {
 
 H5游戏平台使用 Docker volumes 存储持久数据：
 
-一定要注意，不要创建并覆盖之前的 `.env.production` 文件！！ 必须使用相同的环境变量，才能恢复数据。
+一定要注意，不要创建并覆盖之前的 `.env.production` 文件， 必须使用相同的环境变量，才能恢复数据。
 
 - **Database**: SQLite database 存于 `/data/db/prod.db`
 - **File Storage**: MinIO object 存于 `/data/minio/`
