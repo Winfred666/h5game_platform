@@ -92,7 +92,7 @@ function Build-DockerImage {
     try {
         Write-Host "🏗️  Building Docker image..." -ForegroundColor Cyan
         # 构建镜像
-        docker build --force-rm -t h5game_platform-frontend:v2.0 .
+        docker build --force-rm -t h5game_platform-frontend:v2.1 .
         if ($LASTEXITCODE -eq 0) {
             Write-Host "✅ Docker image built successfully" -ForegroundColor Green
         } else {
@@ -169,7 +169,7 @@ function Clean-Deployment {
     # 删除镜像
     $response = Read-Host "Do you want to remove Docker images as well? (y/N)"
     if ($response -eq "y" -or $response -eq "Y") {
-        docker image rm h5game_platform-frontend:v2.0 -f
+        docker image rm h5game_platform-frontend:v2.1 -f
         Write-Host "✅ Docker images removed" -ForegroundColor Green
     }
     Write-Host "✅ Cleanup completed" -ForegroundColor Green

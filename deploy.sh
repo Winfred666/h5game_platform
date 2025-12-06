@@ -163,7 +163,7 @@ EOF
 build_docker_image() {
     print_color $CYAN "🏗️  Building Docker image..."
     
-    if docker build --force-rm -t h5game_platform-frontend:v2.0 .; then
+    if docker build --network=host --force-rm -t h5game_platform-frontend:v2.1 .; then
         print_color $GREEN "✅ Docker image built successfully"
     else
         print_color $RED "❌ Failed to build Docker image"
@@ -234,7 +234,7 @@ clean_deployment() {
     echo -n "Do you want to remove Docker images as well? (y/N): "
     read -r response
     if [[ "$response" == "y" || "$response" == "Y" ]]; then
-        docker image rm h5game_platform-frontend:v2.0 -f || true
+        docker image rm h5game_platform-frontend:v2.1 -f || true
         print_color $GREEN "✅ Docker images removed"
     fi
     
